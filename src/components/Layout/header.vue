@@ -7,13 +7,15 @@
 			class="sidebar-toggle"
 		/>
 		<div class="container-fluid text-white">
-			<span class="brand-name px-2"
-				><img
-					src="/kpmg.svg"
-					alt="Kpmg Icon"
-					width="100px"
-					height="50px"
-			/></span>
+			<router-link to="/launchpad">
+				<span class="brand-name px-2"
+					><img
+						src="/kpmg.svg"
+						alt="Kpmg Icon"
+						width="100px"
+						height="50px"
+				/></span>
+			</router-link>
 			<div>
 				<div class="nav-items">
 					<span
@@ -23,15 +25,28 @@
 							style="color: white" /></span
 					><span>&nbsp;Sofy Docs</span>
 				</div>
-				<div class="nav-items">
-					<span
-						><span
-							><font-awesome-icon
-								icon="fa-solid fa-gears"
-								size="lg"
-								style="color: white" /></span
-						>&nbsp;Administration</span
-					>
+				<div class="nav-items" v-if="route === '/launchpad'">
+					<router-link to="/admin">
+						<span
+							><span
+								><font-awesome-icon
+									icon="fa-solid fa-gears"
+									size="lg"
+									style="color: white" /></span
+							>&nbsp;Administration</span
+						>
+					</router-link>
+				</div>
+				<div class="nav-items" v-else>
+					<router-link to="/">
+						<span
+							><span
+								><font-awesome-icon
+									icon="fa-solid fa-house"
+									size="lg" /></span
+							>&nbsp;Home</span
+						>
+					</router-link>
 				</div>
 				<div class="nav-items">
 					<span
@@ -57,24 +72,25 @@
 						</div>
 					</button>
 					<ul class="dropdown-menu">
+						<li class="dropdown-item">Name</li>
+						<li class="dropdown-item">Role</li>
 						<li>
-							<a class="dropdown-item" href="#">Name</a>
+							<router-link
+								to="/change_password"
+								class="dropdown-item"
+							>
+								Change Password
+							</router-link>
 						</li>
 						<li>
-							<a class="dropdown-item" href="#">Role</a>
-						</li>
-						<li>
-							<a class="dropdown-item" href="#"
-								>Change Password</a
+							<router-link to="/account" class="dropdown-item"
+								>Account Details</router-link
 							>
 						</li>
 						<li>
-							<a class="dropdown-item" href="#">Logout</a>
-						</li>
-						<li>
-							<a class="dropdown-item" href="#"
-								>Account Details</a
-							>
+							<router-link to="/login" class="dropdown-item">
+								Logout
+							</router-link>
 						</li>
 					</ul>
 				</div>
@@ -82,6 +98,16 @@
 		</div>
 	</nav>
 </template>
+
+<script>
+export default {
+	data() {
+		return {
+			route: this.$route.path,
+		};
+	},
+};
+</script>
 
 <style scoped>
 .navbar {
@@ -102,12 +128,22 @@
 .brand-name {
 	cursor: pointer;
 }
+
 button {
 	background: none;
 	border: none;
 }
+
+a,
+a:hover {
+	text-decoration: none !important;
+	color: white !important;
+}
 .dropdown-menu {
 	left: -7.5rem !important;
 	top: 2.4rem;
+	.dropdown-item {
+		color: black !important;
+	}
 }
 </style>

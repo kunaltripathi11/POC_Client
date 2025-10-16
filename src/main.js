@@ -11,10 +11,11 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 library.add(fas, far, fab)
 
 import App from './App.vue'
-
+import router from './Route'
 
 
 const app = createApp(App)
 app.component('font-awesome-icon', FontAwesomeIcon)
+app.use(router)
 
 app.mount('#app')
