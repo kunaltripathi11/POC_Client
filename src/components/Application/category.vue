@@ -8,45 +8,37 @@
 			<thead class="table-primary">
 				<tr>
 					<th>ID</th>
-					<th>Application Name</th>
+					<th>Solution Category</th>
 					<th>Category</th>
-					<th>Order</th>
-					<th>Application Icon</th>
-					<th>Active</th>
+					<th>Display Order</th>
 					<th class="text-center">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="(app, index) in applications" :key="index">
-					<td>{{ index + 1 }}</td>
-					<td>{{ app.title }}</td>
-					<td>{{ app.category_name }}</td>
-					<td>{{ app.display_order }}</td>
-					<td>
-						<span class="material-icons">
-							{{ app.icon.toLowerCase() }}</span
-						>
-					</td>
-					<td>{{ app.active }}</td>
+				<tr v-for="cat in category">
+					<td>{{ cat.id }}</td>
+					<td>{{ cat.title }}</td>
+					<td>{{ cat.category_name }}</td>
+					<td>{{ cat.display_order }}</td>
 
 					<td class="text-center">
 						<button
 							class="btn btn-sm btn-outline-primary me-2"
-							@click="editApplication(app)"
+							@click="editCategory(cat)"
 						>
 							<font-awesome-icon icon="fa-solid fa-pen" />
 						</button>
 						<button
 							class="btn btn-sm btn-outline-danger"
-							@click="deleteAppliction(app)"
+							@click="deleteCategory(app)"
 						>
 							<font-awesome-icon icon="fa-solid fa-trash" />
 						</button>
 					</td>
 				</tr>
-				<tr v-if="applications.length === 0">
+				<tr v-if="category.length === 0">
 					<td colspan="6" class="text-center text-muted py-3">
-						No Applications Available
+						No Category Available
 					</td>
 				</tr>
 			</tbody>
@@ -62,37 +54,36 @@ export default {
 	},
 	data() {
 		return {
-			applications: [],
+			category: [],
 		};
 	},
 	async mounted() {
-		await this.fetchApplications();
+		await this.fetchCategory();
 	},
 	methods: {
-		async fetchApplications() {
+		async fetchCategory() {
 			try {
 				const response = await fetch(
-					"http://localhost:3000/admin/application/apps"
+					"http://localhost:3000/admin/application/categories"
 				);
 				const json = await response.json();
-				this.applications = json.data;
+				this.category = json.data;
 			} catch (err) {
-				console.error("Error loading Application", err);
+				console.error("Error loading Category", err);
 			}
 		},
-		// editApplication(app) {
-		// 	console.log(app);
-		// 	this.$router.push(`/admin/application/apps/edit/${dash.uuid}`);
+		// editCategory(cat) {
+		// 	this.$router.push(`/admin/application/categories/${dash.uuid}`);
 		// },
-		async deleteAppliction(app) {
-			if (!confirm("Sure? This will hide the dashboard.")) return;
+		async deleteCategory(app) {
+			if (!confirm("Sure? This will hide the Category.")) return;
 			await fetch(
-				`http://localhost:3000/admin/application/apps/edit/${app.uuid}`,
+				`http://localhost:3000/admin/application/categories/${app.uuid}`,
 				{
 					method: "DELETE",
 				}
 			);
-			this.fetchApplications();
+			this.fetchCategory();
 		},
 	},
 };

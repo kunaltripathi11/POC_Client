@@ -1,4 +1,8 @@
 <template>
+	<link
+		href="https://fonts.googleapis.com/icon?family=Material+Icons"
+		rel="stylesheet"
+	/>
 	<div>
 		<Header></Header>
 		<router-view></router-view>

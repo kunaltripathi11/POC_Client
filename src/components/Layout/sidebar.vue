@@ -9,7 +9,7 @@
 					</li>
 				</div>
 			</router-link>
-			<router-link to="/home">
+			<router-link to="/admin/dashboard">
 				<div
 					class="sidebar-items"
 					:class="{ active: activeItem === 'dashboard' }"
@@ -25,7 +25,7 @@
 					</li>
 				</div>
 			</router-link>
-			<router-link to="/groups">
+			<router-link to="/admin/application">
 				<div
 					class="sidebar-items"
 					:class="{ active: activeItem === 'app' }"
@@ -41,11 +41,10 @@
 					</li>
 				</div>
 			</router-link>
-			<router-link>
+			<div class="analytics" @click="toggleAnalatics">
 				<div
 					class="sidebar-items"
 					:class="{ active: activeItem === 'analytics' }"
-					@click="setActiveItem('analytics')"
 				>
 					<li>
 						<font-awesome-icon
@@ -55,7 +54,45 @@
 						/><span class="nav-text">&nbsp; Analytics</span>
 					</li>
 				</div>
-			</router-link>
+			</div>
+			<transition name="fade">
+				<ul v-if="isAnalatics">
+					<router-link to="/admin/business-rules">
+						<div
+							class="submenu"
+							:class="{ active: activeItem === 'business_rules' }"
+							@click="setActiveItem('business_rules')"
+						>
+							<li>
+								<font-awesome-icon
+									class="icon-active"
+									icon="fa-regular fa-envelope"
+									size="lg"
+								/>
+								<span class="nav-text"
+									>&nbsp; Business Rules</span
+								>
+							</li>
+						</div>
+					</router-link>
+					<router-link to="/admin/data-model">
+						<div
+							class="submenu"
+							:class="{ active: activeItem === 'data_models' }"
+							@click="setActiveItem('data_models')"
+						>
+							<li>
+								<font-awesome-icon
+									class="icon-active"
+									icon="fa-regular fa-file"
+									size="lg"
+								/>
+								<span class="nav-text">&nbsp; Data Models</span>
+							</li>
+						</div>
+					</router-link>
+				</ul>
+			</transition>
 		</ul>
 	</div>
 </template>
@@ -65,17 +102,25 @@ export default {
 	data() {
 		return {
 			activeItem: null,
+			isAnalatics: false,
 		};
 	},
 	methods: {
 		setActiveItem(val) {
 			this.activeItem = val;
 		},
+		toggleAnalatics() {
+			this.activeItem = "analytics";
+			this.isAnalatics = !this.isAnalatics;
+		},
 	},
 };
 </script>
 
 <style>
+.analytics {
+	cursor: pointer;
+}
 .sidebar {
 	position: fixed;
 	top: 3rem;
@@ -111,7 +156,22 @@ a:hover {
 		color: white;
 	}
 }
+.submenu {
+	padding: 0;
+	/* margin-left: 0.4rem; */
+}
+.submenu li {
+	list-style: none;
+	padding: 0.6rem 0.4rem;
+}
 
+.fade-enter-active .fade-leave-active {
+	opacity: 1;
+	transition: opacity 0.25s;
+}
+.fade-enter-from .fade-leave-to {
+	opacity: 0;
+}
 /* .router-link-active {
 	color: white !important;
 } */
