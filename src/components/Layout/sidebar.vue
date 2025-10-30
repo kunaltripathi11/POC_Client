@@ -13,7 +13,6 @@
 				<div
 					class="sidebar-items"
 					:class="{ active: activeItem === 'dashboard' }"
-					@click="setActiveItem('dashboard')"
 				>
 					<li class="nav-item">
 						<font-awesome-icon
@@ -29,7 +28,6 @@
 				<div
 					class="sidebar-items"
 					:class="{ active: activeItem === 'app' }"
-					@click="setActiveItem('app')"
 				>
 					<li>
 						<font-awesome-icon
@@ -41,7 +39,7 @@
 					</li>
 				</div>
 			</router-link>
-			<div class="analytics" @click="toggleAnalatics">
+			<div class="analytics" @click="toggleAnalytics">
 				<div
 					class="sidebar-items"
 					:class="{ active: activeItem === 'analytics' }"
@@ -56,12 +54,13 @@
 				</div>
 			</div>
 			<transition name="fade">
-				<ul v-if="isAnalatics">
+				<ul v-if="isAnalytics">
 					<router-link to="/admin/business-rules">
 						<div
 							class="submenu"
-							:class="{ active: activeItem === 'business_rules' }"
-							@click="setActiveItem('business_rules')"
+							:class="{
+								active: activeChild === 'business_rules',
+							}"
 						>
 							<li>
 								<font-awesome-icon
@@ -78,8 +77,7 @@
 					<router-link to="/admin/data-model">
 						<div
 							class="submenu"
-							:class="{ active: activeItem === 'data_models' }"
-							@click="setActiveItem('data_models')"
+							:class="{ active: activeChild === 'data_models' }"
 						>
 							<li>
 								<font-awesome-icon
@@ -102,16 +100,43 @@ export default {
 	data() {
 		return {
 			activeItem: null,
-			isAnalatics: false,
+			isAnalytics: false,
+			activeChild: null,
 		};
+	},
+	mounted() {
+		this.checkActive(this.$route);
 	},
 	methods: {
 		setActiveItem(val) {
 			this.activeItem = val;
 		},
-		toggleAnalatics() {
+		setActiveChild(val) {
+			this.activeChild = val;
+		},
+		toggleAnalytics() {
 			this.activeItem = "analytics";
-			this.isAnalatics = !this.isAnalatics;
+			this.isAnalytics = !this.isAnalytics;
+		},
+		checkActive(route) {
+			if (route.path.includes("/application")) {
+				this.setActiveItem("app");
+				this.setActiveChild("");
+			} else if (route.path.includes("/dashboard")) {
+				this.setActiveItem("dashboard");
+				this.setActiveChild("");
+			} else if (route.path.includes("/data-model")) {
+				this.setActiveItem("analytics");
+				this.setActiveChild("data_models");
+			} else if (route.path.includes("/business-rules")) {
+				this.setActiveItem("analytics");
+				this.setActiveChild("business_rules");
+			}
+		},
+	},
+	watch: {
+		$route(to) {
+			this.checkActive(to);
 		},
 	},
 };

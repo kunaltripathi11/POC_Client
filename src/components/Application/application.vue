@@ -1,7 +1,7 @@
 <template>
 	<div class="main-content container mt-4">
 		<div style="display: flex; justify-content: space-between">
-			<h3 class="fw-bold mb-3"><Filter></Filter></h3>
+			<!-- <h3 class="fw-bold mb-3"><Filter></Filter></h3> -->
 			<!-- <button class="btn btn-primary mb-3">Create Dashboard</button> -->
 		</div>
 		<table class="table table-hover align-middle shadow-sm">
@@ -27,20 +27,26 @@
 							{{ app.icon.toLowerCase() }}</span
 						>
 					</td>
-					<td>{{ app.active }}</td>
+					<td>{{ app.active ? "Active" : "InActive" }}</td>
 
 					<td class="text-center">
 						<button
-							class="btn btn-sm btn-outline-primary me-2"
+							class="btn btn-sm me-2 action"
 							@click="editApplication(app)"
 						>
-							<font-awesome-icon icon="fa-solid fa-pen" />
+							<font-awesome-icon
+								icon="fa-solid fa-pen"
+								style="color: blue"
+							/>
 						</button>
 						<button
-							class="btn btn-sm btn-outline-danger"
+							class="btn btn-sm action"
 							@click="deleteAppliction(app)"
 						>
-							<font-awesome-icon icon="fa-solid fa-trash" />
+							<font-awesome-icon
+								icon="fa-solid fa-trash"
+								style="color: red"
+							/>
 						</button>
 					</td>
 				</tr>
@@ -54,15 +60,16 @@
 	</div>
 </template>
 <script>
-import Filter from "./filter.vue";
+// import Filter from "./filter.vue";
 
 export default {
-	components: {
-		Filter,
-	},
+	// components: {
+	// 	Filter,
+	// },
 	data() {
 		return {
 			applications: [],
+			active: null,
 		};
 	},
 	async mounted() {
@@ -98,11 +105,6 @@ export default {
 };
 </script>
 <style scoped>
-.main-content {
-	padding-top: 4rem;
-	/* border: 1px solid black;
-	box-shadow: 2px black; */
-}
 .table {
 	border-radius: 10px;
 	overflow: hidden;
@@ -110,5 +112,13 @@ export default {
 td,
 th {
 	vertical-align: middle;
+}
+
+button:hover {
+	border: 1px solid gray !important;
+	border-radius: 30%;
+}
+button {
+	border-radius: 30%;
 }
 </style>

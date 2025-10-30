@@ -69,7 +69,7 @@ export default {
 			}
 		},
 		formatDate(date) {
-			return new Date(date).toLocaleDateString();
+			return new Date(date).toUTCString().slice(5, -4);
 		},
 		editDashboard(dash) {
 			console.log(dash);

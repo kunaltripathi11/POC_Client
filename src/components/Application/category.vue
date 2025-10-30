@@ -1,7 +1,7 @@
 <template>
 	<div class="main-content container mt-4">
 		<div style="display: flex; justify-content: space-between">
-			<h3 class="fw-bold mb-3"><Filter></Filter></h3>
+			<!-- <h3 class="fw-bold mb-3"><Filter></Filter></h3> -->
 			<!-- <button class="btn btn-primary mb-3">Create Dashboard</button> -->
 		</div>
 		<table class="table table-hover align-middle shadow-sm">
@@ -22,18 +22,10 @@
 					<td>{{ cat.display_order }}</td>
 
 					<td class="text-center">
-						<button
-							class="btn btn-sm btn-outline-primary me-2"
-							@click="editCategory(cat)"
-						>
-							<font-awesome-icon icon="fa-solid fa-pen" />
-						</button>
-						<button
-							class="btn btn-sm btn-outline-danger"
-							@click="deleteCategory(app)"
-						>
-							<font-awesome-icon icon="fa-solid fa-trash" />
-						</button>
+						<base-action
+							:item="cat"
+							@remove-event="deleteCategory"
+						></base-action>
 					</td>
 				</tr>
 				<tr v-if="category.length === 0">
@@ -46,12 +38,9 @@
 	</div>
 </template>
 <script>
-import Filter from "./filter.vue";
+import BaseAction from "../UI/BaseAction.vue";
 
 export default {
-	components: {
-		Filter,
-	},
 	data() {
 		return {
 			category: [],
@@ -75,10 +64,10 @@ export default {
 		// editCategory(cat) {
 		// 	this.$router.push(`/admin/application/categories/${dash.uuid}`);
 		// },
-		async deleteCategory(app) {
-			if (!confirm("Sure? This will hide the Category.")) return;
+		async deleteCategory(uuid) {
+			// if (!confirm("Sure? This will hide the Category.")) return;
 			await fetch(
-				`http://localhost:3000/admin/application/categories/${app.uuid}`,
+				`http://localhost:3000/admin/application/categories/${uuid}`,
 				{
 					method: "DELETE",
 				}
@@ -86,14 +75,12 @@ export default {
 			this.fetchCategory();
 		},
 	},
+	components: {
+		BaseAction,
+	},
 };
 </script>
 <style scoped>
-.main-content {
-	padding-top: 4rem;
-	/* border: 1px solid black;
-	box-shadow: 2px black; */
-}
 .table {
 	border-radius: 10px;
 	overflow: hidden;

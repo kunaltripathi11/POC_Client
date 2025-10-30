@@ -27,9 +27,9 @@
 				</div>
 				<div class="nav-items" v-if="route === '/launchpad'">
 					<router-link to="/admin">
-						<span
-							><span
-								><font-awesome-icon
+						<span>
+							<span>
+								<font-awesome-icon
 									icon="fa-solid fa-gears"
 									size="lg"
 									style="color: white" /></span
@@ -83,9 +83,9 @@
 							</router-link>
 						</li>
 						<li>
-							<router-link to="/account" class="dropdown-item"
-								>Account Details</router-link
-							>
+							<router-link to="/account" class="dropdown-item">
+								Account Details
+							</router-link>
 						</li>
 						<li>
 							<router-link to="/login" class="dropdown-item">
@@ -139,9 +139,11 @@ a:hover {
 	text-decoration: none !important;
 	color: white !important;
 }
+
 .dropdown-menu {
 	left: -7.5rem !important;
 	top: 2.4rem;
+
 	.dropdown-item {
 		color: black !important;
 	}
