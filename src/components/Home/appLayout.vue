@@ -1,6 +1,7 @@
 <template>
 	<div class="main container">
-		<div class="app" v-for="value in source"></div>
+		<div class="appContent"></div>
+		<p>test</p>
 	</div>
 </template>
 
@@ -10,7 +11,7 @@
 	padding-left: 7rem;
 	padding-top: 6rem;
 }
-.app {
+.appContent {
 	height: 50px;
 	width: 50px;
 	background-color: blue;

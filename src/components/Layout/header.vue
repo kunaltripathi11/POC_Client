@@ -106,6 +106,9 @@ export default {
 			route: this.$route.path,
 		};
 	},
+	mounted() {
+		console.log("header load");
+	},
 };
 </script>
 

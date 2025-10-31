@@ -23,21 +23,10 @@
 					<td>{{ dash.url }}</td>
 					<td>{{ formatDate(dash.updated_at) }}</td>
 					<td class="text-center">
-						<button
-							class="btn btn-sm btn-outline-primary me-2"
-							@click="editDashboard(dash)"
-						>
-							<font-awesome-icon icon="fa-solid fa-pen" />
-						</button>
-						<button
-							class="btn btn-sm btn-outline-danger"
-							@click="deleteDashboard(dash)"
-						>
-							<font-awesome-icon icon="fa-solid fa-trash" />
-						</button>
+						<base-action @delete="deleteDashboard(dash.uuid)" />
 					</td>
 				</tr>
-				<tr v-if="dashboards.length === 0">
+				<tr v-if="!dashboards || (dashboards && !dashboards.length)">
 					<td colspan="6" class="text-center text-muted py-3">
 						No Dashboards Available
 					</td>
@@ -47,41 +36,35 @@
 	</div>
 </template>
 <script>
+import BaseAction from "../UI/BaseAction.vue";
+import { mapActions, mapGetters } from "vuex";
+
 export default {
 	data() {
-		return {
-			dashboards: [],
-		};
+		return {};
+	},
+	async mounted() {
+		await this.fetchDashboards();
+	},
+	computed: {
+		...mapGetters("Dashboard", ["filteredDashboards"]),
+		dashboards() {
+			return this.filteredDashboards;
+		},
 	},
 	async mounted() {
 		await this.fetchDashboards();
 	},
 	methods: {
-		async fetchDashboards() {
-			try {
-				const response = await fetch(
-					"http://localhost:3000/admin/dashboard"
-				);
-				const json = await response.json();
-				this.dashboards = json.data;
-			} catch (err) {
-				console.error("Error loading dashboards", err);
-			}
-		},
+		...mapActions("Dashboard", ["fetchDashboards", "deleteDashboard"]),
+
 		formatDate(date) {
 			return new Date(date).toUTCString().slice(5, -4);
 		},
-		editDashboard(dash) {
-			console.log(dash);
-			this.$router.push(`/admin/dashboard/edit/${dash.uuid}`);
-		},
-		async deleteDashboard(dash) {
-			if (!confirm("Sure? This will hide the dashboard.")) return;
-			await fetch(`http://localhost:3000/admin/dashboard/${dash.uuid}`, {
-				method: "DELETE",
-			});
-			this.fetchDashboards();
-		},
+	},
+
+	components: {
+		BaseAction,
 	},
 };
 </script>

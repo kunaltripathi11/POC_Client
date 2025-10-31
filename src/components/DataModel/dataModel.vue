@@ -23,21 +23,10 @@
 					<td>{{ formatDate(model.updated_at) }}</td>
 
 					<td class="text-center">
-						<button
-							class="btn btn-sm btn-outline-primary me-2"
-							@click="editModel(model)"
-						>
-							<font-awesome-icon icon="fa-solid fa-pen" />
-						</button>
-						<button
-							class="btn btn-sm btn-outline-danger"
-							@click="deleteModel(model)"
-						>
-							<font-awesome-icon icon="fa-solid fa-trash" />
-						</button>
+						<base-action @delete="deleteModel(model.uuid)" />
 					</td>
 				</tr>
-				<tr v-if="dataModels.length === 0">
+				<tr v-if="!dataModels || (dataModels && !dataModels.length)">
 					<td colspan="6" class="text-center text-muted py-3">
 						No Data Models Available
 					</td>
@@ -47,44 +36,31 @@
 	</div>
 </template>
 <script>
+import BaseAction from "../UI/BaseAction.vue";
+import { mapActions, mapGetters } from "vuex";
+
 export default {
 	data() {
-		return {
-			dataModels: [],
-		};
+		return {};
 	},
 	async mounted() {
-		await this.fetchModels();
+		await this.fetchModels("http://localhost:3000/admin/data-model");
 	},
+	computed: {
+		...mapGetters("DataModel", ["filteredModel"]),
+		dataModels() {
+			return this.filteredModel;
+		},
+	},
+
 	methods: {
 		formatDate(date) {
 			return new Date(date).toUTCString().slice(5, -4);
 		},
-		async fetchModels() {
-			try {
-				const response = await fetch(
-					"http://localhost:3000/admin/data-model"
-				);
-				const json = await response.json();
-
-				this.dataModels = json.data;
-			} catch (err) {
-				console.error("Error loading Category", err);
-			}
-		},
-		// editModel(cat) {
-		// 	this.$router.push(`/admin/data-models/${dash.uuid}`);
-		// },
-		async deleteModel(model) {
-			if (!confirm("Sure? This will hide the Data Model.")) return;
-			await fetch(
-				`http://localhost:3000/admin/data-model/${model.uuid}`,
-				{
-					method: "DELETE",
-				}
-			);
-			this.fetchModels();
-		},
+		...mapActions("DataModel", ["fetchModels", "deleteModel"]),
+	},
+	components: {
+		BaseAction,
 	},
 };
 </script>

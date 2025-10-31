@@ -17,21 +17,15 @@
 					<td>{{ rule.description }}</td>
 					<td>{{ rule.tags }}</td>
 					<td class="text-center">
-						<button class="btn btn-sm me-2" @click="editRule(rule)">
-							<font-awesome-icon
-								icon="fa-solid fa-pen"
-								style="color: blue"
-							/>
-						</button>
-						<button class="btn btn-sm" @click="deleteRule(rule)">
-							<font-awesome-icon
-								icon="fa-solid fa-trash"
-								style="color: red"
-							/>
-						</button>
+						<base-action @delete="deleteRule(rule.uuid)" />
 					</td>
 				</tr>
-				<tr v-if="businessRules.length === 0">
+				<tr
+					v-if="
+						!businessRules ||
+						(businessRules && !businessRules.length) === 0
+					"
+				>
 					<td colspan="6" class="text-center text-muted py-3">
 						No Business Rules Available
 					</td>
@@ -41,41 +35,30 @@
 	</div>
 </template>
 <script>
+import { mapActions, mapGetters } from "vuex";
+import BaseAction from "../UI/BaseAction.vue";
+
 export default {
 	data() {
-		return {
-			businessRules: [],
-		};
+		return {};
+	},
+	async mounted() {
+		await this.fetchRules();
+	},
+	computed: {
+		...mapGetters("BusinessRule", ["filteredRules"]),
+		businessRules() {
+			return this.filteredRules;
+		},
 	},
 	async mounted() {
 		await this.fetchRules();
 	},
 	methods: {
-		async fetchRules() {
-			try {
-				const response = await fetch(
-					"http://localhost:3000/admin/business-rules"
-				);
-				const json = await response.json();
-				this.businessRules = json.data;
-			} catch (err) {
-				console.error("Error loading Business Rules", err);
-			}
-		},
-		// editRule(cat) {
-		// 	this.$router.push(`/admin/business-rules/${dash.uuid}`);
-		// },
-		async deleteRule(rule) {
-			if (!confirm("Sure? This will hide the Business Rules.")) return;
-
-			await fetch(
-				`http://localhost:3000/admin/business-rules/${rule.uuid}`,
-				{
-					method: "DELETE",
-				}
-			);
-			this.fetchRules();
-		},
+		...mapActions("BusinessRule", ["fetchRules", "deleteRule"]),
+	},
+	components: {
+		BaseAction,
 	},
 };
 </script>

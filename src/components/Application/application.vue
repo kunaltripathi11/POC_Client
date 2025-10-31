@@ -30,27 +30,14 @@
 					<td>{{ app.active ? "Active" : "InActive" }}</td>
 
 					<td class="text-center">
-						<button
-							class="btn btn-sm me-2 action"
-							@click="editApplication(app)"
-						>
-							<font-awesome-icon
-								icon="fa-solid fa-pen"
-								style="color: blue"
-							/>
-						</button>
-						<button
-							class="btn btn-sm action"
-							@click="deleteAppliction(app)"
-						>
-							<font-awesome-icon
-								icon="fa-solid fa-trash"
-								style="color: red"
-							/>
-						</button>
+						<base-action @delete="deleteApplication(app.uuid)" />
 					</td>
 				</tr>
-				<tr v-if="applications.length === 0">
+				<tr
+					v-if="
+						!applications || (applications && !applications.length)
+					"
+				>
 					<td colspan="6" class="text-center text-muted py-3">
 						No Applications Available
 					</td>
@@ -59,7 +46,11 @@
 		</table>
 	</div>
 </template>
+
 <script>
+import BaseAction from "../UI/BaseAction.vue";
+import { mapActions, mapGetters } from "vuex";
+
 // import Filter from "./filter.vue";
 
 export default {
@@ -67,40 +58,26 @@ export default {
 	// 	Filter,
 	// },
 	data() {
-		return {
-			applications: [],
-			active: null,
-		};
+		return {};
 	},
 	async mounted() {
 		await this.fetchApplications();
 	},
+	computed: {
+		...mapGetters("Application", ["filteredApplication"]),
+		applications() {
+			return this.filteredApplication;
+		},
+	},
+
 	methods: {
-		async fetchApplications() {
-			try {
-				const response = await fetch(
-					"http://localhost:3000/admin/application/apps"
-				);
-				const json = await response.json();
-				this.applications = json.data;
-			} catch (err) {
-				console.error("Error loading Application", err);
-			}
-		},
-		// editApplication(app) {
-		// 	console.log(app);
-		// 	this.$router.push(`/admin/application/apps/edit/${dash.uuid}`);
-		// },
-		async deleteAppliction(app) {
-			if (!confirm("Sure? This will hide the dashboard.")) return;
-			await fetch(
-				`http://localhost:3000/admin/application/apps/edit/${app.uuid}`,
-				{
-					method: "DELETE",
-				}
-			);
-			this.fetchApplications();
-		},
+		...mapActions("Application", [
+			"fetchApplications",
+			"deleteApplication",
+		]),
+	},
+	components: {
+		BaseAction,
 	},
 };
 </script>

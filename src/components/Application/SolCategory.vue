@@ -17,27 +17,10 @@
 					<td>{{ cat.title }}</td>
 
 					<td class="text-center">
-						<button
-							class="btn btn-sm me-2 action"
-							@click="editSolCategory(cat)"
-						>
-							<font-awesome-icon
-								icon="fa-solid fa-pen"
-								style="color: blue"
-							/>
-						</button>
-						<button
-							class="btn btn-sm action"
-							@click="deleteSolCategory(cat)"
-						>
-							<font-awesome-icon
-								icon="fa-solid fa-trash"
-								style="color: red"
-							/>
-						</button>
+						<base-action @delete="deleteSolCategory(cat.uuid)" />
 					</td>
 				</tr>
-				<tr v-if="solCategory.length === 0">
+				<tr v-if="!solCategory || (solCategory && !solCategory.length)">
 					<td colspan="6" class="text-center py-3">
 						No Solution Category Available
 					</td>
@@ -47,40 +30,26 @@
 	</div>
 </template>
 <script>
+import BaseAction from "../UI/BaseAction.vue";
+import { mapActions, mapMutations, mapGetters } from "vuex";
+
 export default {
+	components: { BaseAction },
 	data() {
-		return {
-			solCategory: [],
-		};
+		return {};
+	},
+	computed: {
+		...mapGetters("SolCategory", ["filteredSolCategory"]),
+		solCategory() {
+			return this.filteredSolCategory;
+		},
 	},
 	async mounted() {
 		await this.fetchSolCategory();
 	},
 	methods: {
-		async fetchSolCategory() {
-			try {
-				const response = await fetch(
-					"http://localhost:3000/admin/application/solution-categories"
-				);
-				const json = await response.json();
-				this.solCategory = json.data;
-			} catch (err) {
-				console.error("Error loading Category", err);
-			}
-		},
-		// editSolCategory(cat) {
-		// 	this.$router.push(`/admin/application/categories/${dash.uuid}`);
-		// },
-		async deleteSolCategory(app) {
-			if (!confirm("Sure? This will hide the Category.")) return;
-			await fetch(
-				`http://localhost:3000/admin/application/solution-categories/${app.uuid}`,
-				{
-					method: "DELETE",
-				}
-			);
-			this.fetchSolCategory();
-		},
+		...mapActions("SolCategory", ["fetchSolCategory", "deleteSolCategory"]),
+		...mapMutations("SolCategory", ["setSolCategory"]),
 	},
 };
 </script>

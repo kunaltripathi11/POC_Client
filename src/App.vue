@@ -3,22 +3,20 @@
 		href="https://fonts.googleapis.com/icon?family=Material+Icons"
 		rel="stylesheet"
 	/>
-	<div>
-		<Header></Header>
-		<router-view></router-view>
-	</div>
+
+	<Header></Header>
+	<AppMainLayout></AppMainLayout>
+	<router-view></router-view>
 </template>
 
 <script>
+import AppMainLayout from "./components/Home/appLayout.vue";
 import Header from "./components/Layout/header.vue";
-import MainContent from "./components/Layout/MainContent.vue";
-import Sidebar from "./components/Layout/sidebar.vue";
 
 export default {
 	components: {
 		Header,
-		Sidebar,
-		MainContent,
+		AppMainLayout,
 	},
 };
 </script>
