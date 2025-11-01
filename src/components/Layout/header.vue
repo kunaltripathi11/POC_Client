@@ -25,7 +25,7 @@
 							style="color: white" /></span
 					><span>&nbsp;Sofy Docs</span>
 				</div>
-				<div class="nav-items" v-if="route === '/launchpad'">
+				<div class="nav-items" v-if="route === '/launchpad'||route === '/'">
 					<router-link to="/admin">
 						<span>
 							<span>
@@ -106,9 +106,11 @@ export default {
 			route: this.$route.path,
 		};
 	},
-	mounted() {
-		console.log("header load");
-	},
+	watch:{
+		$route(to){
+			this.route = to.path;
+		}
+	}
 };
 </script>
 

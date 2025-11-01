@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import App from "./App.vue";
 import MainContent from "./components/Layout/MainContent.vue";
 import Dashboard from "./components/Dashboard/dashboard.vue";
 import DataModel from "./components/DataModel/dataModel.vue";
@@ -9,15 +8,17 @@ import Filter from "./components/Application/filter.vue";
 import Category from "./components/Application/category.vue";
 import Application from "./components/Application/application.vue";
 import SolCategory from "./components/Application/SolCategory.vue";
+
+import AppLayout from "./components/Home/appLayout.vue";
 const router = createRouter({
 	history: createWebHistory(),
 	routes: [
-		{ path: "/", redirect: "/launchpad" },
+		{ path: "/",component: AppLayout, redirect: "/launchpad" },
 		{
 			path: "/launchpad",
-			component: App,
+			component: AppLayout,
 			meta: {
-				title: "Category",
+				title: "Launchpad",
 			},
 		},
 		{
