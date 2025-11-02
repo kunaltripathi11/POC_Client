@@ -22,6 +22,7 @@
             :key="app.id"
             class="app-card"
             @click="goToApp(app.url)"
+            :class="app.active ? 'activeApp' : 'inactiveApp'"
           >
             <div class="app-content">
               <span class="material-icons app-icon">
@@ -70,7 +71,7 @@ export default {
 
     goToApp(url) {
       console.log(url);
-      this.$router.push(`/${url}`);
+      this.$router.push(`${url}`);
     },
   },
   async mounted() {
@@ -142,6 +143,13 @@ export default {
   cursor: pointer;
   text-align: center;
   box-shadow: 0 2px 6px rgba(24, 70, 232, 0.15);
+}
+
+.inactiveApp {
+  background-color: #5a5a5b;
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .app-card:hover {
