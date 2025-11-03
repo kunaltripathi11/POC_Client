@@ -1,134 +1,242 @@
 <template>
-	<div class="container mt-4">
-		<AddWigdetDrawer :show="drawerVisible"></AddWigdetDrawer>
-		<div class="widget">
-			<div class="back">
-				<div class="backToDashboard">
-					<router-link
-						to="/admin/dashboard"
-						class="text-decoration-none fw-semibold text-primary"
-					>
-						<font-awesome-icon icon="fa-solid fa-arrow-left" />
-						Back To Dashboard
-					</router-link>
-				</div>
+  <div class="dashboard-container">
+    <AddWidgetDrawer
+      :show="drawerVisible"
+      @close="closeDrawer"
+      @widget-drag-start="handleWidgetDragStart"
+    />
 
-				<div class="add-widget" v-if="dashboard && dashboard.length">
-					<h4>
-						{{ dashboard[0].title }}
-					</h4>
+    <div
+      class="drawer-toggle"
+      :class="{ 'drawer-open': drawerVisible }"
+      @click="toggleDrawer"
+    >
+      <font-awesome-icon icon="fa-solid fa-chevron-left" class="toggle-icon" />
+    </div>
 
-					<ul class="list-unstyled d-flex justify-content-between">
-						<div class="d-flex">
-							<li>Build</li>
-							<li>Filter</li>
-							<li>Logs</li>
-						</div>
-						<div class="buttons">
-							<button class="btn btn-primary" @click="openDrawer">
-								+ Add Widget
-							</button>
-							<button>Save</button>
-						</div>
-					</ul>
-					<div class="toggle-icon" @click="toggleDrawer">
-						<font-awesome-icon
-							icon="fa-solid fa-chevron-right"
-							class="text-primary"
-							:class="{ 'rotate-icon': drawerVisible }"
-						/>
-					</div>
-				</div>
-			</div>
-			<div class="main-content">Main</div>
-		</div>
-	</div>
+    <div class="header-section">
+      <router-link to="/admin/dashboard" class="back-link">
+        <font-awesome-icon icon="fa-solid fa-arrow-left" />
+        <span>Back to Dashboard</span>
+      </router-link>
+
+      <button class="btn btn-primary" @click="openDrawer">
+        <font-awesome-icon icon="fa-solid fa-plus" />
+        Add Widget
+      </button>
+    </div>
+
+    <div
+      class="main-content"
+      @drop="handleDrop"
+      @dragover="handleDragOver"
+      @dragleave="handleDragLeave"
+      :class="{ 'drag-over': isDragOver }"
+    >
+      <div v-if="widgets.length === 0" class="empty-state">
+        <font-awesome-icon icon="fa-solid fa-cube" class="empty-icon" />
+        <h5>No Widgets Yet</h5>
+        <p>Drag and drop widgets from the panel</p>
+      </div>
+
+      <div v-else class="widgets-grid">
+        <div v-for="widget in widgets" :key="widget.id" class="widget-box">
+          {{ widget.type }}
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
-import AddWigdetDrawer from "../Layout/addWigdetDrawer.vue";
+import AddWidgetDrawer from "../Layout/addWigdetDrawer.vue";
 
 export default {
-	components: { AddWigdetDrawer },
-	props: ["uuid"],
-	data() {
-		return {
-			drawerVisible: false,
-		};
-	},
-	computed: {
-		...mapGetters("Dashboard", ["getDashboardById"]),
-		dashboard() {
-			return this.getDashboardById;
-		},
-	},
-	methods: {
-		...mapActions("Dashboard", ["fetchDashboardById"]),
-
-		openDrawer() {
-			this.drawerVisible = true;
-		},
-		toggleDrawer() {
-			this.drawerVisible = !this.drawerVisible;
-		},
-	},
-	async mounted() {
-		await this.fetchDashboardById(this.uuid);
-	},
+  components: { AddWidgetDrawer },
+  data() {
+    return {
+      drawerVisible: false,
+      widgets: [],
+      isDragOver: false,
+      draggedWidgetType: null,
+    };
+  },
+  methods: {
+    openDrawer() {
+      this.drawerVisible = true;
+    },
+    closeDrawer() {
+      this.drawerVisible = false;
+    },
+    toggleDrawer() {
+      this.drawerVisible = !this.drawerVisible;
+    },
+    handleWidgetDragStart(widgetType) {
+      this.draggedWidgetType = widgetType;
+    },
+    handleDragOver(e) {
+      e.preventDefault();
+      this.isDragOver = true;
+    },
+    handleDragLeave() {
+      this.isDragOver = false;
+    },
+    handleDrop(e) {
+      e.preventDefault();
+      this.isDragOver = false;
+      if (this.draggedWidgetType) {
+        this.widgets.push({
+          id: Date.now(),
+          type: this.draggedWidgetType,
+        });
+        this.draggedWidgetType = null;
+      }
+    },
+  },
 };
 </script>
 
 <style scoped>
+.dashboard-container {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  max-width: 100vw;
+  padding-top: 4rem;
+  padding-left: 13rem;
+  /* position: relative; */
+  transition: all 0.3s ease;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: #1d4ed8;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0.6rem 1.2rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #1e40af;
+  transform: translateY(-1px);
+}
+
+.drawer-toggle {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #4f46e5, #3b82f6);
+  color: white;
+  width: 2rem;
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.drawer-toggle:hover {
+  width: 2.5rem;
+}
+
+.drawer-toggle.drawer-open {
+  right: 20vw;
+}
+
 .toggle-icon {
-	font-size: 1.3rem;
-	cursor: pointer;
-	transition: 0.3s;
-
-	background-color: rgb(99, 105, 110);
-	position: absolute;
-	top: 45%;
-
-	height: 4rem;
-	width: 1.3rem;
-	display: flex;
-	align-items: center;
-	right: 19.7vw;
-	z-index: 10001;
-	border-radius: 10%;
-}
-.close {
-}
-.open {
-	right: 0;
-}
-.rotate-icon {
-	transform: rotate(180deg);
-	transition: transform 0.6s ease;
-}
-li {
-	margin: 3px;
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
 }
 
-.back {
-	border: 1px solid grey;
-	margin-bottom: 1.2rem;
-	/* max-height: 70vh; */
+.drawer-toggle.drawer-open .toggle-icon {
+  transform: rotate(180deg);
 }
-.backToDashboard {
-	border-bottom: 1px solid black;
-	padding: 1rem 0 0 1rem;
-}
-.add-widget {
-	padding: 0.7rem 1rem 0 1.2rem;
-}
+
 .main-content {
-	border: 1px solid grey;
-	padding: 1rem 0 0 1rem;
+  background: white;
+  border-radius: 10px;
+  padding: 2rem;
+  min-height: 60vh;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
 }
-.container {
-	max-width: 95%;
-	padding-top: 5rem;
-	padding-left: 12rem;
+
+.main-content.drag-over {
+  border: 2px dashed #3b82f6;
+  background-color: #f0f7ff;
+}
+
+.empty-state {
+  text-align: center;
+  color: #6b7280;
+  padding: 5rem 1rem;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  color: #9ca3af;
+}
+
+/* Widgets Grid */
+.widgets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.5rem;
+}
+
+.widget-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+  color: #374151;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+.widget-box:hover {
+  background-color: #f3f4f6;
+  transform: translateY(-2px);
 }
 </style>
