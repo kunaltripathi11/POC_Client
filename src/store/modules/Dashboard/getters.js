@@ -1,11 +1,11 @@
 export default {
-  filteredDashboards(state) {
-    let filtered = state.dashboards;
+	filteredDashboards(state) {
+		let filtered = state.dashboards;
 
-    return filtered;
-  },
+		return filtered;
+	},
 
-  getDashboardById(state) {
-    return state.dashboardById;
-  },
+	getDashboardById(state) {
+		return state.dashboardById;
+	},
 };
