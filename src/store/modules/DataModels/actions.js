@@ -1,7 +1,9 @@
 export default {
-	async fetchModels({ commit }, url) {
+	async fetchModels({ commit }) {
 		try {
-			const response = await fetch(url);
+			const response = await fetch(
+				`http://localhost:3000/admin/data-model`
+			);
 			const json = await response.json();
 
 			commit("setModel", json.data);
@@ -13,10 +15,11 @@ export default {
 	// 	this.$router.push(`/admin/application/categories/${dash.uuid}`);
 	// },
 	async deleteModel({ dispatch }, uuid) {
-		if (!confirm("Sure? This will Delete the Category.")) return;
-		await fetch(`http://localhost:3000/admin/data-model/${uuid}}`, {
+		if (!confirm("Sure? This will Delete the Data model.")) return;
+		console.log(uuid, "uuid");
+		await fetch(`http://localhost:3000/admin/data-model/${uuid}`, {
 			method: "DELETE",
 		});
-		await dispatch("fetchModels", url);
+		await dispatch("fetchModels");
 	},
 };

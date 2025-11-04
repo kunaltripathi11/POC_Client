@@ -44,7 +44,7 @@ export default {
 		return {};
 	},
 	async mounted() {
-		await this.fetchModels("http://localhost:3000/admin/data-model");
+		await this.fetchModels();
 	},
 	computed: {
 		...mapGetters("DataModel", ["filteredModel"]),

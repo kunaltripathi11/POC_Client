@@ -5,6 +5,7 @@ import Application from "./modules/Application";
 import DataModel from "./modules/DataModels";
 import BusinessRule from "./modules/BusinessRules";
 import Dashboard from "./modules/Dashboard";
+import Widget from "./modules/Widgets";
 
 const store = createStore({
 	modules: {
@@ -14,6 +15,7 @@ const store = createStore({
 		DataModel,
 		BusinessRule,
 		Dashboard,
+		Widget,
 	},
 	state() {},
 	mutations: {},
