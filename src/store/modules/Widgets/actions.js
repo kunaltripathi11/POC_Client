@@ -1,11 +1,14 @@
 export default {
-	async addWighetAction({ commit }, widgetData) {
+	async addWidgetAction({ commit }, widgetData) {
 		try {
-			const response = fetch("http://localhost:3000/admin/widget/add", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(widgetData),
-			});
+			const response = await fetch(
+				"http://localhost:3000/admin/widget/add",
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(widgetData),
+				}
+			);
 
 			if (!response.ok) {
 				throw new Error("Failed to Add");
@@ -18,9 +21,17 @@ export default {
 		}
 	},
 
-	async fetchWidgets({ commit }) {
+	async fetchWidgets({ commit }, id) {
 		try {
-			const response = fetch("http://localhost:3000/admin/widget");
-		} catch (error) {}
+			const response = await fetch(
+				`http://localhost:3000/admin/widget?id=${id}`
+			);
+
+			const json = await response.json();
+
+			commit("setWidget", json.data);
+		} catch (error) {
+			console.log("Error in loading!!!", error);
+		}
 	},
 };

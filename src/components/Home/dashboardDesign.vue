@@ -51,43 +51,20 @@
 				</button>
 			</div>
 		</div>
-
-		<div
-			class="main-content"
-			@drop="handleDrop"
-			@dragover="handleDragOver"
-			@dragleave="handleDragLeave"
-			:class="{ 'drag-over': isDragOver }"
-		>
-			<div v-if="widgets.length === 0" class="empty-state">
-				<font-awesome-icon icon="fa-solid fa-cube" class="empty-icon" />
-				<h5>No Widgets Yet</h5>
-				<p>Drag and drop widgets from the panel</p>
-			</div>
-
-			<div v-else class="widgets-grid">
-				<div
-					v-for="widget in widgets"
-					:key="widget.id"
-					class="widget-box"
-				>
-					{{ widget.type }}
-				</div>
-			</div>
-		</div>
+		<DashboardMain />
 	</div>
 </template>
 
 <script>
+import DashboardMain from "../Dashboard/dashboardMain.vue";
 import AddWidgetDrawer from "../Layout/addWigdetDrawer.vue";
 
 export default {
-	components: { AddWidgetDrawer },
+	components: { AddWidgetDrawer, DashboardMain },
 	data() {
 		return {
 			drawerVisible: false,
-			widgets: [],
-			isDragOver: false,
+
 			draggedWidgetType: null,
 			isSelected: "build",
 		};
@@ -107,24 +84,6 @@ export default {
 		},
 		handleWidgetDragStart(widgetType) {
 			this.draggedWidgetType = widgetType;
-		},
-		handleDragOver(e) {
-			e.preventDefault();
-			this.isDragOver = true;
-		},
-		handleDragLeave() {
-			this.isDragOver = false;
-		},
-		handleDrop(e) {
-			e.preventDefault();
-			this.isDragOver = false;
-			if (this.draggedWidgetType) {
-				this.widgets.push({
-					id: Date.now(),
-					type: this.draggedWidgetType,
-				});
-				this.draggedWidgetType = null;
-			}
 		},
 	},
 };
@@ -260,54 +219,5 @@ export default {
 
 .drawer-toggle.drawer-open .toggle-icon {
 	transform: rotate(180deg);
-}
-
-.main-content {
-	background: white;
-	border-radius: 10px;
-	padding: 2rem;
-	min-height: 60vh;
-	border: 1px solid #e5e7eb;
-	transition: all 0.3s ease;
-}
-
-.main-content.drag-over {
-	border: 2px dashed #3b82f6;
-	background-color: #f0f7ff;
-}
-
-.empty-state {
-	text-align: center;
-	color: #6b7280;
-	padding: 5rem 1rem;
-}
-
-.empty-icon {
-	font-size: 3rem;
-	margin-bottom: 0.5rem;
-	color: #9ca3af;
-}
-
-.widgets-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-	gap: 1.5rem;
-}
-
-.widget-box {
-	background: #f9fafb;
-	border: 1px solid #e5e7eb;
-	border-radius: 8px;
-	padding: 1.5rem;
-	text-align: center;
-	font-weight: 600;
-	color: #374151;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-	transition: all 0.2s;
-}
-
-.widget-box:hover {
-	background-color: #f3f4f6;
-	transform: translateY(-2px);
 }
 </style>

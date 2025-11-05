@@ -5,7 +5,7 @@ import actions from "./actions";
 export default {
 	namespaced: true,
 	state() {
-		return { widget: [], allWidgets: [] };
+		return { widget: [], allWidget: [] };
 	},
 	mutations,
 	actions,

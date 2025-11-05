@@ -1,5 +1,6 @@
 export default {
 	getAllWidgets(state) {
-		return state.allWidgets;
+		console.log(state.allWidget);
+		return state.allWidget;
 	},
 };
