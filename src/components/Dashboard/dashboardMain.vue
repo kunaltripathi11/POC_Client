@@ -15,7 +15,7 @@
 
 			<div v-else class="widgets-grid">
 				<div v-for="widget in widgets" class="widget-box">
-					{{ widget }} {{ isDragOver }}
+					{{ widget }}
 				</div>
 			</div>
 		</div>
@@ -24,20 +24,35 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import MainContent from "../Layout/MainContent.vue";
+
 export default {
+	components: {
+		MainContent,
+	},
 	data() {
 		return {
 			isDragOver: false,
 		};
 	},
 	async mounted() {
-		const id = this.$route.params.uuid;
+		let id;
+		let variable;
+		console.log(this.$route.params);
+		if (this.$route.params.uuid) {
+			id = this.$route.params.uuid;
+			variable = "uuid";
+		} else if (this.$route.params.url) {
+			id = "/" + this.$route.params.url;
+			variable = "url";
+		}
 
-		await this.fetchWidgets(id);
+		await this.fetchWidgets({ id, variable });
 	},
 	computed: {
 		...mapGetters("Widget", ["getAllWidgets"]),
 		widgets() {
+			console.log(this.getAllWidgets);
 			return this.getAllWidgets;
 		},
 	},
@@ -109,7 +124,9 @@ export default {
 	text-align: center;
 	font-weight: 600;
 	color: #374151;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+	box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+	/* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); */
+
 	transition: all 0.2s;
 }
 

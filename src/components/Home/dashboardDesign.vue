@@ -51,7 +51,9 @@
 				</button>
 			</div>
 		</div>
-		<DashboardMain />
+		<DashboardMain v-if="isSelected === 'build'" />
+		<h1 v-else-if="isSelected === 'filter'">filter</h1>
+		<h1 v-else-if="isSelected === 'logs'">Logs</h1>
 	</div>
 </template>
 

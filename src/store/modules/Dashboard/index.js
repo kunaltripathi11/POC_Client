@@ -3,14 +3,15 @@ import getters from "./getters";
 import actions from "./actions";
 
 export default {
-  namespaced: true,
-  state() {
-    return {
-      dashboards: [],
-      dashboardById: null,
-    };
-  },
-  mutations,
-  actions,
-  getters,
+	namespaced: true,
+	state() {
+		return {
+			dashboards: [],
+			dashboardById: null,
+			error: null,
+		};
+	},
+	mutations,
+	actions,
+	getters,
 };

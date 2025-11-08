@@ -60,6 +60,7 @@ export default {
 		},
 	},
 	async mounted() {
+		console.log(this.$route);
 		await this.fetchDashboards();
 	},
 	methods: {

@@ -24,4 +24,18 @@ export default {
 		);
 		await dispatch("fetchSolCategory");
 	},
+
+	async createSolCategory(state, payload) {
+		try {
+			await fetch(
+				`http://localhost:3000/admin/application/solution-categories/add`,
+				{
+					method: "POST",
+					body: JSON.stringify(payload),
+				}
+			);
+		} catch (error) {
+			console.log("Error creating Solution Category", error);
+		}
+	},
 };

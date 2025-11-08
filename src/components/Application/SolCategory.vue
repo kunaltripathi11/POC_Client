@@ -1,6 +1,14 @@
 <template>
+	<router-view></router-view>
 	<div class="main-content container mt-4">
-		<div style="display: flex; justify-content: space-between"></div>
+		<div style="display: flex; justify-content: space-between">
+			<h3 class="fw-bold mb-3">Solution Category List</h3>
+			<router-link to="/admin/application/solution-categories/add">
+				<button class="btn btn-primary mb-3" @click="create">
+					Create Sol
+				</button>
+			</router-link>
+		</div>
 		<table class="table table-hover align-middle shadow-sm">
 			<thead class="table-primary">
 				<tr>
@@ -36,7 +44,9 @@ import { mapActions, mapMutations, mapGetters } from "vuex";
 export default {
 	components: { BaseAction },
 	data() {
-		return {};
+		return {
+			route: this.$route.path,
+		};
 	},
 	computed: {
 		...mapGetters("SolCategory", ["filteredSolCategory"]),
@@ -50,6 +60,11 @@ export default {
 	methods: {
 		...mapActions("SolCategory", ["fetchSolCategory", "deleteSolCategory"]),
 		...mapMutations("SolCategory", ["setSolCategory"]),
+	},
+	watch: {
+		$route(to) {
+			this.route = to.path;
+		},
 	},
 };
 </script>

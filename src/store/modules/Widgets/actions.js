@@ -21,10 +21,12 @@ export default {
 		}
 	},
 
-	async fetchWidgets({ commit }, id) {
+	async fetchWidgets({ state, commit }, payload) {
+		const { id, variable } = payload;
+		state.allWidget = [];
 		try {
 			const response = await fetch(
-				`http://localhost:3000/admin/widget?id=${id}`
+				`http://localhost:3000/admin/widget?id=${id}&variable=${variable}`
 			);
 
 			const json = await response.json();
