@@ -11,6 +11,27 @@ export default {
 			console.error("Error loading Category", err);
 		}
 	},
+
+	async createCategory({ dispatch }, payload) {
+		try {
+			const response = await fetch(
+				"http://localhost:3000/admin/application/categories/add",
+				{
+					method: "POST",
+					headers: { "content-type": "application/json" },
+					body: JSON.stringify(payload),
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error("Error Inserting Data");
+			}
+			dispatch("fetchCategory");
+		} catch (err) {
+			console.error("Error loading Category", err);
+		}
+	},
+
 	// editCategory(cat) {
 	// 	this.$router.push(`/admin/application/categories/${dash.uuid}`);
 	// },

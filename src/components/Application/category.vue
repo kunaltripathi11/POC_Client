@@ -1,8 +1,12 @@
 <template>
 	<div class="main-content container mt-4">
 		<div style="display: flex; justify-content: space-between">
-			<!-- <h3 class="fw-bold mb-3"><Filter></Filter></h3> -->
-			<!-- <button class="btn btn-primary mb-3">Create Dashboard</button> -->
+			<h3 class="fw-bold mb-3">Solution Category List</h3>
+			<router-link to="/admin/application/categories/add">
+				<button class="btn btn-primary mb-3" @click="create">
+					Create Category
+				</button>
+			</router-link>
 		</div>
 		<table class="table table-hover align-middle shadow-sm">
 			<thead class="table-primary">

@@ -13,6 +13,7 @@ import AppLayout from "./components/Home/appLayout.vue";
 import ApplicationPage from "./components/Home/ApplicationPage.vue";
 import DashboardDesign from "./components/Home/dashboardDesign.vue";
 import SolutionCategoryForm from "./components/forms/solutionCategoryForm.vue";
+import CategoryForm from "./components/forms/CategoryForm.vue";
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -66,6 +67,10 @@ const router = createRouter({
 				{
 					path: "application/solution-categories/add",
 					component: SolutionCategoryForm,
+				},
+				{
+					path: "application/categories/add",
+					component: CategoryForm,
 				},
 				{
 					path: "dashboard",
