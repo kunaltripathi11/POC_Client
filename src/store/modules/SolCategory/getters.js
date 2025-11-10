@@ -1,7 +1,11 @@
 export default {
-	filteredSolCategory(state) {
-		let filtered = state.solCategories;
+  filteredSolCategory(state) {
+    let filtered = state.solCategories;
 
-		return filtered;
-	},
+    return filtered;
+  },
+
+  error(state) {
+    return state.error;
+  },
 };
