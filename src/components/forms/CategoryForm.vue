@@ -102,7 +102,7 @@ export default {
 			if (!name) return;
 			if (this.categoryNameSet.includes(name)) {
 				this.errors.category_name = "Name Already Present";
-			} else if (this.errors.categoryNameSet === "Name Already Present") {
+			} else if (this.errors.category_name === "Name Already Present") {
 				this.errors.category_name = "";
 			}
 		},

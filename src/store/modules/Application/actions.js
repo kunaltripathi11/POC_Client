@@ -10,6 +10,46 @@ export default {
 			console.error("Error loading Application", err);
 		}
 	},
+
+	async createApplications({ commit, dispatch }, payload) {
+		commit("setError", null);
+		console.log(payload);
+		try {
+			const response = await fetch(
+				`http://localhost:3000/admin/application/apps/add-app`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				}
+			);
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(
+					errorData.message || "Failed to create Application"
+				);
+			}
+			// const json = await response.json();
+			await dispatch("fetchApplications");
+			// return {
+			// 	success: true,
+			// 	data: json.data,
+			// };
+		} catch (error) {
+			console.log("Error creating Solution Category", error);
+			commit(
+				"setError",
+				error.message || "Failed to create solution category"
+			);
+			return { success: false, error: error.message };
+		}
+	},
+
+	clearError({ commit }) {
+		commit("setError", null);
+	},
 	// editApplication(app) {
 	// 	console.log(app);
 	// 	this.$router.push(`/admin/application/apps/edit/${dash.uuid}`);

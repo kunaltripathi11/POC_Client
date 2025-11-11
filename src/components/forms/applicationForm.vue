@@ -1,154 +1,166 @@
 <template>
-  <div class="main">
-    <div class="header">
-      <div class="back">
-        <router-link to="/admin/application/apps">
-          <font-awesome-icon icon="fa-solid fa-arrow-left" />
-          <span>Back to Applications</span>
-        </router-link>
-      </div>
-      <div class="heading">
-        <h2 class="fw-semibold">Add Application</h2>
-      </div>
-    </div>
-    <form @submit.prevent="onSubmit" novalidate>
-      <div class="mb-3">
-        <label class="form-label">
-          Application Name <span class="text-danger">*</span>
-        </label>
-        <input
-          type="text"
-          class="form-control"
-          v-model.trim="form.title"
-          @blur="checkUniqueName"
-          :class="{ 'is-invalid': errors.title }"
-          placeholder="e.g. Analytics Dashboard"
-        />
-        <div class="invalid-feedback" v-if="errors.title">
-          {{ errors.title }}
-        </div>
-      </div>
+	<div class="main">
+		<div class="header">
+			<div class="back">
+				<router-link to="/admin/application/apps">
+					<font-awesome-icon icon="fa-solid fa-arrow-left" />
+					<span>Back to Applications</span>
+				</router-link>
+			</div>
+			<div class="heading">
+				<h2 class="fw-semibold">Add Application</h2>
+			</div>
+		</div>
+		<form @submit.prevent="onSubmit" novalidate>
+			<div class="mb-3">
+				<label class="form-label">
+					Application Name <span class="text-danger">*</span>
+				</label>
+				<input
+					type="text"
+					class="form-control"
+					v-model.trim="form.title"
+					@blur="checkUniqueName"
+					:class="{ 'is-invalid': errors.title }"
+					placeholder="e.g. Analytics Dashboard"
+				/>
+				<div class="invalid-feedback" v-if="errors.title">
+					{{ errors.title }}
+				</div>
+			</div>
 
-      <searchable-dropdown
-        label="Category"
-        placeholder="Select Category..."
-        v-model="form.category_id"
-        :options="categoryOptions"
-      >
-      </searchable-dropdown>
+			<searchable-dropdown
+				label="Category"
+				placeholder="Select Category..."
+				v-model="form.category_id"
+				:options="categoryOptions"
+			>
+			</searchable-dropdown>
 
-      <div class="mb-3">
-        <label class="form-label">Display Order</label>
-        <input
-          type="number"
-          class="form-control"
-          v-model.number="form.display_order"
-          placeholder="e.g. 10"
-          min="0"
-        />
-      </div>
+			<div class="mb-3">
+				<label class="form-label">Display Order</label>
+				<input
+					type="number"
+					class="form-control"
+					v-model.number="form.display_order"
+					placeholder="e.g. 10"
+					min="0"
+				/>
+			</div>
 
-      <div class="mb-3">
-        <label class="form-label">
-          App Package <span class="text-danger">*</span>
-        </label>
-        <input
-          type="text"
-          class="form-control"
-          v-model.trim="form.app_package"
-          :class="{ 'is-invalid': errors.app_package }"
-          placeholder="e.g. com.example.app"
-        />
-        <div class="invalid-feedback" v-if="errors.app_package">
-          {{ errors.app_package }}
-        </div>
-      </div>
+			<div class="mb-3">
+				<label class="form-label">
+					App Package <span class="text-danger">*</span>
+				</label>
+				<input
+					type="text"
+					class="form-control"
+					v-model.trim="form.app_package"
+					:class="{ 'is-invalid': errors.app_package }"
+					placeholder="e.g. com.example.app"
+				/>
+				<div class="invalid-feedback" v-if="errors.app_package">
+					{{ errors.app_package }}
+				</div>
+			</div>
 
-      <div class="mb-3">
-        <label class="form-label">Icon</label>
-        <div class="icon-selector">
-          <div class="selected-icon" @click="showIconPicker = !showIconPicker">
-            <span class="material-icons" v-if="form.icon">
-              {{ form.icon }}
-            </span>
-            <span v-else class="placeholder-text"> Select an icon </span>
-          </div>
-          <div class="icon-picker" v-if="showIconPicker">
-            <div class="icon-search">
-              <input
-                type="text"
-                class="form-control"
-                v-model="iconSearch"
-                placeholder="Search icons..."
-              />
-            </div>
-            <div v-if="loadingIcons" class="text-center py-3">
-              <div class="spinner-border spinner-border-sm" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <span class="ms-2">Loading icons...</span>
-            </div>
-            <div class="icon-grid" v-else>
-              <div
-                v-for="icon in visibleIcons"
-                :key="icon"
-                class="icon-item"
-                :class="{ selected: form.icon === icon }"
-                @click="selectIcon(icon)"
-                :title="icon"
-              >
-                <span class="material-icons">{{ icon }}</span>
-              </div>
-            </div>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-primary w-100 mt-2"
-              @click="loadMoreIcons"
-              v-if="hasMoreIcons"
-              :disabled="loadingIcons"
-            >
-              {{ loadingIcons ? "Loading..." : "Load More" }}
-            </button>
-          </div>
-        </div>
-        <small class="form-text text-muted">
-          Click to select a Material Icon
-        </small>
-      </div>
+			<div class="mb-3">
+				<label class="form-label">Icon</label>
+				<div class="icon-selector">
+					<div
+						class="selected-icon"
+						@click="showIconPicker = !showIconPicker"
+					>
+						<span class="material-icons" v-if="form.icon">
+							{{ form.icon }}
+						</span>
+						<span v-else class="placeholder-text">
+							Select an icon
+						</span>
+					</div>
+					<div class="icon-picker" v-if="showIconPicker">
+						<div class="icon-search">
+							<input
+								type="text"
+								class="form-control"
+								v-model="iconSearch"
+								placeholder="Search icons..."
+							/>
+						</div>
+						<div v-if="loadingIcons" class="text-center py-3">
+							<div
+								class="spinner-border spinner-border-sm"
+								role="status"
+							>
+								<span class="visually-hidden">Loading...</span>
+							</div>
+							<span class="ms-2">Loading icons...</span>
+						</div>
+						<div class="icon-grid" v-else>
+							<div
+								v-for="icon in visibleIcons"
+								:key="icon"
+								class="icon-item"
+								:class="{ selected: form.icon === icon }"
+								@click="selectIcon(icon)"
+								:title="icon"
+							>
+								<span class="material-icons">{{ icon }}</span>
+							</div>
+						</div>
+						<button
+							type="button"
+							class="btn btn-sm btn-outline-primary w-100 mt-2"
+							@click="loadMoreIcons"
+							v-if="hasMoreIcons"
+							:disabled="loadingIcons"
+						>
+							{{ loadingIcons ? "Loading..." : "Load More" }}
+						</button>
+					</div>
+				</div>
+				<small class="form-text text-muted">
+					Click to select a Material Icon
+				</small>
+			</div>
 
-      <div class="mb-3 d-flex align-items-center justify-content-between">
-        <label class="form-label mb-0">Active</label>
-        <label class="switch">
-          <input type="checkbox" v-model="form.active" />
-          <span class="slider"></span>
-        </label>
-      </div>
+			<div class="mb-3 d-flex align-items-center justify-content-between">
+				<label class="form-label mb-0">Active</label>
+				<label class="switch">
+					<input type="checkbox" v-model="form.active" />
+					<span class="slider"></span>
+				</label>
+			</div>
 
-      <div class="mb-3 d-flex align-items-center justify-content-between">
-        <label class="form-label mb-0">Hide App</label>
-        <label class="switch">
-          <input type="checkbox" v-model="form.hide_app" />
-          <span class="slider"></span>
-        </label>
-      </div>
+			<div class="mb-3 d-flex align-items-center justify-content-between">
+				<label class="form-label mb-0">Hide App</label>
+				<label class="switch">
+					<input type="checkbox" v-model="form.hide_app" />
+					<span class="slider"></span>
+				</label>
+			</div>
 
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary" :disabled="submitting">
-          Create Application
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          @click="handleCancel"
-        >
-          Cancel
-        </button>
-      </div>
-      <div class="text-danger mt-3" v-if="formError">
-        {{ formError }}
-      </div>
-    </form>
-  </div>
+			<div class="d-flex gap-2">
+				<button
+					type="submit"
+					class="btn btn-primary"
+					:disabled="submitting"
+				>
+					Create Application
+				</button>
+				<button
+					type="button"
+					class="btn btn-outline-secondary"
+					@click="handleCancel"
+				>
+					Cancel
+				</button>
+			</div>
+			<div class="text-danger mt-3" v-if="formError">
+				{{ formError }}
+			</div>
+		</form>
+	</div>
 </template>
 
 <script>
@@ -156,363 +168,367 @@ import { mapActions, mapGetters } from "vuex";
 import SearchableDropdown from "../Layout/searchableDropdown.vue";
 
 export default {
-  components: {
-    SearchableDropdown,
-  },
-  data() {
-    return {
-      form: {
-        title: "",
-        category_id: null,
-        display_order: null,
-        app_package: "",
-        icon: "",
-        active: true,
-        hide_app: false,
-      },
-      errors: {},
-      formError: "",
-      submitting: false,
-      showIconPicker: false,
-      iconSearch: "",
-      iconsPerPage: 30,
-      currentIconIndex: 0,
-      allMaterialIcons: [],
-      loadingIcons: false,
-    };
-  },
-  async mounted() {
-    await this.fetchApplications();
-    await this.fetchCategories();
-    await this.fetchMaterialIcons();
-  },
-  computed: {
-    ...mapGetters("Application", ["filteredApplication"]),
-    ...mapGetters("Category", ["filteredCategory"]),
+	components: {
+		SearchableDropdown,
+	},
+	data() {
+		return {
+			form: {
+				title: "",
+				category_id: null,
+				display_order: null,
+				app_package: "",
+				icon: "",
+				active: true,
+				hide_app: false,
+			},
+			errors: {},
+			formError: "",
+			submitting: false,
+			showIconPicker: false,
+			iconSearch: "",
+			iconsPerPage: 30,
+			currentIconIndex: 0,
+			allMaterialIcons: [],
+			loadingIcons: false,
+		};
+	},
+	async mounted() {
+		await this.fetchApplications();
+		await this.fetchCategory();
+		await this.fetchMaterialIcons();
+	},
+	computed: {
+		...mapGetters("Application", ["filteredApplication"]),
+		...mapGetters("Category", ["filteredCategory"]),
 
-    categoryOptions() {
-      return this.filteredCategory.map((cat) => ({
-        value: cat.id,
-        label: cat.category_name,
-      }));
-    },
+		applicationNameSet() {
+			const list = Array.isArray(this.filteredApplication)
+				? this.filteredApplication
+				: [];
+			console.log(list);
 
-    filteredMaterialIcons() {
-      if (!this.iconSearch) {
-        return this.allMaterialIcons;
-      }
-      const search = this.iconSearch.toLowerCase();
-      return this.allMaterialIcons.filter((icon) => icon.includes(search));
-    },
+			const uniqueApps = new Set(list);
 
-    visibleIcons() {
-      return this.filteredMaterialIcons.slice(
-        0,
-        this.currentIconIndex + this.iconsPerPage
-      );
-    },
+			return Array.from(uniqueApps).map((c) =>
+				(c.title || "").trim().toLowerCase()
+			);
+		},
 
-    hasMoreIcons() {
-      return this.visibleIcons.length < this.filteredMaterialIcons.length;
-    },
-  },
-  methods: {
-    ...mapActions("Application", ["fetchApplications", "createApplication"]),
-    ...mapActions("Category", ["fetchCategories"]),
+		categoryOptions() {
+			return this.filteredCategory.map((cat) => ({
+				value: cat.id,
+				label: cat.category_name,
+			}));
+		},
 
-    async fetchMaterialIcons() {
-      try {
-        this.loadingIcons = true;
+		filteredMaterialIcons() {
+			if (!this.iconSearch) {
+				return this.allMaterialIcons;
+			}
+			const search = this.iconSearch.toLowerCase();
+			return this.allMaterialIcons.filter((icon) =>
+				icon.includes(search)
+			);
+		},
 
-        const response = await fetch(
-          "https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints"
-        );
-        const text = await response.text();
+		visibleIcons() {
+			return this.filteredMaterialIcons.slice(
+				0,
+				this.currentIconIndex + this.iconsPerPage
+			);
+		},
 
-        const icons = text
-          .split("\n")
-          .filter((line) => line.trim())
-          .map((line) => line.split(" ")[0])
-          .sort();
+		hasMoreIcons() {
+			return this.visibleIcons.length < this.filteredMaterialIcons.length;
+		},
+	},
+	methods: {
+		...mapActions("Application", [
+			"fetchApplications",
+			"createApplications",
+		]),
+		...mapActions("Category", ["fetchCategory"]),
 
-        this.allMaterialIcons = icons;
-        this.currentIconIndex = 0;
-      } catch (error) {
-        console.error("Error fetching Material Icons:", error);
-        this.formError = "Failed to load icons. Using fallback list.";
-      } finally {
-        this.loadingIcons = false;
-      }
-    },
+		async fetchMaterialIcons() {
+			try {
+				this.loadingIcons = true;
 
-    selectIcon(icon) {
-      this.form.icon = icon;
-      this.showIconPicker = false;
-    },
+				const response = await fetch(
+					"https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints"
+				);
+				const text = await response.text();
 
-    loadMoreIcons() {
-      this.currentIconIndex += this.iconsPerPage;
-    },
+				const icons = text
+					.split("\n")
+					.filter((line) => line.trim())
+					.map((line) => line.split(" ")[0])
+					.sort();
 
-    validate() {
-      this.errors = {};
-      if (!this.form.title) {
-        this.errors.title = "Application name is required";
-      }
-      if (!this.form.app_package) {
-        this.errors.app_package = "App package is required";
-      }
-      return Object.keys(this.errors).length === 0;
-    },
+				this.allMaterialIcons = icons;
+				this.currentIconIndex = 0;
+			} catch (error) {
+				console.error("Error fetching Material Icons:", error);
+				this.formError = "Failed to load icons. Using fallback list.";
+			} finally {
+				this.loadingIcons = false;
+			}
+		},
 
-    async checkUniqueName() {
-      const title = (this.form.title || "").trim();
-      if (!title) {
-        this.errors.title = "";
-        return;
-      }
+		selectIcon(icon) {
+			this.form.icon = icon;
+			this.showIconPicker = false;
+		},
 
-      try {
-        const response = await fetch(
-          `http://localhost:3000/admin/application/apps/check-name?title=${encodeURIComponent(
-            title
-          )}`
-        );
-        const data = await response.json();
-        if (data.exists) {
-          this.errors.title =
-            "Application name already exists. Please choose a unique name.";
-        } else {
-          this.errors.title = "";
-        }
-      } catch (error) {
-        console.error("Error checking name uniqueness:", error);
-      }
-    },
+		loadMoreIcons() {
+			this.currentIconIndex += this.iconsPerPage;
+		},
 
-    async onSubmit() {
-      try {
-        this.formError = "";
-        if (!this.validate()) return;
+		validate() {
+			this.errors = {};
+			if (!this.form.title) {
+				this.errors.title = "Application name is required";
+			}
+			if (!this.form.app_package) {
+				this.errors.app_package = "App package is required";
+			}
+			return Object.keys(this.errors).length === 0;
+		},
 
-        await this.checkUniqueName();
-        if (this.errors.title) return;
+		async checkUniqueName() {
+			const title = (this.form.title || "").trim();
+			console.log("title", title);
+			console.log("applicationNameSet", this.applicationNameSet);
+			if (!title) return;
+			if (this.applicationNameSet.includes(title)) {
+				this.errors.title = "Name Already Present";
+			} else if (this.errors.title === "Name Already Present") {
+				this.errors.title = "";
+			}
+		},
 
-        this.submitting = true;
+		async onSubmit() {
+			try {
+				this.formError = "";
+				if (!this.validate()) return;
 
-        const payload = {
-          title: this.form.title,
-          category_id: this.form.category_id,
-          display_order: this.form.display_order,
-          app_package: this.form.app_package,
-          icon: this.form.icon,
-          active: this.form.active,
-          hide_app: this.form.hide_app,
-        };
+				await this.checkUniqueName();
+				if (this.errors.title) return;
 
-        await this.createApplication(payload);
-        await this.fetchApplications();
+				this.submitting = true;
 
-        this.form = {
-          title: "",
-          category_id: null,
-          display_order: null,
-          app_package: "",
-          icon: "",
-          active: true,
-          hide_app: false,
-        };
+				const payload = {
+					title: this.form.title,
+					category_id: this.form.category_id,
+					display_order: this.form.display_order,
+					app_package: this.form.app_package,
+					icon: this.form.icon,
+					active: this.form.active,
+					hide_app: this.form.hide_app,
+				};
 
-        this.$router.push("/admin/application/apps");
-      } catch (error) {
-        this.formError = error.message || "Something went wrong";
-      } finally {
-        this.submitting = false;
-      }
-    },
+				await this.createApplications(payload);
 
-    handleCancel() {
-      this.$router.push("/admin/application/apps");
-    },
-  },
-  watch: {
-    iconSearch() {
-      this.currentIconIndex = 0;
-    },
-  },
+				this.form = {
+					title: "",
+					category_id: null,
+					display_order: null,
+					app_package: "",
+					icon: "",
+					active: true,
+					hide_app: false,
+				};
+
+				this.$router.replace("/admin/application/apps");
+			} catch (error) {
+				this.formError = error.message || "Something went wrong";
+			} finally {
+				this.submitting = false;
+			}
+		},
+
+		handleCancel() {
+			this.$router.push("/admin/application/apps");
+		},
+	},
+	watch: {
+		iconSearch() {
+			this.currentIconIndex = 0;
+		},
+	},
 };
 </script>
 
 <style scoped>
 a {
-  text-decoration: none;
+	text-decoration: none;
 }
 
 .main {
-  padding: 1rem 0 0 1rem;
-  margin-left: 13rem;
-  margin-top: 4rem;
-  width: calc(100vw - 13rem);
-  height: calc(100vh - 4rem);
-  background: #f8fcff;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-  overflow-y: auto;
+	padding: 1rem 0 0 1rem;
+	margin-left: 13rem;
+	margin-top: 4rem;
+	width: calc(100vw - 13rem);
+	height: calc(100vh - 4rem);
+	background: #f8fcff;
+	border: 1px solid #e5e7eb;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+	overflow-y: auto;
 }
 
 .header {
-  border: 1px solid gray;
+	border: 1px solid gray;
 }
 
 .back {
-  width: 100%;
-  border-bottom: 1px solid black;
-  padding: 0.7rem;
+	width: 100%;
+	border-bottom: 1px solid black;
+	padding: 0.7rem;
 }
 
 .heading {
-  padding: 0.4rem;
+	padding: 0.4rem;
 }
 
 form {
-  padding: 1.5rem;
-  max-width: 600px;
+	padding: 1.5rem;
+	max-width: 600px;
 }
 
 .gap-2 {
-  gap: 0.5rem;
+	gap: 0.5rem;
 }
 
 .switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
+	position: relative;
+	display: inline-block;
+	width: 50px;
+	height: 24px;
 }
 
 .switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+	opacity: 0;
+	width: 0;
+	height: 0;
 }
 
 .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: 0.4s;
-  border-radius: 24px;
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #ccc;
+	transition: 0.4s;
+	border-radius: 24px;
 }
 
 .slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
+	position: absolute;
+	content: "";
+	height: 18px;
+	width: 18px;
+	left: 3px;
+	bottom: 3px;
+	background-color: white;
+	transition: 0.4s;
+	border-radius: 50%;
 }
 
 input:checked + .slider {
-  background-color: #0d6efd;
+	background-color: #0d6efd;
 }
 
 input:checked + .slider:before {
-  transform: translateX(26px);
+	transform: translateX(26px);
 }
 
 .icon-selector {
-  position: relative;
+	position: relative;
 }
 
 .selected-icon {
-  border: 1px solid #ced4da;
-  border-radius: 0.375rem;
-  padding: 0.75rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60px;
-  background-color: white;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+	border: 1px solid #ced4da;
+	border-radius: 0.375rem;
+	padding: 0.75rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 60px;
+	background-color: white;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
 .selected-icon:hover {
-  border-color: #86b7fe;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
 .selected-icon .material-icons {
-  font-size: 32px;
-  color: #495057;
+	font-size: 32px;
+	color: #495057;
 }
 
 .placeholder-text {
-  color: #6c757d;
+	color: #6c757d;
 }
 
 .icon-picker {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  margin-top: 0.5rem;
-  background: white;
-  border: 1px solid #ced4da;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  z-index: 1000;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  max-height: 400px;
-  overflow-y: auto;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	margin-top: 0.5rem;
+	background: white;
+	border: 1px solid #ced4da;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	z-index: 1000;
+	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+	max-height: 400px;
+	overflow-y: auto;
 }
 
 .icon-search {
-  margin-bottom: 1rem;
+	margin-bottom: 1rem;
 }
 
 .icon-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-  gap: 0.5rem;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+	gap: 0.5rem;
 }
 
 .icon-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem;
-  border: 1px solid #dee2e6;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  background-color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.75rem;
+	border: 1px solid #dee2e6;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	transition: all 0.2s;
+	background-color: white;
 }
 
 .icon-item:hover {
-  background-color: #f8f9fa;
-  border-color: #0d6efd;
+	background-color: #f8f9fa;
+	border-color: #0d6efd;
 }
 
 .icon-item.selected {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-  color: white;
+	background-color: #0d6efd;
+	border-color: #0d6efd;
+	color: white;
 }
 
 .icon-item .material-icons {
-  font-size: 24px;
+	font-size: 24px;
 }
 
 .icon-item.selected .material-icons {
-  color: white;
+	color: white;
 }
 </style>
