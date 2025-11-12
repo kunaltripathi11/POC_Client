@@ -1,0 +1,588 @@
+<template>
+	<div class="main">
+		<div class="header">
+			<div class="back">
+				<router-link to="/admin/application/apps">
+					<font-awesome-icon icon="fa-solid fa-arrow-left" />
+					<span>Back to Dashboard</span>
+				</router-link>
+			</div>
+			<div class="heading">
+				<h2 class="fw-semibold">Add Dashboard</h2>
+			</div>
+		</div>
+		<form @submit.prevent="onSubmit" novalidate>
+			<div class="mb-3">
+				<label class="form-label">
+					Name <span class="text-danger">*</span>
+				</label>
+				<input
+					type="text"
+					class="form-control"
+					v-model.trim="form.name"
+					@blur="checkUniqueName"
+					:class="{ 'is-invalid': errors.name }"
+					placeholder="Enter Name..."
+				/>
+				<div class="invalid-feedback" v-if="errors.name">
+					{{ errors.name }}
+				</div>
+			</div>
+			<div class="mb-3">
+				<label class="form-label">
+					Title <span class="text-danger">*</span>
+				</label>
+				<input
+					type="text"
+					class="form-control"
+					v-model.trim="form.title"
+					@blur="checkUniqueName"
+					:class="{ 'is-invalid': errors.title }"
+					placeholder="Enter Title..."
+				/>
+				<div class="invalid-feedback" v-if="errors.title">
+					{{ errors.title }}
+				</div>
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label">
+					url <span class="text-danger">*</span>
+				</label>
+				<input
+					type="text"
+					class="form-control"
+					v-model.trim="form.url"
+					:class="{ 'is-invalid': errors.url }"
+					placeholder="/abc ..."
+				/>
+				<div class="invalid-feedback" v-if="errors.url">
+					{{ errors.url }}
+				</div>
+			</div>
+			<div class="mb-3 d-flex align-items-center justify-content-between">
+				<label class="form-label mb-0">Create Application</label>
+				<label class="switch">
+					<input type="checkbox" v-model="form.create_app" />
+					<span class="slider"></span>
+				</label>
+			</div>
+
+			<searchable-dropdown
+				v-if="!form.create_app"
+				label="Application"
+				placeholder="Select Application..."
+				v-model="form.app_id"
+				:options="applicationOptions"
+			>
+			</searchable-dropdown>
+
+			<div v-else>
+				<div class="mb-3">
+					<label class="form-label">
+						Application Name <span class="text-danger">*</span>
+					</label>
+					<input
+						type="text"
+						class="form-control"
+						v-model.trim="form.app_title"
+						@blur="checkUniqueName"
+						:class="{ 'is-invalid': errors.app_title }"
+						placeholder="e.g. Analytics Dashboard"
+					/>
+					<div class="invalid-feedback" v-if="errors.app_title">
+						{{ errors.title }}
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">
+						App Package <span class="text-danger">*</span>
+					</label>
+					<input
+						type="text"
+						class="form-control"
+						v-model.trim="form.app_package"
+						:class="{ 'is-invalid': errors.app_package }"
+						placeholder="e.g. com.example.app"
+					/>
+					<div class="invalid-feedback" v-if="errors.app_package">
+						{{ errors.app_package }}
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label">Icon</label>
+					<div class="icon-selector">
+						<div
+							class="selected-icon"
+							@click="showIconPicker = !showIconPicker"
+						>
+							<span class="material-icons" v-if="form.icon">
+								{{ form.icon }}
+							</span>
+							<span v-else class="placeholder-text">
+								Select an icon
+							</span>
+						</div>
+						<div class="icon-picker" v-if="showIconPicker">
+							<div class="icon-search">
+								<input
+									type="text"
+									class="form-control"
+									v-model="iconSearch"
+									placeholder="Search icons..."
+								/>
+							</div>
+							<div v-if="loadingIcons" class="text-center py-3">
+								<div
+									class="spinner-border spinner-border-sm"
+									role="status"
+								>
+									<span class="visually-hidden"
+										>Loading...</span
+									>
+								</div>
+								<span class="ms-2">Loading icons...</span>
+							</div>
+							<div class="icon-grid" v-else>
+								<div
+									v-for="icon in visibleIcons"
+									:key="icon"
+									class="icon-item"
+									:class="{ selected: form.icon === icon }"
+									@click="selectIcon(icon)"
+									:title="icon"
+								>
+									<span class="material-icons">{{
+										icon
+									}}</span>
+								</div>
+							</div>
+							<button
+								type="button"
+								class="btn btn-sm btn-outline-primary w-100 mt-2"
+								@click="loadMoreIcons"
+								v-if="hasMoreIcons"
+								:disabled="loadingIcons"
+							>
+								{{ loadingIcons ? "Loading..." : "Load More" }}
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="mb-3 d-flex align-items-center justify-content-between">
+				<label class="form-label mb-0"
+					>Remove filter After Leaving</label
+				>
+				<label class="switch">
+					<input type="checkbox" v-model="form.remove_filter" />
+					<span class="slider"></span>
+				</label>
+			</div>
+			<div class="d-flex gap-2">
+				<button
+					type="submit"
+					class="btn btn-primary"
+					:disabled="submitting"
+				>
+					Create Dashboard
+				</button>
+				<button
+					type="button"
+					class="btn btn-outline-secondary"
+					@click="handleCancel"
+				>
+					Cancel
+				</button>
+			</div>
+			<div class="text-danger mt-3" v-if="formError">
+				{{ formError }}
+			</div>
+		</form>
+	</div>
+</template>
+
+<script>
+import { mapActions, mapGetters } from "vuex";
+import SearchableDropdown from "../Layout/searchableDropdown.vue";
+
+export default {
+	components: {
+		SearchableDropdown,
+	},
+	data() {
+		return {
+			form: {
+				title: "",
+				name: "",
+				url: "",
+				remove_filter: false,
+				create_app: false,
+				app_package: "",
+				icon: "",
+				hide_app: false,
+			},
+			errors: {},
+			formError: "",
+			submitting: false,
+			showIconPicker: false,
+			iconSearch: "",
+			iconsPerPage: 30,
+			currentIconIndex: 0,
+			allMaterialIcons: [],
+			loadingIcons: false,
+		};
+	},
+	async mounted() {
+		await this.fetchApplications();
+		await this.fetchMaterialIcons();
+		await this.fetchDashboards();
+	},
+	methods: {
+		...mapActions("Application", [
+			"fetchApplications",
+			"createApplications",
+		]),
+		...mapActions("Dashboard", ["fetchDashboards", "createDashboard"]),
+
+		async fetchMaterialIcons() {
+			try {
+				this.loadingIcons = true;
+
+				const response = await fetch(
+					"https://raw.githubusercontent.com/google/material-design-icons/master/font/MaterialIcons-Regular.codepoints"
+				);
+				const text = await response.text();
+
+				const icons = text
+					.split("\n")
+					.filter((line) => line.trim())
+					.map((line) => line.split(" ")[0])
+					.sort();
+
+				this.allMaterialIcons = icons;
+				this.currentIconIndex = 0;
+			} catch (error) {
+				console.error("Error fetching Material Icons:", error);
+				this.formError = "Failed to load icons. Using fallback list.";
+			} finally {
+				this.loadingIcons = false;
+			}
+		},
+		selectIcon(icon) {
+			this.form.icon = icon;
+			this.showIconPicker = false;
+		},
+
+		loadMoreIcons() {
+			this.currentIconIndex += this.iconsPerPage;
+		},
+
+		validate() {
+			this.errors = {};
+			if (!this.form.name) {
+				this.errors.name = "Dashboard name is required";
+			}
+			if (!this.form.title) {
+				this.errors.title = "Dashboard title is required";
+			}
+			if (!this.form.url) {
+				this.errors.url = "Dashboard url is required";
+			}
+			if (!this.form.app_package && this.form.create_app) {
+				this.errors.app_package = "App package is required";
+			}
+			return Object.keys(this.errors).length === 0;
+		},
+
+		async onSubmit() {
+			try {
+				this.formError = "";
+				if (!this.validate()) {
+					console.log("not validated");
+					return;
+				}
+
+				await this.checkUniqueName();
+				if (this.errors.name) return;
+
+				console.log("submit form", this.form);
+				this.submitting = true;
+
+				const payload = {
+					name: this.form.name,
+					title: this.form.title,
+					url: this.form.url,
+					remove_filter: this.form.remove_filter,
+					create_app: this.form.create_app,
+					app_package: this.form.app_package,
+					icon: this.form.icon,
+				};
+				console.log("payload", payload);
+
+				await this.createDashboard(payload);
+
+				this.form = {
+					title: "",
+					name: "",
+					url: "",
+					remove_filter: false,
+					create_app: false,
+					app_package: "",
+					icon: "",
+				};
+
+				this.$router.replace("/admin/dashboard");
+			} catch (error) {
+				this.formError = error.message || "Something went wrong";
+			} finally {
+				this.submitting = false;
+			}
+		},
+
+		handleCancel() {
+			this.$router.push("/admin/dashboard");
+		},
+		async checkUniqueName() {
+			const name = (this.form.name || "").trim();
+			console.log("name", name);
+			console.log("dashboardNameSet", this.dashboardNameSet);
+			if (!name) return;
+			if (this.dashboardNameSet.includes(name)) {
+				this.errors.name = "Name Already Present";
+			} else if (this.errors.name === "Name Already Present") {
+				this.errors.name = "";
+			}
+		},
+	},
+
+	computed: {
+		...mapGetters("Application", ["filteredApplication"]),
+		...mapGetters("Dashboard", ["filteredDashboards"]),
+
+		dashboardNameSet() {
+			console.log("Dashboards", this.filteredDashboards);
+			const list = Array.isArray(this.filteredDashboards)
+				? this.filteredDashboards
+				: [];
+			console.log("list", list);
+
+			const uniqueApps = new Set(list);
+			console.log("Unique", uniqueApps);
+			return Array.from(uniqueApps).map((c) =>
+				(c.name || "").trim().toLowerCase()
+			);
+		},
+
+		applicationOptions() {
+			return this.filteredApplication.map((app) => ({
+				value: app.id,
+				label: app.title,
+			}));
+		},
+
+		filteredMaterialIcons() {
+			if (!this.iconSearch) {
+				return this.allMaterialIcons;
+			}
+			const search = this.iconSearch.toLowerCase();
+			return this.allMaterialIcons.filter((icon) =>
+				icon.includes(search)
+			);
+		},
+
+		visibleIcons() {
+			return this.filteredMaterialIcons.slice(
+				0,
+				this.currentIconIndex + this.iconsPerPage
+			);
+		},
+
+		hasMoreIcons() {
+			return this.visibleIcons.length < this.filteredMaterialIcons.length;
+		},
+	},
+
+	watch: {
+		iconSearch() {
+			this.currentIconIndex = 0;
+		},
+	},
+};
+</script>
+
+<style scoped>
+a {
+	text-decoration: none;
+}
+
+.main {
+	padding: 1rem 0 0 1rem;
+	margin-left: 13rem;
+	margin-top: 4rem;
+	width: calc(100vw - 13rem);
+	height: calc(100vh - 4rem);
+	background: #f8fcff;
+	border: 1px solid #e5e7eb;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+	overflow-y: auto;
+}
+
+.header {
+	border: 1px solid gray;
+}
+
+.back {
+	width: 100%;
+	border-bottom: 1px solid black;
+	padding: 0.7rem;
+}
+
+.heading {
+	padding: 0.4rem;
+}
+
+form {
+	padding: 1.5rem;
+	max-width: 600px;
+}
+
+.gap-2 {
+	gap: 0.5rem;
+}
+
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 50px;
+	height: 24px;
+}
+
+.switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #ccc;
+	transition: 0.4s;
+	border-radius: 24px;
+}
+
+.slider:before {
+	position: absolute;
+	content: "";
+	height: 18px;
+	width: 18px;
+	left: 3px;
+	bottom: 3px;
+	background-color: white;
+	transition: 0.4s;
+	border-radius: 50%;
+}
+
+input:checked + .slider {
+	background-color: #0d6efd;
+}
+
+input:checked + .slider:before {
+	transform: translateX(26px);
+}
+
+.icon-selector {
+	position: relative;
+}
+
+.selected-icon {
+	border: 1px solid #ced4da;
+	border-radius: 0.375rem;
+	padding: 0.75rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 60px;
+	background-color: white;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.selected-icon:hover {
+	border-color: #86b7fe;
+	box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.selected-icon .material-icons {
+	font-size: 32px;
+	color: #495057;
+}
+
+.placeholder-text {
+	color: #6c757d;
+}
+
+.icon-picker {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	margin-top: 0.5rem;
+	background: white;
+	border: 1px solid #ced4da;
+	border-radius: 0.375rem;
+	padding: 1rem;
+	z-index: 1000;
+	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+	max-height: 400px;
+	overflow-y: auto;
+}
+
+.icon-search {
+	margin-bottom: 1rem;
+}
+
+.icon-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+	gap: 0.5rem;
+}
+
+.icon-item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.75rem;
+	border: 1px solid #dee2e6;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	transition: all 0.2s;
+	background-color: white;
+}
+
+.icon-item:hover {
+	background-color: #f8f9fa;
+	border-color: #0d6efd;
+}
+
+.icon-item.selected {
+	background-color: #0d6efd;
+	border-color: #0d6efd;
+	color: white;
+}
+
+.icon-item .material-icons {
+	font-size: 24px;
+}
+
+.icon-item.selected .material-icons {
+	color: white;
+}
+</style>

@@ -8,4 +8,8 @@ export default {
 	getDashboardById(state) {
 		return state.dashboardById;
 	},
+
+	error(state) {
+		return state.error;
+	},
 };

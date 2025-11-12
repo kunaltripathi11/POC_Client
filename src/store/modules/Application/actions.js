@@ -38,11 +38,8 @@ export default {
 			// 	data: json.data,
 			// };
 		} catch (error) {
-			console.log("Error creating Solution Category", error);
-			commit(
-				"setError",
-				error.message || "Failed to create solution category"
-			);
+			console.log("Error creating Application", error);
+			commit("setError", error.message || "Failed to create Application");
 			return { success: false, error: error.message };
 		}
 	},

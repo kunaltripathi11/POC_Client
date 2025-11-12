@@ -2,7 +2,11 @@
 	<div class="main-content container mt-4">
 		<div style="display: flex; justify-content: space-between">
 			<h3 class="fw-bold mb-3">Dashboard List</h3>
-			<button class="btn btn-primary mb-3">Create Dashboard</button>
+			<router-link to="/admin/dashboard/add">
+				<button class="btn btn-primary mb-3" @click="create">
+					Create Dashboard
+				</button>
+			</router-link>
 		</div>
 		<table class="table table-hover align-middle shadow-sm">
 			<thead class="table-primary">

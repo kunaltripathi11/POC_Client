@@ -8,7 +8,7 @@ export default {
 		return {
 			dashboards: [],
 			dashboardById: null,
-			error: null,
+			error: "",
 		};
 	},
 	mutations,

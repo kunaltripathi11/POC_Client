@@ -46,14 +46,24 @@ export default {
 		}
 	},
 
-	async createDashboard({ commit }, formData) {
+	async createDashboard({ commit, dispatch }, formData) {
 		try {
+			commit("setError", null);
 			await fetch(`http://localhost:3000/admin/dashboard/add`, {
 				method: "POST",
+				headers: { "content-type": "application/json" },
 				body: JSON.stringify(formData),
 			});
+
+			dispatch(this.fetchDashboards);
 		} catch (error) {
-			console.log("Error Inserting data");
+			console.log("Error creating Application", error);
+			commit("setError", error.message || "Failed to create Application");
+			return { success: false, error: error.message };
 		}
+	},
+
+	clearError({ commit }) {
+		commit("setError", null);
 	},
 };
