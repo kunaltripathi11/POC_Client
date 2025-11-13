@@ -12,4 +12,8 @@ export default {
 	error(state) {
 		return state.error;
 	},
+
+	filteredApplication(state) {
+		return state.filteredApps;
+	},
 };

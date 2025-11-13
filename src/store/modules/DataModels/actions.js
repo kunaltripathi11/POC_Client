@@ -22,4 +22,28 @@ export default {
 		});
 		await dispatch("fetchModels");
 	},
+
+	async createModel({ commit, dispatch }, payload) {
+		try {
+			commit("setError", null);
+			await fetch(
+				`http://localhost:3000/admin/data-model/add-data-model`,
+				{
+					method: "POST",
+					headers: { "content-type": "application/json" },
+					body: JSON.stringify(payload),
+				}
+			);
+
+			dispatch("fetchModels");
+		} catch (error) {
+			console.log("Error creating Data Model", error);
+			commit("setError", error.message || "Failed to create Data Model");
+			return { success: false, error: error.message };
+		}
+	},
+
+	clearError({ commit }) {
+		commit("setError", null);
+	},
 };

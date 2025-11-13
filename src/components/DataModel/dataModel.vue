@@ -2,6 +2,12 @@
 	<div class="main-content container mt-4">
 		<div style="display: flex; justify-content: space-between">
 			<h3 class="fw-bold mb-3">Data Model List</h3>
+			<router-link
+				to="/admin/data-model/add-data-model
+			"
+			>
+				<button class="btn btn-primary mb-3">Create Model</button>
+			</router-link>
 		</div>
 		<table class="table table-hover align-middle shadow-sm">
 			<thead class="table-primary">

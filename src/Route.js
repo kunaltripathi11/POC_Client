@@ -16,6 +16,7 @@ import SolutionCategoryForm from "./components/forms/solutionCategoryForm.vue";
 import CategoryForm from "./components/forms/CategoryForm.vue";
 import ApplicationForm from "./components/forms/applicationForm.vue";
 import DashboardForm from "./components/forms/dashboardForm.vue";
+import DataModelsForm from "./components/forms/dataModelsForm.vue";
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -78,6 +79,7 @@ const router = createRouter({
 					path: "application/categories/add",
 					component: CategoryForm,
 				},
+
 				{
 					path: "dashboard/add",
 					component: DashboardForm,
@@ -100,6 +102,12 @@ const router = createRouter({
 					meta: {
 						title: "Data Model",
 					},
+				},
+
+				{
+					name: "AddDataModel",
+					path: "data-model/add-data-model",
+					component: DataModelsForm,
 				},
 				{
 					path: "business-rules",

@@ -14,7 +14,6 @@ import Header from "./components/Layout/header.vue";
 export default {
 	components: {
 		Header,
-	
 	},
 };
 </script>

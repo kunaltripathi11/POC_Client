@@ -199,12 +199,12 @@ export default {
 		await this.fetchMaterialIcons();
 	},
 	computed: {
-		...mapGetters("Application", ["filteredApplication"]),
+		...mapGetters("Application", ["allApplications"]),
 		...mapGetters("Category", ["filteredCategory"]),
 
 		applicationNameSet() {
-			const list = Array.isArray(this.filteredApplication)
-				? this.filteredApplication
+			const list = Array.isArray(this.allApplications)
+				? this.allApplications
 				: [];
 			console.log(list);
 
@@ -296,7 +296,7 @@ export default {
 		},
 
 		async checkUniqueName() {
-			const title = (this.form.title || "").trim();
+			const title = (this.form.title || "").trim().toLowerCase();
 			console.log("title", title);
 			console.log("applicationNameSet", this.applicationNameSet);
 			if (!title) return;

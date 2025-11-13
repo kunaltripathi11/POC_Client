@@ -24,6 +24,7 @@
 				>
 					{{ opt.label }}
 				</button>
+				<slot></slot>
 			</li>
 			<li v-if="!filteredOptions.length">
 				<span class="dropdown-item text-muted">No results found</span>

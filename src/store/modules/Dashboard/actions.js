@@ -46,16 +46,17 @@ export default {
 		}
 	},
 
-	async createDashboard({ commit, dispatch }, formData) {
+	async createDashboard({ commit, dispatch }, payload) {
+		console.log("Payload is ddddddddddddasd ", payload);
 		try {
 			commit("setError", null);
 			await fetch(`http://localhost:3000/admin/dashboard/add`, {
 				method: "POST",
 				headers: { "content-type": "application/json" },
-				body: JSON.stringify(formData),
+				body: JSON.stringify(payload),
 			});
 
-			dispatch(this.fetchDashboards);
+			dispatch("fetchDashboards");
 		} catch (error) {
 			console.log("Error creating Application", error);
 			commit("setError", error.message || "Failed to create Application");
@@ -65,5 +66,25 @@ export default {
 
 	clearError({ commit }) {
 		commit("setError", null);
+	},
+
+	async fetchApps({ commit }) {
+		try {
+			const response = await fetch(
+				"http://localhost:3000/admin/dashboard/fetchApps"
+			);
+			const json = await response.json();
+			console.log("hello");
+			if (!response.ok) {
+				const errMessage = json.message;
+				throw new Error(errMessage);
+			}
+
+			commit("setFilteredApps", json.data);
+			commit("setError", null);
+		} catch (err) {
+			commit("setError", err);
+			console.error("Error loading Dashboard", err);
+		}
 	},
 };

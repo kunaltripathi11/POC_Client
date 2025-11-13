@@ -9,6 +9,7 @@ export default {
 			dashboards: [],
 			dashboardById: null,
 			error: "",
+			filteredApps: [],
 		};
 	},
 	mutations,

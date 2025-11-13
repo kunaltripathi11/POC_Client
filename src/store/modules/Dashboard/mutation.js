@@ -3,6 +3,10 @@ export default {
 		state.dashboards = data;
 	},
 
+	setFilteredApps(state, data) {
+		state.filteredApps = data;
+	},
+
 	setOneDashboard(state, data) {
 		state.dashboardById = data;
 	},

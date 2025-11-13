@@ -68,9 +68,9 @@ export default {
 		await this.fetchApplications();
 	},
 	computed: {
-		...mapGetters("Application", ["filteredApplication"]),
+		...mapGetters("Application", ["allApplications"]),
 		applications() {
-			return this.filteredApplication;
+			return this.allApplications;
 		},
 	},
 

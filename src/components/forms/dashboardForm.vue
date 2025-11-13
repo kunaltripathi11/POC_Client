@@ -67,15 +67,30 @@
 					<span class="slider"></span>
 				</label>
 			</div>
-
-			<searchable-dropdown
-				v-if="!form.create_app"
-				label="Application"
-				placeholder="Select Application..."
-				v-model="form.app_id"
-				:options="applicationOptions"
-			>
-			</searchable-dropdown>
+			<div v-if="!form.create_app">
+				<searchable-dropdown
+					label="Application"
+					placeholder="Select Application..."
+					v-model="form.app_id"
+					:options="applicationOptions"
+				>
+				</searchable-dropdown>
+				<div class="mb-3">
+					<label class="form-label">
+						App Package <span class="text-danger">*</span>
+					</label>
+					<input
+						type="text"
+						class="form-control"
+						v-model.trim="form.app_package"
+						:class="{ 'is-invalid': errors.app_package }"
+						placeholder="e.g. com.example.app"
+					/>
+					<div class="invalid-feedback" v-if="errors.app_package">
+						{{ errors.app_package }}
+					</div>
+				</div>
+			</div>
 
 			<div v-else>
 				<div class="mb-3">
@@ -94,7 +109,16 @@
 						{{ errors.title }}
 					</div>
 				</div>
-
+				<div class="mb-3">
+					<label class="form-label">Display Order</label>
+					<input
+						type="number"
+						class="form-control"
+						v-model.number="form.display_order"
+						placeholder="e.g. 10"
+						min="0"
+					/>
+				</div>
 				<div class="mb-3">
 					<label class="form-label">
 						App Package <span class="text-danger">*</span>
@@ -218,11 +242,13 @@ export default {
 				title: "",
 				name: "",
 				url: "",
+				app_id: "",
 				remove_filter: false,
+				display_order: null,
 				create_app: false,
+				app_title: "",
 				app_package: "",
 				icon: "",
-				hide_app: false,
 			},
 			errors: {},
 			formError: "",
@@ -236,16 +262,17 @@ export default {
 		};
 	},
 	async mounted() {
-		await this.fetchApplications();
-		await this.fetchMaterialIcons();
 		await this.fetchDashboards();
+		await this.fetchMaterialIcons();
+		await this.fetchApps();
 	},
 	methods: {
-		...mapActions("Application", [
-			"fetchApplications",
-			"createApplications",
+		...mapActions("Application", ["createApplications"]),
+		...mapActions("Dashboard", [
+			"createDashboard",
+			"fetchApps",
+			"fetchDashboards",
 		]),
-		...mapActions("Dashboard", ["fetchDashboards", "createDashboard"]),
 
 		async fetchMaterialIcons() {
 			try {
@@ -290,10 +317,17 @@ export default {
 			}
 			if (!this.form.url) {
 				this.errors.url = "Dashboard url is required";
+			} else if (!this.form.url.startsWith("/")) {
+				this.errors.url = "Dashboard url is should start with /";
 			}
 			if (!this.form.app_package && this.form.create_app) {
 				this.errors.app_package = "App package is required";
 			}
+
+			if (!this.form.create_app && !this.form.app_id) {
+				this.errors.app_package = "Application is required";
+			}
+
 			return Object.keys(this.errors).length === 0;
 		},
 
@@ -301,20 +335,22 @@ export default {
 			try {
 				this.formError = "";
 				if (!this.validate()) {
-					console.log("not validated");
 					return;
 				}
 
 				await this.checkUniqueName();
 				if (this.errors.name) return;
 
-				console.log("submit form", this.form);
+				console.log("submit form", this.form.app_id);
 				this.submitting = true;
 
 				const payload = {
 					name: this.form.name,
 					title: this.form.title,
 					url: this.form.url,
+					display_order: this.form.display_order,
+					app_id: this.form.app_id,
+					app_title: this.form.app_title,
 					remove_filter: this.form.remove_filter,
 					create_app: this.form.create_app,
 					app_package: this.form.app_package,
@@ -346,11 +382,12 @@ export default {
 			this.$router.push("/admin/dashboard");
 		},
 		async checkUniqueName() {
-			const name = (this.form.name || "").trim();
-			console.log("name", name);
-			console.log("dashboardNameSet", this.dashboardNameSet);
+			const name = (this.form.name || "").trim().toLowerCase();
+
 			if (!name) return;
-			if (this.dashboardNameSet.includes(name)) {
+
+			console.log(this.dashboardNameSet);
+			if (this.dashboardNameSet?.includes(name)) {
 				this.errors.name = "Name Already Present";
 			} else if (this.errors.name === "Name Already Present") {
 				this.errors.name = "";
@@ -359,11 +396,13 @@ export default {
 	},
 
 	computed: {
-		...mapGetters("Application", ["filteredApplication"]),
-		...mapGetters("Dashboard", ["filteredDashboards"]),
+		...mapGetters("Dashboard", [
+			"filteredDashboards",
+			"filteredApplication",
+		]),
 
 		dashboardNameSet() {
-			console.log("Dashboards", this.filteredDashboards);
+			console.log("dashboard", this.filteredDashboards);
 			const list = Array.isArray(this.filteredDashboards)
 				? this.filteredDashboards
 				: [];

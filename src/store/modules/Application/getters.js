@@ -1,5 +1,5 @@
 export default {
-	filteredApplication(state) {
+	allApplications(state) {
 		let filtered = state.applications;
 
 		return filtered;
