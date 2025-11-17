@@ -17,117 +17,122 @@ import CategoryForm from "./components/forms/CategoryForm.vue";
 import ApplicationForm from "./components/forms/applicationForm.vue";
 import DashboardForm from "./components/forms/dashboardForm.vue";
 import DataModelsForm from "./components/forms/dataModelsForm.vue";
+import BusinessRuleForms from "./components/forms/businessRuleForms.vue";
 
 const router = createRouter({
-	history: createWebHistory(),
-	routes: [
-		{ path: "/", component: AppLayout, redirect: "/launchpad" },
-		{
-			path: "/:url",
-			component: ApplicationPage,
-			meta: { title: "Application" },
-		},
-		{
-			path: "/launchpad",
-			component: AppLayout,
-			meta: {
-				title: "Launchpad",
-			},
-		},
-		{
-			path: "/admin",
-			redirect: "/admin/application/apps",
-			component: MainContent,
-			children: [
-				{
-					path: "application",
-					redirect: "/admin/application/apps",
-					component: Filter,
-					children: [
-						{
-							path: "categories",
-							component: Category,
-							meta: {
-								title: "Category",
-							},
-						},
-						{
-							path: "solution-categories",
-							component: SolCategory,
-							meta: {
-								title: "Solution Category",
-							},
-						},
-						{
-							path: "apps",
-							component: Application,
-							meta: {
-								title: "Application",
-							},
-						},
-					],
-				},
-				{
-					path: "application/solution-categories/add",
-					component: SolutionCategoryForm,
-				},
-				{
-					path: "application/apps/add-app",
-					component: ApplicationForm,
-				},
-				{
-					path: "application/categories/add",
-					component: CategoryForm,
-				},
+  history: createWebHistory(),
+  routes: [
+    { path: "/", component: AppLayout, redirect: "/launchpad" },
+    {
+      path: "/:url",
+      component: ApplicationPage,
+      meta: { title: "Application" },
+    },
+    {
+      path: "/launchpad",
+      component: AppLayout,
+      meta: {
+        title: "Launchpad",
+      },
+    },
+    {
+      path: "/admin",
+      redirect: "/admin/application/apps",
+      component: MainContent,
+      children: [
+        {
+          path: "application",
+          redirect: "/admin/application/apps",
+          component: Filter,
+          children: [
+            {
+              path: "categories",
+              component: Category,
+              meta: {
+                title: "Category",
+              },
+            },
+            {
+              path: "solution-categories",
+              component: SolCategory,
+              meta: {
+                title: "Solution Category",
+              },
+            },
+            {
+              path: "apps",
+              component: Application,
+              meta: {
+                title: "Application",
+              },
+            },
+          ],
+        },
+        {
+          path: "application/solution-categories/add",
+          component: SolutionCategoryForm,
+        },
+        {
+          path: "application/apps/add-app",
+          component: ApplicationForm,
+        },
+        {
+          path: "application/categories/add",
+          component: CategoryForm,
+        },
 
-				{
-					path: "dashboard/add",
-					component: DashboardForm,
-				},
-				{
-					path: "dashboard",
-					component: Dashboard,
-					meta: {
-						title: "Dashboard",
-					},
-				},
-				{
-					path: "dashboard/design/:uuid",
-					component: DashboardDesign,
-					props: true,
-				},
-				{
-					path: "data-model",
-					component: DataModel,
-					meta: {
-						title: "Data Model",
-					},
-				},
+        {
+          path: "dashboard/add",
+          component: DashboardForm,
+        },
+        {
+          path: "dashboard",
+          component: Dashboard,
+          meta: {
+            title: "Dashboard",
+          },
+        },
+        {
+          path: "dashboard/design/:uuid",
+          component: DashboardDesign,
+          props: true,
+        },
+        {
+          path: "data-model",
+          component: DataModel,
+          meta: {
+            title: "Data Model",
+          },
+        },
 
-				{
-					name: "AddDataModel",
-					path: "data-model/add-data-model",
-					component: DataModelsForm,
-				},
-				{
-					path: "business-rules",
-					component: BusinessRules,
-					meta: {
-						title: "Business Rules",
-					},
-				},
-			],
-		},
-	],
+        {
+          name: "AddDataModel",
+          path: "data-model/add-data-model",
+          component: DataModelsForm,
+        },
+        {
+          path: "business-rules",
+          component: BusinessRules,
+          meta: {
+            title: "Business Rules",
+          },
+        },
+        {
+          path: "business-rules/add-business-rules",
+          component: BusinessRuleForms,
+        },
+      ],
+    },
+  ],
 });
 
 router.beforeEach((to, from, next) => {
-	if (to.meta && to.meta.title) {
-		document.title = to.meta.title;
-	} else {
-		document.title = "Sofy";
-	}
-	next();
+  if (to.meta && to.meta.title) {
+    document.title = to.meta.title;
+  } else {
+    document.title = "Sofy";
+  }
+  next();
 });
 
 export default router;

@@ -3,13 +3,14 @@ import getters from "./getters";
 import actions from "./actions";
 
 export default {
-	namespaced: true,
-	state() {
-		return {
-			rules: [],
-		};
-	},
-	mutations,
-	actions,
-	getters,
+  namespaced: true,
+  state() {
+    return {
+      rules: [],
+      error: null,
+    };
+  },
+  mutations,
+  actions,
+  getters,
 };
