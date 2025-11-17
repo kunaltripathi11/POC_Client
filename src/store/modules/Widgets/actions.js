@@ -30,7 +30,7 @@ export default {
 			);
 
 			const json = await response.json();
-
+			console.log("WidgetsssssW::::;", json.data);
 			commit("setWidget", json.data);
 		} catch (error) {
 			console.log("Error in loading!!!", error);

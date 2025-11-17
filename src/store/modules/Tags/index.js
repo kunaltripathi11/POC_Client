@@ -1,81 +1,82 @@
 export default {
-  namespaced: true,
-  state() {
-    return {
-      tags: [],
-      error: null,
-    };
-  },
-  mutations: {
-    SET_TAGS(state, tags) {
-      state.tags = tags;
-    },
+	namespaced: true,
+	state() {
+		return {
+			tags: [],
+			error: null,
+		};
+	},
+	mutations: {
+		SET_TAGS(state, tags) {
+			state.tags = tags;
+		},
 
-    SET_ERROR(state, error) {
-      state.error = error;
-    },
-  },
-  actions: {
-    async searchTagsByInput({ commit }, inputTag) {
-      try {
-        const response = await fetch(
-          `http://localhost:3000/admin/tags/get-tag`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({ inputTag }),
-          }
-        );
+		SET_ERROR(state, error) {
+			state.error = error;
+		},
+	},
+	actions: {
+		async searchTagsByInput({ commit }, inputTag) {
+			try {
+				const response = await fetch(
+					`http://localhost:3000/admin/tags/get-tag`,
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+						body: JSON.stringify({ inputTag }),
+					}
+				);
 
-        const data = await response.json();
-        if (data && data.data) {
-          return data.data;
-        }
-        return [];
-      } catch (error) {
-        console.error("Error searching tags:", error);
-        return [];
-      }
-    },
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
 
-    async addTagsToRule({ commit }, { business_rule_id, tags }) {
-      try {
-        const response = await fetch(
-          `http://localhost:3000/admin/tags/add-tag`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+				const data = await response.json();
+				if (data && data.data) {
+					return data.data;
+				}
+				return [];
+			} catch (error) {
+				return [];
+			}
+		},
 
-            body: JSON.stringify({ business_rule_id, tags }),
-          }
-        );
+		async addTagsToRule({ commit }, { business_rule_id, tags }) {
+			console.log("Id", business_rule_id);
+			console.log("Tags", tags);
+			try {
+				const response = await fetch(
+					`http://localhost:3000/admin/tags/add-tag`,
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+						body: JSON.stringify({ business_rule_id, tags }),
+					}
+				);
 
-        const data = await response.json();
-        commit("SET_ERROR", null);
-        return data;
-      } catch (error) {
-        commit("SET_ERROR", error.message);
-        throw error;
-      }
-    },
-  },
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}`);
+				}
 
-  getters: {
-    allTags: (state) => state.tags,
+				const data = await response.json();
+				commit("SET_ERROR", null);
+				return data;
+			} catch (error) {
+				commit("SET_ERROR", error.message);
+				throw error;
+			}
+		},
+	},
 
-    getError: (state) => state.error,
-  },
+	getters: {
+		allTags: (state) => state.tags,
+
+		getError: (state) => state.error,
+	},
 };

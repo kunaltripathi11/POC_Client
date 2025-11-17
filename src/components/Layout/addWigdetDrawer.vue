@@ -84,7 +84,9 @@ export default {
 		handleDragStart(widgetName) {
 			this.$emit("widget-drag-start", widgetName);
 		},
-		handleDragEnd() {},
+		handleDragEnd() {
+			this.$emit("widget");
+		},
 		closeDrawer() {
 			this.$emit("close");
 		},

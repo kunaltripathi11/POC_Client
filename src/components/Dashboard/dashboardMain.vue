@@ -15,7 +15,7 @@
 
 			<div v-else class="widgets-grid">
 				<div v-for="widget in widgets" class="widget-box">
-					{{ widget }}
+					<widgetsDesign :widget="widget" />
 				</div>
 			</div>
 		</div>
@@ -25,10 +25,12 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import MainContent from "../Layout/MainContent.vue";
+import widgetsDesign from "../Widgets/widgetsDesign.vue";
 
 export default {
 	components: {
 		MainContent,
+		widgetsDesign,
 	},
 	data() {
 		return {

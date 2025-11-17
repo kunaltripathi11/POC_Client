@@ -1,36 +1,24 @@
 <template>
 	<div class="build-main" @drop.prevent="handleDrop" @dragover.prevent>
-		<h3 class="mb-3">Build Area</h3>
-		<div v-if="widgets.length === 0" class="text-muted">
-			Drag and drop a widget here
-		</div>
-		<div class="widgets">
-			<div
-				v-for="widget in widgets"
-				:key="widget.id"
-				class="widget-card shadow-sm"
+		<div v-if="!widget.rule_id">
+			Configue Widget
+			<button
+				class="btn btn-sm btn-outline-primary"
+				@click="configure(widget)"
 			>
-				<h5>{{ widget.name }}</h5>
-				<button
-					class="btn btn-sm btn-outline-primary"
-					@click="configure(widget)"
-				>
-					Configure
-				</button>
-			</div>
+				Configure
+			</button>
 		</div>
-		<!-- <ConfigureWidgetModal
-			v-if="showModal"
-			:widget="selectedWidget"
-			@close="showModal = false"
-		/> -->
+		<div v-else>
+			<h5>{{ widget.query }}</h5>
+		</div>
 	</div>
 </template>
 <script>
 import { mapState, mapActions } from "vuex";
-import ConfigureWidgetModal from "@/components/Widgets/ConfigureWidgetModal.vue";
+
 export default {
-	components: { ConfigureWidgetModal },
+	props: ["widget"],
 	data() {
 		return {
 			showModal: false,
@@ -53,6 +41,9 @@ export default {
 		// 	this.selectedWidget = widget;
 		// 	this.showModal = true;
 		// },
+	},
+	mounted() {
+		console.log("Widgets::", this.widget);
 	},
 };
 </script>
