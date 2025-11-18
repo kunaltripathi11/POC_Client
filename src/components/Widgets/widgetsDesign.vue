@@ -29,21 +29,18 @@ export default {
 		...mapState("Widget", ["widgets"]),
 	},
 	methods: {
-		...mapActions("Widget", ["addWidgetAction"]),
-		async handleDrop() {
-			const dashboardId = this.$route.params.id; // <-- get dashboard_id from route
-			const widgetData = {
-				dashboard_id: dashboardId,
-			};
-			await this.addWidget(widgetData);
-		},
+		// ...mapActions("Widget", ["addWidgetAction"]),
+		// async handleDrop() {
+		// 	const dashboardId = this.$route.params.id; // <-- get dashboard_id from route
+		// 	const widgetData = {
+		// 		dashboard_id: dashboardId,
+		// 	};
+		// 	await this.addWidget(widgetData);
+		// },
 		// configure(widget) {
 		// 	this.selectedWidget = widget;
 		// 	this.showModal = true;
 		// },
-	},
-	mounted() {
-		console.log("Widgets::", this.widget);
 	},
 };
 </script>

@@ -3,7 +3,7 @@
 		<div
 			class="main-content"
 			@drop="handleDrop"
-			@dragover="handleDragOver"
+			@dragover.prevent="handleDragOver"
 			@dragleave="handleDragLeave"
 			:class="{ 'drag-over': isDragOver }"
 		>
@@ -14,7 +14,11 @@
 			</div>
 
 			<div v-else class="widgets-grid">
-				<div v-for="widget in widgets" class="widget-box">
+				<div
+					v-for="widget in widgets"
+					:key="widget.id"
+					class="widget-box"
+				>
 					<widgetsDesign :widget="widget" />
 				</div>
 			</div>
@@ -24,12 +28,11 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
-import MainContent from "../Layout/MainContent.vue";
 import widgetsDesign from "../Widgets/widgetsDesign.vue";
 
 export default {
+	props: ["draggedWidget"],
 	components: {
-		MainContent,
 		widgetsDesign,
 	},
 	data() {
@@ -40,7 +43,7 @@ export default {
 	async mounted() {
 		let id;
 		let variable;
-		console.log(this.$route.params);
+
 		if (this.$route.params.uuid) {
 			id = this.$route.params.uuid;
 			variable = "uuid";
@@ -52,35 +55,42 @@ export default {
 		await this.fetchWidgets({ id, variable });
 	},
 	computed: {
-		...mapGetters("Widget", ["getAllWidgets"]),
+		...mapGetters("Widget", ["getAllWidgets", "getDashboardId"]),
 		widgets() {
-			console.log(this.getAllWidgets);
 			return this.getAllWidgets;
+		},
+		dashboardId() {
+			return this.getDashboardId;
 		},
 	},
 	methods: {
-		handleWidgetDragStart(widgetType) {
-			this.draggedWidgetType = widgetType;
+		...mapActions("Widget", ["fetchWidgets", "addWidgetAction"]),
+
+		handleWidgetDragStart(widget) {
+			console.log("handleWidgetDragStart");
+			this.draggedWidget = widget;
 		},
-		handleDragOver(e) {
-			e.preventDefault();
+		handleDragOver() {
 			this.isDragOver = true;
 		},
 		handleDragLeave() {
 			this.isDragOver = false;
 		},
-		handleDrop(e) {
-			e.preventDefault();
+		async handleDrop(e) {
+			// e.preventDefault();
 			this.isDragOver = false;
-			if (this.draggedWidgetType) {
-				this.widgets.push({
-					id: Date.now(),
-					type: this.draggedWidgetType,
-				});
-				this.draggedWidgetType = null;
+			console.log("Dash", this.dashboardId);
+			if (!this.draggedWidget) {
+				console.log("Parent no widget");
+				return;
 			}
+			// await this.addWidgetAction({
+			// 	dashboard_id: dashboardId,
+			// });
+			// this.draggedWidget = null;
+
+			this.$emit("widget-drop", this.draggedWidget);
 		},
-		...mapActions("Widget", ["fetchWidgets"]),
 	},
 };
 </script>

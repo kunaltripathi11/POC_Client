@@ -4,6 +4,7 @@
 			:show="drawerVisible"
 			@close="closeDrawer"
 			@widget-drag-start="handleWidgetDragStart"
+			@widget-drag-end="handleDragEnd"
 		/>
 
 		<div
@@ -51,7 +52,11 @@
 				</button>
 			</div>
 		</div>
-		<DashboardMain v-if="isSelected === 'build'" />
+		<DashboardMain
+			v-if="isSelected === 'build'"
+			:draggedWidget="draggedWidgetType"
+			@widget-drop="handleWidgetDrop"
+		/>
 		<h1 v-else-if="isSelected === 'filter'">filter</h1>
 		<h1 v-else-if="isSelected === 'logs'">Logs</h1>
 	</div>
@@ -71,6 +76,15 @@ export default {
 			isSelected: "build",
 		};
 	},
+	computed: {
+		dashboardId() {
+			console.log(
+				"dashboard Id",
+				this.$store.getters["Widget/getDashboardId"]
+			);
+			return this.$store.getters["Widget/getDashboardId"];
+		},
+	},
 	methods: {
 		changeSelected(option) {
 			this.isSelected = option;
@@ -84,8 +98,16 @@ export default {
 		toggleDrawer() {
 			this.drawerVisible = !this.drawerVisible;
 		},
-		handleWidgetDragStart(widgetType) {
-			this.draggedWidgetType = widgetType;
+		handleWidgetDragStart(widget) {
+			this.draggedWidgetType = widget;
+		},
+
+		handleWidgetDrop(widget) {
+			console.log("Widget Dropped");
+
+			this.$store.dispatch("Widget/addWidgetAction", {
+				dashboard_id: this.dashboardId,
+			});
 		},
 	},
 };

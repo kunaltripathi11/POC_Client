@@ -19,7 +19,7 @@
 						:key="widget.id"
 						class="widget-item"
 						draggable="true"
-						@dragstart="handleDragStart(widget.name)"
+						@dragstart="handleDragStart(widget)"
 						@dragend="handleDragEnd"
 					>
 						<div class="widget-icon">
@@ -81,11 +81,13 @@ export default {
 		};
 	},
 	methods: {
-		handleDragStart(widgetName) {
-			this.$emit("widget-drag-start", widgetName);
+		handleDragStart(widget) {
+			console.log("Widget Starting", widget);
+			this.$emit("widget-drag-start", widget);
 		},
 		handleDragEnd() {
-			this.$emit("widget");
+			console.log("Widget Ending");
+			this.$emit("widget-drag-end");
 		},
 		closeDrawer() {
 			this.$emit("close");

@@ -12,9 +12,6 @@ export default {
 
 			if (!response.ok) {
 				throw new Error("Failed to Add");
-			} else {
-				const saveWidget = await response.json();
-				commit("addWidget", saveWidget);
 			}
 		} catch (error) {
 			console.log(error);
@@ -32,6 +29,8 @@ export default {
 			const json = await response.json();
 			console.log("WidgetsssssW::::;", json.data);
 			commit("setWidget", json.data);
+
+			state.dashboard_id = state.allWidget[0].dash_id;
 		} catch (error) {
 			console.log("Error in loading!!!", error);
 		}
