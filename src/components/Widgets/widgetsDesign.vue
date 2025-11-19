@@ -4,7 +4,7 @@
 			Configue Widget
 			<button
 				class="btn btn-sm btn-outline-primary"
-				@click="configure(widget)"
+				@click="configure(widget.uuid)"
 			>
 				Configure
 			</button>
@@ -29,18 +29,9 @@ export default {
 		...mapState("Widget", ["widgets"]),
 	},
 	methods: {
-		// ...mapActions("Widget", ["addWidgetAction"]),
-		// async handleDrop() {
-		// 	const dashboardId = this.$route.params.id; // <-- get dashboard_id from route
-		// 	const widgetData = {
-		// 		dashboard_id: dashboardId,
-		// 	};
-		// 	await this.addWidget(widgetData);
-		// },
-		// configure(widget) {
-		// 	this.selectedWidget = widget;
-		// 	this.showModal = true;
-		// },
+		configure(uuid) {
+			this.$router.push(`${this.$route.path}/${uuid}`);
+		},
 	},
 };
 </script>

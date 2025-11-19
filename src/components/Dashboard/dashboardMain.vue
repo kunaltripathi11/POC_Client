@@ -77,17 +77,13 @@ export default {
 			this.isDragOver = false;
 		},
 		async handleDrop(e) {
-			// e.preventDefault();
 			this.isDragOver = false;
+
 			console.log("Dash", this.dashboardId);
 			if (!this.draggedWidget) {
 				console.log("Parent no widget");
 				return;
 			}
-			// await this.addWidgetAction({
-			// 	dashboard_id: dashboardId,
-			// });
-			// this.draggedWidget = null;
 
 			this.$emit("widget-drop", this.draggedWidget);
 		},

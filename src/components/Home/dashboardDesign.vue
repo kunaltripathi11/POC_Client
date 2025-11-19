@@ -103,10 +103,10 @@ export default {
 		},
 
 		handleWidgetDrop(widget) {
-			console.log("Widget Dropped");
 
 			this.$store.dispatch("Widget/addWidgetAction", {
 				dashboard_id: this.dashboardId,
+				id: this.$route.params.uuid,
 			});
 		},
 	},
