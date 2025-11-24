@@ -36,9 +36,9 @@
 			<div v-if="successMessage" class="alert alert-success mt-3">
 				{{ successMessage }}
 			</div>
-			<div v-if="generalError" class="alert alert-danger mt-3">
+			<!-- <div v-if="generalError" class="alert alert-danger mt-3">
 				{{ generalError }}
-			</div>
+			</div> -->
 
 			<div class="p-2">
 				<button
@@ -63,6 +63,7 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import toastService from "../../service/toastService";
 
 export default {
 	data() {
@@ -118,6 +119,7 @@ export default {
 			this.generalError = "";
 
 			if (!this.validateForm()) {
+				toastService.warning("Enter the correct data");
 				return;
 			}
 
@@ -127,22 +129,21 @@ export default {
 				const result = await this.createSolCategory({
 					title: this.formdata.title,
 				});
-
+				console.log("Result in Sol", result);
 				if (result.success) {
 					this.successMessage =
 						"Solution Category created successfully!";
 
+					toastService.success(this.successMessage);
 					this.resetForm();
-
-					this.$router.relace(
+					this.$router.replace(
 						"/admin/application/solution-categories"
 					);
 				} else {
 					this.generalError =
 						result.error || "Failed to create solution category";
+					toastService.error("Failed To create Solution Category");
 				}
-
-				this.resetForm();
 			} catch (error) {
 				console.error("Error creating solution category:", error);
 				this.generalError =

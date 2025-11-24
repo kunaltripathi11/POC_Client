@@ -199,6 +199,7 @@
 </template>
 
 <script>
+import toastService from "../../service/toastService";
 import SearchableDropdown from "../Layout/searchableDropdown.vue";
 import { mapActions, mapGetters } from "vuex";
 export default {
@@ -247,7 +248,6 @@ export default {
 		},
 
 		dataModelOptions() {
-			console.log("Filter", this.filteredModel);
 			return (this.filteredModel || []).map((model) => ({
 				value: model.id,
 				label: model.name,
@@ -270,6 +270,7 @@ export default {
 		...mapActions("DataModel", ["fetchModels"]),
 		...mapActions("Dashboard", ["fetchDashboards"]),
 		...mapActions("Tags", ["searchTagsByInput", "addTagsToRule"]),
+		// ...mapActions("Wi", ["searchTagsByInput", "addTagsToRule"]),
 
 		validate() {
 			this.errors = {};
@@ -277,7 +278,6 @@ export default {
 			if (!this.form.name) {
 				this.errors.name = "Rule name is required";
 			}
-			console.log("DM", this.form.data_model_id);
 			if (!this.form.data_model_id) {
 				this.errors.data_model_id = "Data model is required";
 			}
@@ -356,7 +356,12 @@ export default {
 			try {
 				this.formError = "";
 
-				if (!this.validate()) return;
+				if (!this.validate()) {
+					toastService.warning("Enter the correct data");
+					return;
+				}
+
+				console.log("Selected Tags Are: ", this.selectedTags);
 				await this.checkUniqueName();
 				if (this.errors.name) return;
 
@@ -376,15 +381,21 @@ export default {
 					link_to: this.form.link_to || null,
 					destination_id: this.form.destination_id || null,
 				};
-				console.log("HEYYYYYYYYYy");
+				console.log("Before Business rule create");
 				const result = await this.createBusinessRule(payload);
 				console.log("Result ", result);
 
-				if (this.selectedTags.length > 0 && result.id) {
+				if (this.selectedTags.length > 0 && result.data.id) {
 					await this.addTagsToRule({
-						business_rule_id: result.id,
+						business_rule_id: result.data.id,
 						tags: this.selectedTags,
 					});
+				}
+
+				if (
+					this.form.link_to === "Dashboard" &&
+					this.form.destination_id
+				) {
 				}
 
 				this.form = {
@@ -401,7 +412,17 @@ export default {
 				};
 				this.selectedTags = [];
 
-				this.$router.replace("/admin/business-rules");
+				if (result.success) {
+					this.successMessage = "Rule created successfully!";
+
+					toastService.success(this.successMessage);
+
+					this.$router.replace("/admin/business-rules");
+				} else {
+					this.formError =
+						result.error || "Failed to create Business Rule";
+					toastService.error("Failed To create  Business Rule");
+				}
 			} catch (error) {
 				this.formError = "Something went wrong " || error.message;
 			} finally {

@@ -23,6 +23,7 @@
 					@blur="checkUniqueName"
 					:class="{ 'is-invalid': errors.name }"
 					placeholder="Model Name..."
+					@input="clearError('name')"
 				/>
 				<div class="invalid-feedback" v-if="errors.name">
 					{{ errors.name }}
@@ -65,6 +66,7 @@
 					v-model.trim="form.app_package"
 					:class="{ 'is-invalid': errors.app_package }"
 					placeholder="e.g. com.example.app"
+					@input="clearError('app_package')"
 				/>
 				<div class="invalid-feedback" v-if="errors.app_package">
 					{{ errors.app_package }}
@@ -87,6 +89,7 @@
 					class="form-control"
 					v-model.trim="form.query"
 					:class="{ 'is-invalid': errors.query }"
+					@input="clearError('query')"
 				></textarea>
 				<div class="invalid-feedback" v-if="errors.query">
 					{{ errors.query }}
@@ -118,6 +121,7 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import toastService from "../../service/toastService";
 
 export default {
 	data() {
@@ -163,7 +167,6 @@ export default {
 			if (!name) return;
 
 			if (this.modelNameSet.includes(name)) {
-				console.log("Hello in ifs");
 				this.errors.name = "Name Already Present";
 			} else if (this.errors.name === "Name Already Present") {
 				this.errors.name = "";
@@ -188,7 +191,9 @@ export default {
 					description: this.form.description,
 				};
 
-				await this.createModel(payload);
+				const result = await this.createModel(payload);
+
+				console.log("result ", result);
 
 				this.form = {
 					name: "",
@@ -198,12 +203,27 @@ export default {
 					description: "",
 				};
 
-				this.$router.replace("/admin/data-model");
+				if (result.success) {
+					this.successMessage = "Data Model created successfully!";
+
+					toastService.success(this.successMessage);
+					this.$router.replace("/admin/data-model");
+				} else {
+					toastService.error("Error in creating Data Model");
+
+					this.generalError =
+						result.error || "Failed to create solution category";
+				}
 			} catch (error) {
 				this.formError = error.message || "Something went wrong";
 			} finally {
 				this.submitting = false;
 			}
+		},
+
+		clearError(point) {
+			console.log();
+			this.errors[point] = "";
 		},
 
 		handleCancel() {

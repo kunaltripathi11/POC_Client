@@ -5,13 +5,11 @@
 		<div v-if="loading">Loading...</div>
 
 		<div v-else>
-			<!-- Name -->
 			<div class="mb-3">
 				<label class="form-label">Widget Name</label>
 				<input type="text" class="form-control" v-model="form.name" />
 			</div>
 
-			<!-- Business Rules -->
 			<div class="mb-3">
 				<label class="form-label">Business Rule</label>
 				<select

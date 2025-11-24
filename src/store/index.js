@@ -9,19 +9,19 @@ import Widget from "./modules/Widgets";
 import Tags from "./modules/Tags";
 
 const store = createStore({
-  modules: {
-    SolCategory,
-    Category,
-    Application,
-    DataModel,
-    BusinessRule,
-    Dashboard,
-    Widget,
-    Tags,
-  },
-  state() {},
-  mutations: {},
-  actions: {},
+	modules: {
+		SolCategory,
+		Category,
+		Application,
+		DataModel,
+		BusinessRule,
+		Dashboard,
+		Widget,
+		Tags,
+	},
+	state() {},
+	mutations: {},
+	actions: {},
 });
 
 export default store;

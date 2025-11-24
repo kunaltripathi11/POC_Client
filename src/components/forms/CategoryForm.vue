@@ -68,6 +68,7 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import SearchableDropdown from "../Layout/searchableDropdown.vue";
+import toastService from "../../service/toastService";
 
 export default {
 	data() {
@@ -110,7 +111,10 @@ export default {
 		async onSubmit() {
 			try {
 				this.formError = "";
-				if (!this.validate()) return;
+				if (!this.validate()) {
+					toastService.warning("Enter the corret data");
+					return;
+				}
 				this.checkLocalDuplicate();
 				if (this.errors.category_name) return;
 
@@ -123,13 +127,25 @@ export default {
 
 				console.log(payload);
 
-				await this.createCategory(payload);
+				const result = await this.createCategory(payload);
 
-				await this.fetchCategory();
+				// await this.fetchCategory();
 
 				this.form.category_name = "";
 				this.form.display_order = null;
 				this.form.solution_category_id = null;
+
+				if (result.success) {
+					this.successMessage = "Category created successfully!";
+
+					toastService.success(this.successMessage);
+
+					this.$router.replace("/admin/application/categories");
+				} else {
+					this.generalError =
+						result.error || "Failed to create solution category";
+					toastService.error("Failed To create  Category");
+				}
 			} catch (error) {
 				this.formError = error.message || "Something went wrong";
 			} finally {

@@ -7,4 +7,8 @@ export default {
 	getDashboardId(state) {
 		return state.dashboard_id;
 	},
+
+	getColumns(state) {
+		return state.columns;
+	},
 };

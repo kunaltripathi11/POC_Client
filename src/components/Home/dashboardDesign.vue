@@ -74,14 +74,11 @@ export default {
 
 			draggedWidgetType: null,
 			isSelected: "build",
+			widget_type: null,
 		};
 	},
 	computed: {
 		dashboardId() {
-			console.log(
-				"dashboard Id",
-				this.$store.getters["Widget/getDashboardId"]
-			);
 			return this.$store.getters["Widget/getDashboardId"];
 		},
 	},
@@ -103,9 +100,11 @@ export default {
 		},
 
 		handleWidgetDrop(widget) {
-
+			this.widget_type = widget.name;
+			console.log("Route");
 			this.$store.dispatch("Widget/addWidgetAction", {
 				dashboard_id: this.dashboardId,
+				widget_type: this.widget_type,
 				id: this.$route.params.uuid,
 			});
 		},

@@ -1,8 +1,10 @@
+import { API_URL } from "../../../config";
+
 export default {
 	async fetchCategory({ commit }) {
 		try {
 			const response = await fetch(
-				"http://localhost:3000/admin/application/categories"
+				`${API_URL}admin/application/categories`
 			);
 			const json = await response.json();
 
@@ -15,7 +17,7 @@ export default {
 	async createCategory({ dispatch }, payload) {
 		try {
 			const response = await fetch(
-				"http://localhost:3000/admin/application/categories/add",
+				`${API_URL}admin/application/categories/add`,
 				{
 					method: "POST",
 					headers: { "content-type": "application/json" },
@@ -27,8 +29,10 @@ export default {
 				throw new Error("Error Inserting Data");
 			}
 			dispatch("fetchCategory");
+			return { success: true, data: response.data };
 		} catch (err) {
 			console.error("Error loading Category", err);
+			return { success: false, error: err.message };
 		}
 	},
 
@@ -37,12 +41,9 @@ export default {
 	// },
 	async deleteCategory({ dispatch }, uuid) {
 		if (!confirm("Sure? This will Delete the Category.")) return;
-		await fetch(
-			`http://localhost:3000/admin/application/categories/${uuid}`,
-			{
-				method: "DELETE",
-			}
-		);
+		await fetch(`${API_URL}admin/application/categories/${uuid}`, {
+			method: "DELETE",
+		});
 		await dispatch("fetchCategory");
 	},
 };

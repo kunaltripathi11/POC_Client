@@ -9,6 +9,7 @@ export default {
 			widget: [],
 			allWidget: [],
 			dashboard_id: null,
+			columns: [],
 		};
 	},
 	mutations,

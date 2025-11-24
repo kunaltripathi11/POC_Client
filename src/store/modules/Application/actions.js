@@ -1,9 +1,9 @@
+import { API_URL } from "../../../config";
+
 export default {
 	async fetchApplications({ commit }) {
 		try {
-			const response = await fetch(
-				"http://localhost:3000/admin/application/apps"
-			);
+			const response = await fetch(`${API_URL}admin/application/apps`);
 			const json = await response.json();
 			commit("setApplication", json.data);
 		} catch (err) {
@@ -16,7 +16,7 @@ export default {
 		console.log(payload);
 		try {
 			const response = await fetch(
-				`http://localhost:3000/admin/application/apps/add-app`,
+				`${API_URL}admin/application/apps/add-app`,
 				{
 					method: "POST",
 					headers: {
@@ -53,12 +53,9 @@ export default {
 	// },
 	async deleteApplication({ dispatch }, uuid) {
 		if (!confirm("Sure? This will delete the Application.")) return;
-		await fetch(
-			`http://localhost:3000/admin/application/apps/edit/${uuid}`,
-			{
-				method: "DELETE",
-			}
-		);
+		await fetch(`${API_URL}admin/application/apps/edit/${uuid}`, {
+			method: "DELETE",
+		});
 		await dispatch("fetchApplications");
 	},
 };

@@ -53,6 +53,8 @@ export default {
 		}
 
 		await this.fetchWidgets({ id, variable });
+
+		console.log("WIDGETS", this.widgets);
 	},
 	computed: {
 		...mapGetters("Widget", ["getAllWidgets", "getDashboardId"]),
@@ -64,7 +66,7 @@ export default {
 		},
 	},
 	methods: {
-		...mapActions("Widget", ["fetchWidgets", "addWidgetAction"]),
+		...mapActions("Widget", ["fetchWidgets"]),
 
 		handleWidgetDragStart(widget) {
 			console.log("handleWidgetDragStart");
@@ -84,7 +86,7 @@ export default {
 				console.log("Parent no widget");
 				return;
 			}
-
+			console.log("Dragged Widget", this.draggedWidget);
 			this.$emit("widget-drop", this.draggedWidget);
 		},
 	},

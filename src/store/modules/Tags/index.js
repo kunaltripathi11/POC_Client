@@ -1,3 +1,5 @@
+import { API_URL } from "../../../config";
+
 export default {
 	namespaced: true,
 	state() {
@@ -16,19 +18,16 @@ export default {
 		},
 	},
 	actions: {
-		async searchTagsByInput({ commit }, inputTag) {
+		async searchTagsByInput(_, inputTag) {
 			try {
-				const response = await fetch(
-					`http://localhost:3000/admin/tags/get-tag`,
-					{
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
+				const response = await fetch(`${API_URL}admin/tags/get-tag`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
 
-						body: JSON.stringify({ inputTag }),
-					}
-				);
+					body: JSON.stringify({ inputTag }),
+				});
 
 				if (!response.ok) {
 					throw new Error(`HTTP error! status: ${response.status}`);
@@ -48,17 +47,14 @@ export default {
 			console.log("Id", business_rule_id);
 			console.log("Tags", tags);
 			try {
-				const response = await fetch(
-					`http://localhost:3000/admin/tags/add-tag`,
-					{
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-						},
+				const response = await fetch(`${API_URL}admin/tags/add-tag`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
 
-						body: JSON.stringify({ business_rule_id, tags }),
-					}
-				);
+					body: JSON.stringify({ business_rule_id, tags }),
+				});
 
 				if (!response.ok) {
 					throw new Error(`HTTP error! status: ${response.status}`);

@@ -1,9 +1,17 @@
 export default {
-  setRules(state, data) {
-    state.rules = data;
-  },
+	setRules(state, data) {
+		state.rules = data;
+	},
 
-  SET_ERROR(state, error) {
-    state.error = error;
-  },
+	setArchivedRules(state, data) {
+		state.archivedRules = data;
+	},
+
+	SET_ERROR(state, error) {
+		state.error = error;
+	},
+
+	setOneRule(state, data) {
+		state.ruleById = data;
+	},
 };

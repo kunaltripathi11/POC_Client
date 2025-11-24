@@ -1,5 +1,23 @@
 <template>
 	<div class="main-content container mt-4">
+		<div class="select">
+			<ul class="list-unstyled d-flex flex-direction-row">
+				<li
+					:class="{ active: isSelected === 'active' }"
+					@click="changeSelected('active')"
+				>
+					ACTIVE
+				</li>
+
+				<li
+					:class="{ active: isSelected === 'archive' }"
+					view
+					@click="changeSelected('archive')"
+				>
+					ARCHIVE
+				</li>
+			</ul>
+		</div>
 		<div style="display: flex; justify-content: space-between">
 			<h3 class="fw-bold mb-3">Business Rules</h3>
 			<router-link to="/admin/business-rules/add-business-rules">
@@ -17,9 +35,37 @@
 					<th class="text-center">Actions</th>
 				</tr>
 			</thead>
-			<tbody>
+			<tbody v-if="isSelected === 'active'">
 				<tr v-for="rule in businessRules">
-					<td>{{ rule.name }}</td>
+					<td>
+						<router-link
+							:to="`/admin/business-rules/${rule.uuid}`"
+							class="text-decoration-none fw-semibold text-primary"
+							>{{ rule.name }}
+						</router-link>
+					</td>
+					<td>{{ rule.description }}</td>
+					<td>{{ rule.tags }}</td>
+					<td class="text-center">
+						<base-action @delete="deleteRule(rule.uuid)" />
+					</td>
+				</tr>
+				<tr
+					v-if="
+						!businessRules ||
+						(businessRules && !businessRules.length) === 0
+					"
+				>
+					<td colspan="6" class="text-center text-muted py-3">
+						No Business Rules Available
+					</td>
+				</tr>
+			</tbody>
+			<tbody v-else>
+				<tr v-for="rule in archivedRules">
+					<td>
+						{{ rule.name }}
+					</td>
 					<td>{{ rule.description }}</td>
 					<td>{{ rule.tags }}</td>
 					<td class="text-center">
@@ -46,25 +92,42 @@ import BaseAction from "../UI/BaseAction.vue";
 
 export default {
 	data() {
-		return {};
+		return { isSelected: "active" };
 	},
-	async mounted() {
-		await this.fetchRules();
-	},
+
 	computed: {
-		...mapGetters("BusinessRule", ["filteredRules"]),
+		...mapGetters("BusinessRule", ["filteredRules", "getArchivedRules"]),
 		businessRules() {
 			return this.filteredRules;
+		},
+
+		archivedRules() {
+			return this.getArchivedRules;
 		},
 	},
 	async mounted() {
 		await this.fetchRules();
 	},
 	methods: {
-		...mapActions("BusinessRule", ["fetchRules", "deleteRule"]),
+		...mapActions("BusinessRule", [
+			"fetchRules",
+			"deleteRule",
+			"fetchArchivedRules",
+		]),
+
+		changeSelected(option) {
+			this.isSelected = option;
+		},
 	},
 	components: {
 		BaseAction,
+	},
+	watch: {
+		async isSelected(newValue) {
+			if (newValue === "archive") {
+				await this.fetchArchivedRules();
+			}
+		},
 	},
 };
 </script>
@@ -79,5 +142,24 @@ export default {
 td,
 th {
 	vertical-align: middle;
+}
+ul {
+	padding-left: 0.1rem;
+	padding-top: 0.1rem;
+	padding-bottom: 0.1rem;
+	border-bottom: 1px solid rgb(218, 209, 209);
+}
+li {
+	width: 7rem;
+	text-align: center;
+	height: 2rem;
+	padding-top: 0.22rem;
+	cursor: pointer;
+}
+.select li.active {
+	color: #ffffff;
+	background-color: #2563eb;
+	box-shadow: 0 4px 10px rgba(76, 92, 117, 0.4);
+	border-radius: 9px;
 }
 </style>

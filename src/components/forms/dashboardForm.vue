@@ -231,6 +231,7 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import SearchableDropdown from "../Layout/searchableDropdown.vue";
+import toastService from "../../service/toastService";
 
 export default {
 	components: {
@@ -335,6 +336,7 @@ export default {
 			try {
 				this.formError = "";
 				if (!this.validate()) {
+					toastService.warning("Enter the correct data");
 					return;
 				}
 
@@ -369,7 +371,17 @@ export default {
 					app_package: "",
 					icon: "",
 				};
+				if (result.success) {
+					this.successMessage = "Dashboard created successfully!";
 
+					toastService.success(this.successMessage);
+					this.$router.replace("/admin/dashboard");
+				} else {
+					toastService.error("Error in creating Dashboard");
+
+					this.formError =
+						result.error || "Failed to create Dashboard";
+				}
 				this.$router.replace("/admin/dashboard");
 			} catch (error) {
 				this.formError = error.message || "Something went wrong";
@@ -409,7 +421,6 @@ export default {
 			console.log("list", list);
 
 			const uniqueApps = new Set(list);
-			console.log("Unique", uniqueApps);
 			return Array.from(uniqueApps).map((c) =>
 				(c.name || "").trim().toLowerCase()
 			);

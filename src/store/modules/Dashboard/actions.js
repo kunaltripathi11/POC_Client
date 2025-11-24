@@ -1,9 +1,9 @@
+import { API_URL } from "../../../config";
+
 export default {
 	async fetchDashboards({ commit }) {
 		try {
-			const response = await fetch(
-				"http://localhost:3000/admin/dashboard"
-			);
+			const response = await fetch(`${API_URL}admin/dashboard`);
 			const json = await response.json();
 			if (!response.ok) {
 				const errMessage = json.message;
@@ -19,9 +19,7 @@ export default {
 	},
 	async fetchDashboardById({ commit }, uuid) {
 		try {
-			const response = await fetch(
-				`http://localhost:3000/admin/dashboard/${uuid}`
-			);
+			const response = await fetch(`${API_URL}admin/dashboard/${uuid}`);
 			const json = await response.json();
 
 			commit("setOneDashboard", json.data);
@@ -36,7 +34,7 @@ export default {
 		if (!confirm("Sure? This will Delete the Dashboard.")) return;
 
 		try {
-			await fetch(`http://localhost:3000/admin/dashboard/${uuid}`, {
+			await fetch(`${API_URL}admin/dashboard/${uuid}`, {
 				method: "DELETE",
 			});
 
@@ -47,16 +45,16 @@ export default {
 	},
 
 	async createDashboard({ commit, dispatch }, payload) {
-		console.log("Payload is ddddddddddddasd ", payload);
 		try {
 			commit("setError", null);
-			await fetch(`http://localhost:3000/admin/dashboard/add`, {
+			await fetch(`${API_URL}admin/dashboard/add`, {
 				method: "POST",
 				headers: { "content-type": "application/json" },
 				body: JSON.stringify(payload),
 			});
 
 			dispatch("fetchDashboards");
+			return { success: true, data: response.data };
 		} catch (error) {
 			console.log("Error creating Application", error);
 			commit("setError", error.message || "Failed to create Application");
@@ -70,11 +68,8 @@ export default {
 
 	async fetchApps({ commit }) {
 		try {
-			const response = await fetch(
-				"http://localhost:3000/admin/dashboard/fetchApps"
-			);
+			const response = await fetch(`${API_URL}admin/dashboard/fetchApps`);
 			const json = await response.json();
-			console.log("hello");
 			if (!response.ok) {
 				const errMessage = json.message;
 				throw new Error(errMessage);
