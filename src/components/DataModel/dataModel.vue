@@ -1,5 +1,5 @@
 <template>
-	<div class="main-content container mt-4">
+	<div class="main-content mt-4">
 		<div style="display: flex; justify-content: space-between">
 			<h3 class="fw-bold mb-3">Data Model List</h3>
 			<router-link to="/admin/data-model/add-data-model">
@@ -70,6 +70,7 @@ export default {
 <style scoped>
 .main-content {
 	padding-top: 4rem;
+	padding-left: 15rem;
 }
 .table {
 	border-radius: 10px;

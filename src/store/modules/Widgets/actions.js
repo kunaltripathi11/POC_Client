@@ -48,4 +48,23 @@ export default {
 			console.log("Error in loading!!!", error);
 		}
 	},
+
+	async removeWidget({ dispatch }, { uuid, dashUUID }) {
+		try {
+			console.log("Widget", uuid, "DAsh", dashUUID);
+			if (!confirm("Sure? This will delete the widget.")) return;
+			const response = await fetch(`${API_URL}admin/widget/${uuid}`, {
+				method: "DELETE",
+			});
+			if (!response.ok) {
+				console.log("Unable to delete");
+			}
+			await dispatch("fetchWidgets", {
+				id: dashUUID,
+				variable: "uuid",
+			});
+		} catch (error) {
+			console.log("ERROR in Deleting", error);
+		}
+	},
 };

@@ -1,45 +1,3 @@
-<!-- <template>
-	<div class="build-main" @drop.prevent="handleDrop" @dragover.prevent>
-		<div v-if="!widget.rule_id">
-			Configue Widget
-			<button
-				class="btn btn-sm btn-outline-primary"
-				@click="configure(widget.uuid)"
-			>
-				Configure
-			</button>
-		</div>
-		<div v-else>
-			<div class="main">
-				<table class="table table-hover align-middle shadow-sm">
-					<thead class="table-primary">
-						<tr>
-							<th v-for="column in columns">{{ column }}</th>
-						</tr>
-					</thead>
-
-					<tbody>
-						<tr v-for="(widgetData, index) in widget" :key="index">
-							<td
-								v-for="(column, index1) in columns"
-								:key="index1"
-							>
-								{{ widgetData[column] }}
-							</td>
-						</tr>
-
-						<tr v-if="!columns || !widget">
-							<td colspan="6" class="text-center text-muted py-3">
-								No Data Available
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-</template> -->
-
 <template>
 	<div class="build-main">
 		<div v-if="!widget.rule_id">
@@ -53,7 +11,33 @@
 		</div>
 
 		<div v-else>
-			<div class="main">
+			<div class="widget-header">
+				<h5 class="widget-title">
+					{{ widget.name || "New Widget" }}
+				</h5>
+
+				<div class="widget-actions">
+					<button
+						class="btn btn-sm btn-primary"
+						@click="configure(widget.uuid)"
+					>
+						<font-awesome-icon icon="fa-solid fa-pen" />
+					</button>
+
+					<button
+						class="btn btn-sm btn-danger"
+						@click="
+							$emit('delete-widget', {
+								uuid: widget.uuid,
+								dashUUID: this.$route.params.uuid,
+							})
+						"
+					>
+						<font-awesome-icon icon="fa-solid fa-trash" />
+					</button>
+				</div>
+			</div>
+			<div class="table-wrapper">
 				<table class="table table-hover align-middle shadow-sm">
 					<thead class="table-primary">
 						<tr>
@@ -71,10 +55,7 @@
 						</tr>
 
 						<tr v-if="!widget.query || widget.query.length === 0">
-							<td
-								:colspan="widget.columns.length"
-								class="text-center text-muted py-3"
-							>
+							<td class="text-center text-muted py-3">
 								No Data Available
 							</td>
 						</tr>
@@ -116,20 +97,46 @@ export default {
 	border: 2px dashed #ccc;
 	padding: 20px;
 	border-radius: 10px;
-	min-height: 300px;
 	background-color: #fafafa;
+
+	max-width: calc(100vw - 13rem - 2rem);
+	overflow: hidden;
 }
-.widget-card {
-	background: #fff;
-	padding: 15px;
-	border-radius: 10px;
-	margin-bottom: 10px;
-	transition: 0.2s ease;
+
+.widget-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+	padding: 0.5rem 0;
 }
-.widget-card:hover {
-	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+
+.widget-title {
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 600;
 }
-.main {
-	max-width: 1000px;
+
+.widget-actions > button {
+	margin-left: 0.5rem;
+}
+
+.table-wrapper {
+	max-height: 60vh;
+	overflow-x: auto;
+	overflow-y: auto;
+	background: white;
+	border-radius: 8px;
+}
+
+.table-wrapper thead th {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	background: #e8f1ff;
+}
+td,
+th {
+	white-space: nowrap;
 }
 </style>

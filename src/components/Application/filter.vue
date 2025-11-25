@@ -1,11 +1,11 @@
 <template>
-	<div class="filter container">
+	<div class="filter">
 		<div class="tabs">
 			<router-link
 				to="/admin/application"
 				class="tab"
 				:class="{ active: activeItem === 'app' }"
-			>
+			 style="margin-left: 1rem;">
 				Application
 			</router-link>
 
@@ -72,7 +72,8 @@ export default {
 
 <style scoped>
 .filter {
-	padding-top: 4rem;
+	margin-top: 5rem;
+	margin-left: 13rem;
 }
 .tabs {
 	display: flex;
@@ -80,6 +81,7 @@ export default {
 	gap: 0.5rem;
 }
 .tab {
+	border-radius: 10px;
 	padding: 0.55rem 1rem;
 	text-decoration: none;
 	color: black;
@@ -93,7 +95,7 @@ a:hover {
 	/* position: absolute; */
 }
 .active {
-	background: rgb(0, 51, 141) !important;
+	background: rgb(31, 97, 210) !important;
 	color: white !important;
 }
 .spacer {

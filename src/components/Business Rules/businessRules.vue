@@ -1,5 +1,5 @@
 <template>
-	<div class="main-content container mt-4">
+	<div class="main-content">
 		<div class="select">
 			<ul class="list-unstyled d-flex flex-direction-row">
 				<li
@@ -133,7 +133,17 @@ export default {
 </script>
 <style scoped>
 .main-content {
-	padding-top: 4rem;
+	margin-top: 6rem;
+	margin-left: 14rem;
+	margin-right: 1rem;
+	height: calc(100vh - 8rem);
+
+	padding: 1rem 1rem 0 1rem;
+
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+
+	height: calc(100vh - 7rem);
 }
 .table {
 	border-radius: 10px;
@@ -147,7 +157,7 @@ ul {
 	padding-left: 0.1rem;
 	padding-top: 0.1rem;
 	padding-bottom: 0.1rem;
-	border-bottom: 1px solid rgb(218, 209, 209);
+	/* border-bottom: 1px solid rgb(218, 209, 209); */
 }
 li {
 	width: 7rem;
@@ -158,6 +168,7 @@ li {
 }
 .select li.active {
 	color: #ffffff;
+
 	background-color: #2563eb;
 	box-shadow: 0 4px 10px rgba(76, 92, 117, 0.4);
 	border-radius: 9px;

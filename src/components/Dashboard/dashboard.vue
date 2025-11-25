@@ -1,5 +1,5 @@
 <template>
-	<div class="main-content container mt-4">
+	<div class="main-content">
 		<div style="display: flex; justify-content: space-between">
 			<h3 class="fw-bold mb-3">Dashboard List</h3>
 			<router-link to="/admin/dashboard/add">
@@ -80,7 +80,17 @@ export default {
 </script>
 <style scoped>
 .main-content {
-	padding: 4rem;
+	margin-top: 6rem;
+	margin-left: 14rem;
+	margin-right: 1rem;
+	height: calc(100vh - 8rem);
+
+	padding: 1rem 1rem 0 1rem;
+
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+
+	height: calc(100vh - 7rem);
 }
 .table {
 	border-radius: 10px;

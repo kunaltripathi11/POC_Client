@@ -25,6 +25,7 @@
 					<span>Back to Dashboard</span>
 				</router-link>
 			</div>
+			<div>NAme</div>
 			<div class="header-bottom">
 				<ul class="list-unstyled">
 					<li
@@ -120,28 +121,37 @@ export default {
 	background-color: #f5f7fa;
 	min-height: 100vh;
 	max-width: 100vw;
-	padding-top: 4rem;
-	padding-left: 13rem;
+	margin-top: 4rem;
+	margin-left: 13rem;
 	/* position: relative; */
 	transition: all 0.3s ease;
 }
 
 .header-section {
 	/* display: flex; */
+
+	position: fixed;
+	top: 4rem;
 	justify-content: space-between;
-	height: 15vh;
+	height: 20vh;
+	width: calc(100vw - 13rem);
 	align-items: center;
 	background: white;
 	padding: 1rem 1.5rem;
-	border-radius: 8px;
+	/* border-radius: 8px; */
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 	margin-bottom: 1.5rem;
 	border-bottom: 1px solid black;
+	z-index: 999;
 }
 .header-top {
 	border-bottom: 1px solid black;
 	width: 100%;
 	/* padding: 0; */
+}
+.header-bottom {
+	display: flex;
+	justify-content: space-between;
 }
 .header-bottom ul {
 	display: flex;
@@ -184,16 +194,16 @@ export default {
 }
 
 .btn {
+	height: 2.3rem;
+	width: 9rem;
 	display: flex;
 	position: absolute;
 	right: 3rem;
-	top: 7.4rem;
 	align-items: center;
 	gap: 0.4rem;
 	border: none;
 	border-radius: 6px;
 	cursor: pointer;
-	padding: 0.6rem 1.2rem;
 	font-weight: 500;
 	transition: all 0.2s;
 }
@@ -232,7 +242,7 @@ export default {
 }
 
 .drawer-toggle.drawer-open {
-	right: 20vw;
+	right: 21vw;
 }
 
 .toggle-icon {

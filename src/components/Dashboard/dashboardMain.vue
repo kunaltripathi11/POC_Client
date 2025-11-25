@@ -19,7 +19,10 @@
 					:key="widget.id"
 					class="widget-box"
 				>
-					<widgetsDesign :widget="widget" />
+					<widgetsDesign
+						:widget="widget"
+						@delete-widget="deleteWidget"
+					/>
 				</div>
 			</div>
 		</div>
@@ -66,7 +69,11 @@ export default {
 		},
 	},
 	methods: {
-		...mapActions("Widget", ["fetchWidgets"]),
+		...mapActions("Widget", ["fetchWidgets", "removeWidget"]),
+
+		async deleteWidget(uuid) {
+			await this.removeWidget(uuid);
+		},
 
 		handleWidgetDragStart(widget) {
 			console.log("handleWidgetDragStart");
@@ -93,7 +100,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .main-content {
 	background: white;
 	border-radius: 10px;
@@ -101,6 +108,8 @@ export default {
 	min-height: 60vh;
 	border: 1px solid #e5e7eb;
 	transition: all 0.3s ease;
+	height: calc(100vh - 20vh - 4rem);
+	margin-top: calc(20vh + 5rem);
 }
 
 .main-content.drag-over {
@@ -123,19 +132,18 @@ export default {
 .widgets-grid {
 	display: flex;
 	flex-direction: column;
-	gap: 3rem;
+	gap: 1rem;
 }
 
 .widget-box {
 	background: #f9fafb;
 	border: 1px solid #e5e7eb;
 	border-radius: 8px;
-	padding: 1.5rem;
+	padding: 1rem;
 	text-align: center;
 	font-weight: 600;
 	color: #374151;
 	box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-	/* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); */
 
 	transition: all 0.2s;
 }

@@ -150,7 +150,7 @@ export default {
 	position: fixed;
 	top: 3rem;
 	left: 0;
-	height: calc(100vh - 4rem);
+	height: calc(100vh - 3rem);
 	width: 13rem;
 	background: #f5f8f8;
 	/* padding: 1.5rem 0.5rem; */

@@ -1,10 +1,10 @@
 <template>
 	<router-view></router-view>
-	<div class="main-content container mt-4">
+	<div class="main-content mt-3">
 		<div style="display: flex; justify-content: space-between">
-			<h3 class="fw-bold mb-3">Solution Category List</h3>
+			<h3 class="fw-bold mb-2">Solution Category List</h3>
 			<router-link to="/admin/application/solution-categories/add">
-				<button class="btn btn-primary mb-3" @click="create">
+				<button class="btn btn-primary mb-2" @click="create">
 					Create Sol
 				</button>
 			</router-link>
@@ -69,9 +69,19 @@ export default {
 };
 </script>
 <style scoped>
-.table {
+.main-content {
+	padding: 1rem 1rem 0 1rem;
+	background: #fff;
+	margin: 0 1rem;
+	border: 1px solid #e5e7eb;
 	border-radius: 10px;
-	overflow: hidden;
+
+	max-height: calc(100vh - 9rem);
+}
+.table {
+	overflow-y: auto;
+	max-height: 80vh;
+	border-radius: 10px;
 }
 td,
 th {

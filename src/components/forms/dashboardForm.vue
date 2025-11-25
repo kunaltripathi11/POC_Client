@@ -20,7 +20,7 @@
 					type="text"
 					class="form-control"
 					v-model.trim="form.name"
-					@blur="checkUniqueName"
+					@blur="checkUnique"
 					:class="{ 'is-invalid': errors.name }"
 					placeholder="Enter Name..."
 				/>
@@ -36,7 +36,7 @@
 					type="text"
 					class="form-control"
 					v-model.trim="form.title"
-					@blur="checkUniqueName"
+					@blur="checkUnique"
 					:class="{ 'is-invalid': errors.title }"
 					placeholder="Enter Title..."
 				/>
@@ -54,6 +54,7 @@
 					class="form-control"
 					v-model.trim="form.url"
 					:class="{ 'is-invalid': errors.url }"
+					@blur="checkUnique"
 					placeholder="/abc ..."
 				/>
 				<div class="invalid-feedback" v-if="errors.url">
@@ -101,7 +102,7 @@
 						type="text"
 						class="form-control"
 						v-model.trim="form.app_title"
-						@blur="checkUniqueName"
+						@blur="checkUnique"
 						:class="{ 'is-invalid': errors.app_title }"
 						placeholder="e.g. Analytics Dashboard"
 					/>
@@ -340,10 +341,9 @@ export default {
 					return;
 				}
 
-				await this.checkUniqueName();
-				if (this.errors.name) return;
+				await this.checkUnique();
+				if (this.errors.name || this.errors.url) return;
 
-				console.log("submit form", this.form.app_id);
 				this.submitting = true;
 
 				const payload = {
@@ -358,7 +358,6 @@ export default {
 					app_package: this.form.app_package,
 					icon: this.form.icon,
 				};
-				console.log("payload", payload);
 
 				await this.createDashboard(payload);
 
@@ -393,16 +392,29 @@ export default {
 		handleCancel() {
 			this.$router.push("/admin/dashboard");
 		},
-		async checkUniqueName() {
+		async checkUnique() {
 			const name = (this.form.name || "").trim().toLowerCase();
+			const url = (this.form.url || "").trim().toLowerCase();
+			const title = (this.form.title || "").trim().toLowerCase();
 
-			if (!name) return;
+			if (!name && !url && !title) return;
 
-			console.log(this.dashboardNameSet);
-			if (this.dashboardNameSet?.includes(name)) {
+			console.log("HELLO", this.dashboardNameSet);
+			if (this.dashboardNameSet.nameSet?.includes(name)) {
 				this.errors.name = "Name Already Present";
 			} else if (this.errors.name === "Name Already Present") {
 				this.errors.name = "";
+			}
+			if (this.dashboardNameSet.urlSet?.includes(url)) {
+				this.errors.url = "URL Already Present";
+			} else if (this.errors.url === "URL Already Present") {
+				this.errors.url = "";
+			}
+
+			if (this.dashboardNameSet.titleSet?.includes(title)) {
+				this.errors.title = "Title Already Present";
+			} else if (this.errors.title === "Title Already Present") {
+				this.errors.title = "";
 			}
 		},
 	},
@@ -414,16 +426,28 @@ export default {
 		]),
 
 		dashboardNameSet() {
-			console.log("dashboard", this.filteredDashboards);
 			const list = Array.isArray(this.filteredDashboards)
 				? this.filteredDashboards
 				: [];
-			console.log("list", list);
 
 			const uniqueApps = new Set(list);
-			return Array.from(uniqueApps).map((c) =>
+			const nameSet = Array.from(uniqueApps).map((c) =>
 				(c.name || "").trim().toLowerCase()
 			);
+			const titleSet = Array.from(uniqueApps).map((c) =>
+				(c.title || "").trim().toLowerCase()
+			);
+			const urlSet = Array.from(uniqueApps).map((c) =>
+				(c.url || "").trim().toLowerCase()
+			);
+
+			const finalSet = {
+				urlSet: urlSet,
+				titleSet: titleSet,
+				nameSet: nameSet,
+			};
+
+			return finalSet;
 		},
 
 		applicationOptions() {
