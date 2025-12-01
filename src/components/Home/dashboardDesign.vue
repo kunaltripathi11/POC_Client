@@ -4,7 +4,6 @@
 			:show="drawerVisible"
 			@close="closeDrawer"
 			@widget-drag-start="handleWidgetDragStart"
-			@widget-drag-end="handleDragEnd"
 		/>
 
 		<div

@@ -1,6 +1,6 @@
 <template>
 	<div class="main">
-		<div class="header">
+		<div class="header" v-if="!isEdit">
 			<div class="back">
 				<router-link to="/admin/business-rules">
 					<font-awesome-icon icon="fa-solid fa-arrow-left" />
@@ -40,7 +40,7 @@
 			</div>
 
 			<searchable-dropdown
-				label="Data Model"
+				label='Data Model <span class="text-danger">*</span>'
 				placeholder="Select Data Model..."
 				v-model="form.data_model_id"
 				:options="dataModelOptions"
@@ -107,7 +107,7 @@
 
 			<searchable-dropdown
 				v-if="form.link_to"
-				label="Destination"
+				label='Destination<span class="text-danger">*</span>'
 				placeholder="Select Destination..."
 				v-model="form.destination_id"
 				:options="destinationOptions"
@@ -234,6 +234,26 @@ export default {
 		await this.fetchRules();
 		await this.fetchModels();
 		await this.fetchDashboards();
+
+		if (this.isEdit) {
+			this.form.name = this.selectedRule.name;
+			this.form.description = this.selectedRule.description;
+			this.form.reserved_rules = this.selectedRule.reserved_rules;
+			this.form.data_model_id = this.selectedRule.data_model_id;
+			this.form.app_package = this.selectedRule.app_package;
+			this.form.workflow = this.selectedRule.workflow;
+
+			this.form.user_specific_field_id =
+				this.selectedRule.user_specific_field_id;
+
+			this.form.multiple_user_specific_field_id =
+				this.selectedRule.multiple_user_specific_field_id;
+			this.form.link_to = this.selectedRule.link_to;
+			this.form.destination_id = this.selectedRule.destination_id;
+			for (let tag of this.selectedRule.tags.split(",")) {
+				this.selectedTags.push(tag.trim());
+			}
+		}
 	},
 	computed: {
 		...mapGetters("BusinessRule", ["filteredRules"]),
@@ -244,7 +264,17 @@ export default {
 			const list = Array.isArray(this.filteredRules)
 				? this.filteredRules
 				: [];
-			return list.map((rule) => (rule.name || "").trim().toLowerCase());
+			let nameSet = list.map((rule) =>
+				(rule.name || "").trim().toLowerCase()
+			);
+
+			if (this.isEdit) {
+				nameSet = nameSet.filter(
+					(name) =>
+						name !== this.selectedRule.name.toLowerCase().trim()
+				);
+			}
+			return nameSet;
 		},
 
 		dataModelOptions() {
@@ -264,13 +294,23 @@ export default {
 
 			return [];
 		},
+		isEdit() {
+			return !!this.$route.params.uuid;
+		},
+
+		selectedRule() {
+			return this.$store.getters.getSelected;
+		},
 	},
 	methods: {
-		...mapActions("BusinessRule", ["fetchRules", "createBusinessRule"]),
+		...mapActions("BusinessRule", [
+			"fetchRules",
+			"createBusinessRule",
+			"updateRule",
+		]),
 		...mapActions("DataModel", ["fetchModels"]),
 		...mapActions("Dashboard", ["fetchDashboards"]),
 		...mapActions("Tags", ["searchTagsByInput", "addTagsToRule"]),
-		// ...mapActions("Wi", ["searchTagsByInput", "addTagsToRule"]),
 
 		validate() {
 			this.errors = {};
@@ -282,7 +322,6 @@ export default {
 				this.errors.data_model_id = "Data model is required";
 			}
 
-			console.log("D_id", this.form.destination_id);
 			if (this.form.link_to && !this.form.destination_id) {
 				this.errors.destination_id =
 					"Destination is required when link to is set";
@@ -294,7 +333,6 @@ export default {
 		async checkUniqueName() {
 			const name = (this.form.name || "").trim().toLowerCase();
 			if (!name) return;
-			console.log("Business", this.businessRuleNameSet);
 			if (this.businessRuleNameSet.includes(name)) {
 				this.errors.name = "Name Already Present";
 			} else if (this.errors.name === "Name Already Present") {
@@ -352,7 +390,6 @@ export default {
 		},
 
 		async onSubmit() {
-			console.log("Hey");
 			try {
 				this.formError = "";
 
@@ -361,7 +398,6 @@ export default {
 					return;
 				}
 
-				console.log("Selected Tags Are: ", this.selectedTags);
 				await this.checkUniqueName();
 				if (this.errors.name) return;
 
@@ -381,9 +417,39 @@ export default {
 					link_to: this.form.link_to || null,
 					destination_id: this.form.destination_id || null,
 				};
-				console.log("Before Business rule create");
-				const result = await this.createBusinessRule(payload);
-				console.log("Result ", result);
+				let result;
+				if (!this.isEdit) {
+					result = await this.createBusinessRule(payload);
+					if (result.success) {
+						this.successMessage =
+							"Business Rule created successfully!";
+
+						toastService.success(this.successMessage);
+
+						this.$router.replace("/admin/business-rules");
+					} else {
+						this.formError =
+							result.error || "Failed to create Business Rule";
+						toastService.error("Failed To create  Business Rule");
+					}
+				} else {
+					result = await this.updateRule({
+						payload: payload,
+						uuid: this.$route.params.uuid,
+					});
+					if (result.success) {
+						this.successMessage =
+							"Business Rule Updated successfully!";
+
+						toastService.success(this.successMessage);
+
+						this.$router.replace("/admin/business-rules");
+					} else {
+						this.formError =
+							result.error || "Failed to Update Business Rule";
+						toastService.error("Failed To Update  Business Rule");
+					}
+				}
 
 				if (this.selectedTags.length > 0 && result.data.id) {
 					await this.addTagsToRule({
@@ -392,11 +458,11 @@ export default {
 					});
 				}
 
-				if (
-					this.form.link_to === "Dashboard" &&
-					this.form.destination_id
-				) {
-				}
+				// if (
+				// 	this.form.link_to === "Dashboard" &&
+				// 	this.form.destination_id
+				// ) {
+				// }
 
 				this.form = {
 					name: "",
@@ -411,18 +477,6 @@ export default {
 					destination_id: null,
 				};
 				this.selectedTags = [];
-
-				if (result.success) {
-					this.successMessage = "Rule created successfully!";
-
-					toastService.success(this.successMessage);
-
-					this.$router.replace("/admin/business-rules");
-				} else {
-					this.formError =
-						result.error || "Failed to create Business Rule";
-					toastService.error("Failed To create  Business Rule");
-				}
 			} catch (error) {
 				this.formError = "Something went wrong " || error.message;
 			} finally {

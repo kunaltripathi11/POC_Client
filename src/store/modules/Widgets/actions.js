@@ -28,8 +28,6 @@ export default {
 		const { id, variable } = payload;
 		state.allWidget = [];
 
-		console.log("ID", id, variable);
-
 		try {
 			const response = await fetch(
 				`${API_URL}admin/widget?id=${id}&variable=${variable}`
@@ -38,20 +36,34 @@ export default {
 			const json = await response.json();
 
 			commit("setWidget", json.data);
-			console.log("DATA GETTING", json);
 			state.dashboard_id = json.dashboard_id;
 
 			state.columns = json.columns;
-
-			console.log("Columns", state.columns);
 		} catch (error) {
 			console.log("Error in loading!!!", error);
 		}
 	},
 
+	async updateWidget({ state }, { uuid, payload }) {
+		try {
+			const response = await fetch(`${API_URL}admin/widget/${uuid}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(payload),
+			});
+
+			const json = await response.json();
+
+			return { success: true, data: json.data };
+		} catch (error) {
+			console.log("ERROR IN UPDATING", error);
+		}
+	},
+
 	async removeWidget({ dispatch }, { uuid, dashUUID }) {
 		try {
-			console.log("Widget", uuid, "DAsh", dashUUID);
 			if (!confirm("Sure? This will delete the widget.")) return;
 			const response = await fetch(`${API_URL}admin/widget/${uuid}`, {
 				method: "DELETE",
@@ -65,6 +77,22 @@ export default {
 			});
 		} catch (error) {
 			console.log("ERROR in Deleting", error);
+		}
+	},
+
+	async model({ state }, payload) {
+		try {
+			const response = await fetch(`${API_URL}admin/widget/getModel`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(payload),
+			});
+			const json = await response.json();
+			return { success: true, data: json.data };
+		} catch (err) {
+			console.log(err);
 		}
 	},
 };

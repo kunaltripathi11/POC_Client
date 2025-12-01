@@ -1,6 +1,6 @@
 <template>
 	<MainContent />
-	<div class="container main">
+	<div class="main">
 		<DashboardMain />
 	</div>
 </template>
@@ -18,6 +18,11 @@ export default {
 
 <style scoped>
 .main {
-	padding: 4rem 0 0 0;
+	padding: 0 0 0 0;
+	margin: -10rem;
+	margin-left: 4rem;
+	margin-right: -10rem;
+	height: calc(100vh - 5rem);
+	width: calc(100vw - 14rem);
 }
 </style>

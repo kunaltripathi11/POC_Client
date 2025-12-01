@@ -1,4 +1,5 @@
 import { API_URL } from "../../../config";
+import router from "../../../Route";
 
 export default {
 	async fetchCategory({ commit }) {
@@ -11,6 +12,31 @@ export default {
 			commit("setCategories", json.data);
 		} catch (err) {
 			console.error("Error loading Category", err);
+		}
+	},
+
+	editCategory({ dispatch }, cat) {
+		console.log(cat);
+		dispatch("SET_SELECTED", cat, { root: true });
+		router.push(`/admin/application/categories/${cat.uuid}`);
+	},
+
+	async updateCategory({ state }, { uuid, payload }) {
+		try {
+			const result = await fetch(
+				`${API_URL}admin/application/categories/${uuid}`,
+				{
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				}
+			);
+			const json = await result.json();
+			return { success: true, data: json.data };
+		} catch (error) {
+			console.log("ERROR IN UPDATING", error);
 		}
 	},
 
@@ -36,9 +62,6 @@ export default {
 		}
 	},
 
-	// editCategory(cat) {
-	// 	this.$router.push(`/admin/application/categories/${dash.uuid}`);
-	// },
 	async deleteCategory({ dispatch }, uuid) {
 		if (!confirm("Sure? This will Delete the Category.")) return;
 		await fetch(`${API_URL}admin/application/categories/${uuid}`, {

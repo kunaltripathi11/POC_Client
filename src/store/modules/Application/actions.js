@@ -1,4 +1,5 @@
 import { API_URL } from "../../../config";
+import router from "../../../Route";
 
 export default {
 	async fetchApplications({ commit }) {
@@ -31,12 +32,12 @@ export default {
 					errorData.message || "Failed to create Application"
 				);
 			}
-			// const json = await response.json();
+			const json = await response.json();
 			await dispatch("fetchApplications");
-			// return {
-			// 	success: true,
-			// 	data: json.data,
-			// };
+			return {
+				success: true,
+				data: json.data,
+			};
 		} catch (error) {
 			console.log("Error creating Application", error);
 			commit("setError", error.message || "Failed to create Application");
@@ -47,10 +48,32 @@ export default {
 	clearError({ commit }) {
 		commit("setError", null);
 	},
-	// editApplication(app) {
-	// 	console.log(app);
-	// 	this.$router.push(`/admin/application/apps/edit/${dash.uuid}`);
-	// },
+
+	async editApplication({ dispatch }, app) {
+		console.log("router", router);
+		dispatch("SET_SELECTED", app, { root: true });
+		router.push(`/admin/application/apps/edit/${app.uuid}`);
+	},
+
+	async updateApplication({ state }, { uuid, payload }) {
+		try {
+			const result = await fetch(
+				`${API_URL}admin/application/apps/edit/${uuid}`,
+				{
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				}
+			);
+			const json = result.json();
+			return { success: true, data: json.data };
+		} catch (error) {
+			console.log("ERROR IN UPDATING", error);
+		}
+	},
+
 	async deleteApplication({ dispatch }, uuid) {
 		if (!confirm("Sure? This will delete the Application.")) return;
 		await fetch(`${API_URL}admin/application/apps/edit/${uuid}`, {

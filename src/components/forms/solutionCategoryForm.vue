@@ -81,7 +81,18 @@ export default {
 	},
 
 	computed: {
-		...mapGetters("SolCategory", ["filteredSolCategory", "error"]),
+		isEdit() {
+			return !!this.$route.params.uuid;
+		},
+		selected() {
+			return this.$store.getters.getSelected;
+		},
+	},
+
+	mounted() {
+		if (this.isEdit) {
+			this.formdata.title = this.selected.title;
+		}
 	},
 
 	methods: {
@@ -89,6 +100,7 @@ export default {
 			"fetchSolCategory",
 			"createSolCategory",
 			"clearError",
+			"updateSolCategory",
 		]),
 		validateForm() {
 			this.errors.title = "";
@@ -126,24 +138,42 @@ export default {
 			this.isSubmitting = true;
 
 			try {
-				const result = await this.createSolCategory({
+				const payload = {
 					title: this.formdata.title,
-				});
-				console.log("Result in Sol", result);
-				if (result.success) {
-					this.successMessage =
-						"Solution Category created successfully!";
+				};
+				let result;
+				if (!this.isEdit) {
+					result = await this.createSolCategory(payload);
+					if (result.success) {
+						this.successMessage =
+							"Solution Category created successfully!";
 
-					toastService.success(this.successMessage);
+						toastService.success(this.successMessage);
+						this.resetForm();
+						this.$router.replace(
+							"/admin/application/solution-categories"
+						);
+					} else {
+						this.generalError =
+							result.error ||
+							"Failed to create solution category";
+						toastService.error(
+							"Failed To create Solution Category"
+						);
+					}
+				} else {
+					result = await this.updateSolCategory({
+						payload: payload,
+						uuid: this.$route.params.uuid,
+					});
+
+					toastService.success("Updated Successfully");
 					this.resetForm();
 					this.$router.replace(
 						"/admin/application/solution-categories"
 					);
-				} else {
-					this.generalError =
-						result.error || "Failed to create solution category";
-					toastService.error("Failed To create Solution Category");
 				}
+				console.log("Result in Sol", result);
 			} catch (error) {
 				console.error("Error creating solution category:", error);
 				this.generalError =

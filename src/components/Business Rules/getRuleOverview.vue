@@ -52,10 +52,7 @@ export default {
 	},
 
 	mounted() {
-		console.log("UUID");
 		this.fetchRuleByID(this.$route.params.uuid);
-
-		console.log("columns", this.rules);
 	},
 };
 </script>

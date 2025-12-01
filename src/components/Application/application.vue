@@ -21,7 +21,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="(app, index) in applications" :key="index">
+				<tr v-for="(app, index) in paginatedApps" :key="index">
 					<td>{{ index + 1 }}</td>
 					<td>{{ app.title }}</td>
 					<td>{{ app.category_name }}</td>
@@ -34,7 +34,10 @@
 					<td>{{ app.active ? "Active" : "InActive" }}</td>
 
 					<td class="text-center">
-						<base-action @delete="deleteApplication(app.uuid)" />
+						<base-action
+							@delete="deleteApplication(app.uuid)"
+							@edit="editApplication(app)"
+						/>
 					</td>
 				</tr>
 				<tr
@@ -48,29 +51,40 @@
 				</tr>
 			</tbody>
 		</table>
+		<div>
+			<Pagination
+				:total-items="applications.length"
+				v-if="this.getPerPage > totalItems"
+			></Pagination>
+		</div>
 	</div>
 </template>
 
 <script>
 import BaseAction from "../UI/BaseAction.vue";
 import { mapActions, mapGetters } from "vuex";
-
-// import Filter from "./filter.vue";
+import Pagination from "../UI/Pagination.vue";
 
 export default {
-	// components: {
-	// 	Filter,
-	// },
 	data() {
-		return {};
+		return {
+			apps: [],
+		};
 	},
 	async mounted() {
-		await this.fetchApplications();
+		this.apps = await this.fetchApplications();
+		console.log("SPPPPPPPPPPD", this.applications.length);
 	},
 	computed: {
 		...mapGetters("Application", ["allApplications"]),
+		...mapGetters("Pagination", ["getCurrentPage", "getPerPage"]),
+
 		applications() {
 			return this.allApplications;
+		},
+		paginatedApps() {
+			const start = (this.getCurrentPage - 1) * this.getPerPage;
+			return this.applications.slice(start, start + this.getPerPage);
 		},
 	},
 
@@ -78,10 +92,12 @@ export default {
 		...mapActions("Application", [
 			"fetchApplications",
 			"deleteApplication",
+			"editApplication",
 		]),
 	},
 	components: {
 		BaseAction,
+		Pagination,
 	},
 };
 </script>
@@ -90,10 +106,10 @@ export default {
 	padding: 1rem 1rem 0 1rem;
 	background: #fff;
 	margin: 0 1rem;
+	margin-bottom: 2rem;
 	border: 1px solid #e5e7eb;
 	border-radius: 10px;
-
-	height: calc(100vh - 9rem);
+	max-height: fit-content;
 }
 .table {
 	border-radius: 10px;

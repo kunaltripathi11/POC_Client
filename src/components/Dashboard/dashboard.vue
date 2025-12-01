@@ -32,7 +32,10 @@
 					<td>{{ dash.url }}</td>
 					<td>{{ formatDate(dash.updated_at) }}</td>
 					<td class="text-center">
-						<base-action @delete="deleteDashboard(dash.uuid)" />
+						<base-action
+							@delete="deleteDashboard(dash.uuid)"
+							@edit="editDashboard(dash)"
+						/>
 					</td>
 				</tr>
 				<tr v-if="!dashboards || (dashboards && !dashboards.length)">
@@ -62,11 +65,14 @@ export default {
 		},
 	},
 	async mounted() {
-		console.log(this.$route);
 		await this.fetchDashboards();
 	},
 	methods: {
-		...mapActions("Dashboard", ["fetchDashboards", "deleteDashboard"]),
+		...mapActions("Dashboard", [
+			"fetchDashboards",
+			"deleteDashboard",
+			"editDashboard",
+		]),
 
 		formatDate(date) {
 			return new Date(date).toUTCString().slice(5, -4);

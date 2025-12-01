@@ -4,7 +4,7 @@
 			Configure Widget
 			<button
 				class="btn btn-sm btn-outline-primary"
-				@click="configure(widget.uuid)"
+				@click="configure(widget)"
 			>
 				Configure
 			</button>
@@ -19,7 +19,7 @@
 				<div class="widget-actions">
 					<button
 						class="btn btn-sm btn-primary"
-						@click="configure(widget.uuid)"
+						@click="configure(widget)"
 					>
 						<font-awesome-icon icon="fa-solid fa-pen" />
 					</button>
@@ -79,15 +79,15 @@ export default {
 	},
 	computed: {
 		...mapGetters("Widget", ["getColumns"]),
-
 		columns() {
 			return this.getColumns;
 		},
 	},
 	methods: {
 		...mapActions("Widget", ["fetchWidgets"]),
-		configure(uuid) {
-			this.$router.push(`${this.$route.path}/${uuid}`);
+		configure(widget) {
+			this.$store.dispatch("SET_SELECTED", widget);
+			this.$router.push(`${this.$route.path}/${widget.uuid}`);
 		},
 	},
 };

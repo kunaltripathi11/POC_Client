@@ -1,19 +1,20 @@
 <template>
 	<div class="mb-3 position-relative" ref="root">
-		<label class="form-label">{{ label }}</label>
+		<label class="form-label" v-html="label"></label>
 
 		<input
 			type="text"
 			class="form-control"
 			v-model="search"
 			:placeholder="placeholder"
-			@focus="open = true"
-			@input="open = true"
+			@focus="readonly ? null : (open = true)"
+			@input="readonly ? null : (open = true)"
+			:readonly="readonly"
 		/>
 
 		<ul
 			class="dropdown-menu w-100 show"
-			v-if="open"
+			v-if="open && !readonly"
 			style="max-height: 220px; overflow-y: auto"
 		>
 			<li v-for="opt in filteredOptions" :key="opt.value">
@@ -43,8 +44,12 @@ export default {
 			type: Array,
 			required: true,
 		},
+		readonly: {
+			type: Boolean,
+			default: false,
+		},
 	},
-	emits: ["update:modelValue"],
+	emits: ["update:modelValue", "changeval"],
 	data() {
 		return {
 			search: "",
@@ -72,9 +77,21 @@ export default {
 	beforeUnmount() {
 		document.removeEventListener("click", this.closeOnOutsideClick);
 	},
+
+	watch: {
+		modelValue: {
+			immediate: true,
+			handler(newVal) {
+				const selected = this.options.find((o) => o.value === newVal);
+				this.search = selected ? selected.label : "";
+			},
+		},
+	},
 	methods: {
 		select(opt) {
+			if (this.readonly) return;
 			this.$emit("update:modelValue", opt.value);
+			this.$emit("changeval", opt.value);
 			this.search = opt.label;
 			this.open = false;
 		},

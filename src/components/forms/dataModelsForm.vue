@@ -102,7 +102,7 @@
 					class="btn btn-primary"
 					:disabled="submitting"
 				>
-					Create Model
+					{{ isEdit ? "Update Model" : "Create Model" }}
 				</button>
 				<button
 					type="button"
@@ -141,10 +141,22 @@ export default {
 
 	async mounted() {
 		await this.fetchModels();
+
+		if (this.isEdit) {
+			this.form.name = this.selectedModel.name;
+			this.form.primary_key = this.selectedModel.primary_key;
+			this.form.app_package = this.selectedModel.app_package;
+			this.form.query = this.selectedModel.query;
+			this.form.description = this.selectedModel.description;
+		}
 	},
 
 	methods: {
-		...mapActions("DataModel", ["fetchModels", "createModel"]),
+		...mapActions("DataModel", [
+			"fetchModels",
+			"createModel",
+			"updateModel",
+		]),
 
 		validate() {
 			this.errors = {};
@@ -165,7 +177,7 @@ export default {
 			const name = (this.form.name || "").trim().toLowerCase();
 
 			if (!name) return;
-
+			console.log("Name Set", this.modelNameSet);
 			if (this.modelNameSet.includes(name)) {
 				this.errors.name = "Name Already Present";
 			} else if (this.errors.name === "Name Already Present") {
@@ -190,8 +202,42 @@ export default {
 					query: this.form.query,
 					description: this.form.description,
 				};
+				if (this.isEdit) {
+					const result = await this.updateModel({
+						payload: payload,
+						uuid: this.$route.params.uuid,
+					});
 
-				const result = await this.createModel(payload);
+					if (result.success) {
+						console.log("RESULT: ", result);
+						this.successMessage =
+							"Data Model updated successfully!";
+
+						toastService.success(this.successMessage);
+						this.$router.replace("/admin/data-model");
+					} else {
+						toastService.error("Error in updated Data Model");
+
+						this.generalError =
+							result.error ||
+							"Failed to updated solution category";
+					}
+				} else {
+					const result = await this.createModel(payload);
+					if (result.success) {
+						this.successMessage =
+							"Data Model created successfully!";
+
+						toastService.success(this.successMessage);
+						this.$router.replace("/admin/data-model");
+					} else {
+						toastService.error("Error in creating Data Model");
+
+						this.generalError =
+							result.error ||
+							"Failed to create solution category";
+					}
+				}
 
 				console.log("result ", result);
 
@@ -202,18 +248,6 @@ export default {
 					query: "",
 					description: "",
 				};
-
-				if (result.success) {
-					this.successMessage = "Data Model created successfully!";
-
-					toastService.success(this.successMessage);
-					this.$router.replace("/admin/data-model");
-				} else {
-					toastService.error("Error in creating Data Model");
-
-					this.generalError =
-						result.error || "Failed to create solution category";
-				}
 			} catch (error) {
 				this.formError = error.message || "Something went wrong";
 			} finally {
@@ -241,10 +275,24 @@ export default {
 			console.log("list", list);
 
 			const uniqueApps = new Set(list);
-
-			return Array.from(uniqueApps).map((c) =>
+			let nameSet = Array.from(uniqueApps).map((c) =>
 				(c.name || "").trim().toLowerCase()
 			);
+			if (this.isEdit) {
+				nameSet = nameSet.filter(
+					(name) =>
+						name !== this.selectedModel.name.toLowerCase().trim()
+				);
+			}
+			return nameSet;
+		},
+		isEdit() {
+			return !!this.$route.params.uuid;
+		},
+
+		selectedModel() {
+			console.log(this.$store.getters.getSelected);
+			return this.$store.getters.getSelected;
 		},
 	},
 };

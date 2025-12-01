@@ -26,7 +26,10 @@
 					<td>{{ cat.display_order }}</td>
 
 					<td class="text-center">
-						<base-action @delete="deleteCategory(cat.uuid)" />
+						<base-action
+							@delete="deleteCategory(cat.uuid)"
+							@edit="editCategory(cat)"
+						/>
 					</td>
 				</tr>
 				<tr v-if="category && !category.length">
@@ -56,7 +59,11 @@ export default {
 		await this.fetchCategory();
 	},
 	methods: {
-		...mapActions("Category", ["fetchCategory", "deleteCategory"]),
+		...mapActions("Category", [
+			"fetchCategory",
+			"deleteCategory",
+			"editCategory",
+		]),
 		...mapMutations("Category", ["setCategory"]),
 	},
 	components: {
@@ -71,8 +78,8 @@ export default {
 	margin: 0 1rem;
 	border: 1px solid #e5e7eb;
 	border-radius: 10px;
-
-	height: calc(100vh - 5rem);
+	margin-bottom: 2rem;
+	max-height: fit-content;
 }
 .table {
 	border-radius: 10px;

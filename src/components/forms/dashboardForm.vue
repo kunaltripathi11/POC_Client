@@ -2,7 +2,7 @@
 	<div class="main">
 		<div class="header">
 			<div class="back">
-				<router-link to="/admin/application/apps">
+				<router-link to="/admin/dashboard">
 					<font-awesome-icon icon="fa-solid fa-arrow-left" />
 					<span>Back to Dashboard</span>
 				</router-link>
@@ -70,7 +70,7 @@
 			</div>
 			<div v-if="!form.create_app">
 				<searchable-dropdown
-					label="Application"
+					label="Application <span class='text-danger'>*</span>"
 					placeholder="Select Application..."
 					v-model="form.app_id"
 					:options="applicationOptions"
@@ -212,7 +212,7 @@
 					class="btn btn-primary"
 					:disabled="submitting"
 				>
-					Create Dashboard
+					{{ isEdit ? "Update Dashboard" : "Create Dashboard" }}
 				</button>
 				<button
 					type="button"
@@ -265,8 +265,16 @@ export default {
 	},
 	async mounted() {
 		await this.fetchDashboards();
-		await this.fetchMaterialIcons();
 		await this.fetchApps();
+
+		if (this.isEdit) {
+			this.form.name = this.selectedDashboard.name;
+			this.form.title = this.selectedDashboard.title;
+			this.form.url = this.selectedDashboard.url;
+			this.form.app_id = this.selectedDashboard.app_id;
+			this.form.remove_filter = this.selectedDashboard.remove_filter;
+			this.form.app_package = this.selectedDashboard.app_package;
+		}
 	},
 	methods: {
 		...mapActions("Application", ["createApplications"]),
@@ -274,6 +282,7 @@ export default {
 			"createDashboard",
 			"fetchApps",
 			"fetchDashboards",
+			"updateDashboard",
 		]),
 
 		async fetchMaterialIcons() {
@@ -322,6 +331,12 @@ export default {
 			} else if (!this.form.url.startsWith("/")) {
 				this.errors.url = "Dashboard url is should start with /";
 			}
+			// console.log("length", this.form.url.length);
+			else if (this.form.url.length < 2) {
+				this.errors.url =
+					"Dashboard url is should be atleast of 2 characters";
+			}
+
 			if (!this.form.app_package && this.form.create_app) {
 				this.errors.app_package = "App package is required";
 			}
@@ -359,7 +374,36 @@ export default {
 					icon: this.form.icon,
 				};
 
-				await this.createDashboard(payload);
+				if (this.isEdit) {
+					const result = await this.updateDashboard({
+						payload: payload,
+						uuid: this.$route.params.uuid,
+					});
+					if (result.success) {
+						this.successMessage = "Dashboard updated successfully!";
+
+						toastService.success(this.successMessage);
+
+						this.$router.replace("/admin/dashboard");
+					} else {
+						this.generalError =
+							result.error || "Failed to update Dashboard";
+						toastService.error("Failed To update Dashboard");
+					}
+				} else {
+					const result = await this.createDashboard(payload);
+					if (result.success) {
+						this.successMessage = "Dashboard created successfully!";
+
+						toastService.success(this.successMessage);
+
+						this.$router.replace("/admin/dashboard");
+					} else {
+						this.generalError =
+							result.error || "Failed to create Dashboard";
+						toastService.error("Failed To create Dashboard");
+					}
+				}
 
 				this.form = {
 					title: "",
@@ -370,18 +414,6 @@ export default {
 					app_package: "",
 					icon: "",
 				};
-				if (result.success) {
-					this.successMessage = "Dashboard created successfully!";
-
-					toastService.success(this.successMessage);
-					this.$router.replace("/admin/dashboard");
-				} else {
-					toastService.error("Error in creating Dashboard");
-
-					this.formError =
-						result.error || "Failed to create Dashboard";
-				}
-				this.$router.replace("/admin/dashboard");
 			} catch (error) {
 				this.formError = error.message || "Something went wrong";
 			} finally {
@@ -399,7 +431,6 @@ export default {
 
 			if (!name && !url && !title) return;
 
-			console.log("HELLO", this.dashboardNameSet);
 			if (this.dashboardNameSet.nameSet?.includes(name)) {
 				this.errors.name = "Name Already Present";
 			} else if (this.errors.name === "Name Already Present") {
@@ -425,21 +456,47 @@ export default {
 			"filteredApplication",
 		]),
 
+		isEdit() {
+			return !!this.$route.params.uuid;
+		},
+
+		selectedDashboard() {
+			return this.$store.getters.getSelected;
+		},
+
 		dashboardNameSet() {
 			const list = Array.isArray(this.filteredDashboards)
 				? this.filteredDashboards
 				: [];
 
 			const uniqueApps = new Set(list);
-			const nameSet = Array.from(uniqueApps).map((c) =>
+			let nameSet = Array.from(uniqueApps).map((c) =>
 				(c.name || "").trim().toLowerCase()
 			);
-			const titleSet = Array.from(uniqueApps).map((c) =>
+
+			let titleSet = Array.from(uniqueApps).map((c) =>
 				(c.title || "").trim().toLowerCase()
 			);
-			const urlSet = Array.from(uniqueApps).map((c) =>
+			let urlSet = Array.from(uniqueApps).map((c) =>
 				(c.url || "").trim().toLowerCase()
 			);
+
+			if (this.isEdit) {
+				nameSet = nameSet.filter(
+					(name) =>
+						name !==
+						this.selectedDashboard.name.toLowerCase().trim()
+				);
+				titleSet = titleSet.filter(
+					(title) =>
+						title !==
+						this.selectedDashboard.title.toLowerCase().trim()
+				);
+				urlSet = urlSet.filter(
+					(url) =>
+						url !== this.selectedDashboard.url.toLowerCase().trim()
+				);
+			}
 
 			const finalSet = {
 				urlSet: urlSet,
@@ -451,7 +508,22 @@ export default {
 		},
 
 		applicationOptions() {
-			return this.filteredApplication.map((app) => ({
+			const apps = [...this.filteredApplication];
+
+			if (this.isEdit && this.form.app_id) {
+				const exists = apps.some(
+					(a) => a.id === this.selectedDashboard.app_id
+				);
+
+				if (!exists) {
+					const label = this.selectedDashboard.application;
+					const value = this.selectedDashboard.app_id;
+
+					apps.push(this.selectedDashboard);
+				}
+			}
+
+			return apps.map((app) => ({
 				value: app.id,
 				label: app.title,
 			}));
@@ -482,6 +554,16 @@ export default {
 	watch: {
 		iconSearch() {
 			this.currentIconIndex = 0;
+		},
+
+		form: {
+			async handler(newValue, oldValue) {
+				if (newValue.create_app === true) {
+					await this.fetchMaterialIcons();
+				}
+			},
+			deep: true,
+			immediate: true,
 		},
 	},
 };

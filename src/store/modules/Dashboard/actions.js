@@ -1,4 +1,5 @@
 import { API_URL } from "../../../config";
+import router from "../../../Route";
 
 export default {
 	async fetchDashboards({ commit }) {
@@ -27,6 +28,28 @@ export default {
 		} catch (err) {
 			commit("setError", err);
 			console.error("Error loading Dashboard", err);
+		}
+	},
+
+	async editDashboard({ dispatch }, dash) {
+		console.log("HELLO");
+		dispatch("SET_SELECTED", dash, { root: true });
+		router.push(`/admin/dashboard/${dash.uuid}`);
+	},
+
+	async updateDashboard({ state }, { uuid, payload }) {
+		try {
+			const result = await fetch(`${API_URL}admin/dashboard/${uuid}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(payload),
+			});
+			const json = await result.json();
+			return { success: true, data: json.data };
+		} catch (error) {
+			console.log("ERROR IN UPDATING", error);
 		}
 	},
 

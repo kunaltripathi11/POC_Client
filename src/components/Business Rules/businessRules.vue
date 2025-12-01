@@ -47,13 +47,16 @@
 					<td>{{ rule.description }}</td>
 					<td>{{ rule.tags }}</td>
 					<td class="text-center">
-						<base-action @delete="deleteRule(rule.uuid)" />
+						<base-action
+							@delete="archiveRule(rule.uuid)"
+							@edit="editRule(rule)"
+						/>
 					</td>
 				</tr>
 				<tr
 					v-if="
 						!businessRules ||
-						(businessRules && !businessRules.length) === 0
+						(businessRules && businessRules.length === 0)
 					"
 				>
 					<td colspan="6" class="text-center text-muted py-3">
@@ -69,17 +72,34 @@
 					<td>{{ rule.description }}</td>
 					<td>{{ rule.tags }}</td>
 					<td class="text-center">
-						<base-action @delete="deleteRule(rule.uuid)" />
+						<button
+							class="btn btn-sm me-2 action"
+							@click="activateRule(rule.uuid)"
+						>
+							<font-awesome-icon
+								icon="fa-solid fa-arrow-rotate-right"
+								style="color: blue"
+							/>
+						</button>
+						<button
+							class="btn btn-sm action"
+							@click="deleteRule(rule.uuid)"
+						>
+							<font-awesome-icon
+								icon="fa-solid fa-trash"
+								style="color: red"
+							/>
+						</button>
 					</td>
 				</tr>
 				<tr
 					v-if="
-						!businessRules ||
-						(businessRules && !businessRules.length) === 0
+						!archivedRules ||
+						(archivedRules && archivedRules.length === 0)
 					"
 				>
 					<td colspan="6" class="text-center text-muted py-3">
-						No Business Rules Available
+						No Archived Business Rules Available
 					</td>
 				</tr>
 			</tbody>
@@ -111,8 +131,11 @@ export default {
 	methods: {
 		...mapActions("BusinessRule", [
 			"fetchRules",
-			"deleteRule",
+			"archiveRule",
 			"fetchArchivedRules",
+			"editRule",
+			"deleteRule",
+			"activateRule",
 		]),
 
 		changeSelected(option) {
@@ -123,9 +146,11 @@ export default {
 		BaseAction,
 	},
 	watch: {
-		async isSelected(newValue) {
+		async isSelected(newValue, oldValue) {
 			if (newValue === "archive") {
 				await this.fetchArchivedRules();
+			} else if (newValue === "active") {
+				await this.fetchRules();
 			}
 		},
 	},
@@ -172,5 +197,11 @@ li {
 	background-color: #2563eb;
 	box-shadow: 0 4px 10px rgba(76, 92, 117, 0.4);
 	border-radius: 9px;
+}
+.action {
+	border: 0.5px solid rgb(202, 202, 202) !important;
+	border-radius: 50% !important;
+	margin: 3px;
+	padding: 5px;
 }
 </style>

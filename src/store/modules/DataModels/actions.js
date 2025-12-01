@@ -1,4 +1,5 @@
 import { API_URL } from "../../../config";
+import router from "../../../Route";
 
 export default {
 	async fetchModels({ commit }) {
@@ -11,9 +12,29 @@ export default {
 			console.error("Error loading Data Models", err);
 		}
 	},
-	// editCategory(cat) {
-	// 	this.$router.push(`/admin/application/categories/${dash.uuid}`);
-	// },
+
+	async editModel({ dispatch }, model) {
+		dispatch("SET_SELECTED", model, { root: true });
+		router.push(`/admin/data-model/${model.uuid}`);
+	},
+
+	async updateModel({ state }, { uuid, payload }) {
+		try {
+			const result = await fetch(`${API_URL}admin/data-model/${uuid}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(payload),
+			});
+			const json = await result.json();
+			console.log("DATA", result);
+			return { success: true, data: json };
+		} catch (error) {
+			console.log("ERROR IN UPDATING", error);
+		}
+	},
+
 	async deleteModel({ dispatch }, uuid) {
 		if (!confirm("Sure? This will Delete the Data model.")) return;
 		console.log(uuid, "uuid");

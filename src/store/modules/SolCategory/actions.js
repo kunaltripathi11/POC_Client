@@ -1,4 +1,5 @@
 import { API_URL } from "../../../config";
+import router from "../../../Route";
 
 export default {
 	async fetchSolCategory({ commit }) {
@@ -13,9 +14,31 @@ export default {
 			console.error("Error loading Solution Category", err);
 		}
 	},
-	// editSolCategory(cat) {
-	// 	this.$router.push(`/admin/application/categories/${dash.uuid}`);
-	// },
+
+	editSolCategory({ dispatch }, cat) {
+		console.log(cat);
+		dispatch("SET_SELECTED", cat, { root: true });
+		router.push(`/admin/application/solution-categories/${cat.uuid}`);
+	},
+
+	async updateSolCategory({ state }, { uuid, payload }) {
+		try {
+			await fetch(
+				`${API_URL}admin/application/solution-categories/${uuid}`,
+				{
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(payload),
+				}
+			);
+			return { success: true, data: response.data };
+		} catch (error) {
+			console.log("ERROR IN UPDATING", error);
+		}
+	},
+
 	async deleteSolCategory({ dispatch }, uuid) {
 		if (!confirm("Sure? This will hide the Category.")) return;
 		await fetch(`${API_URL}admin/application/solution-categories/${uuid}`, {

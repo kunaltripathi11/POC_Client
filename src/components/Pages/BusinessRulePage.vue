@@ -19,10 +19,7 @@
 							:to="`/admin/business-rules/${this.$route.params.uuid}/overview`"
 							class="text-decoration-none"
 						>
-							<li
-								:class="{ active: isSelected === 'overview' }"
-								@click="changeSelected('overview')"
-							>
+							<li :class="{ active: isSelected === 'overview' }">
 								OVERVIEW
 							</li>
 						</router-link>
@@ -31,11 +28,7 @@
 							:to="`/admin/business-rules/${this.$route.params.uuid}/edit`"
 							class="text-decoration-none"
 						>
-							<li
-								:class="{ active: isSelected === 'edit' }"
-								view
-								@click="changeSelected('edit')"
-							>
+							<li :class="{ active: isSelected === 'edit' }">
 								EDIT
 							</li>
 						</router-link>
@@ -53,13 +46,15 @@ import { mapActions, mapGetters } from "vuex";
 
 export default {
 	data() {
-		return { isSelected: "overview" };
+		return { isSelected: "overview", route: this.$router.route };
 	},
 
 	methods: {
 		...mapActions("BusinessRule", ["fetchRuleByID"]),
-		changeSelected(option) {
-			this.isSelected = option;
+
+		changeSelected(route) {
+			if (route.path.includes("overview")) this.isSelected = "overview";
+			else if (route.path.includes("edit")) this.isSelected = "edit";
 		},
 	},
 	computed: {
@@ -74,10 +69,14 @@ export default {
 	},
 
 	mounted() {
-		console.log("UUID");
 		this.fetchRuleByID(this.$route.params.uuid);
+		this.changeSelected(this.$route);
+	},
 
-		console.log("columns", this.rules);
+	watch: {
+		$route(to) {
+			this.changeSelected(to);
+		},
 	},
 };
 </script>

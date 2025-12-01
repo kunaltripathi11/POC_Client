@@ -21,6 +21,7 @@ import BusinessRuleForms from "./components/forms/businessRuleForms.vue";
 import BusinessRulePage from "./components/Pages/BusinessRulePage.vue";
 import GetRuleOverview from "./components/Business Rules/getRuleOverview.vue";
 import EditRule from "./components/Business Rules/EditRule.vue";
+import WidgetForm from "./components/forms/WidgetForm.vue";
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -71,16 +72,32 @@ const router = createRouter({
 						},
 					],
 				},
-				{
-					path: "application/solution-categories/add",
-					component: SolutionCategoryForm,
-				},
+
 				{
 					path: "application/apps/add-app",
 					component: ApplicationForm,
 				},
+
+				{
+					path: "application/apps/edit/:uuid",
+					component: ApplicationForm,
+				},
+				{
+					path: "application/solution-categories/add",
+					component: SolutionCategoryForm,
+				},
+
+				{
+					path: "application/solution-categories/:uuid",
+					component: SolutionCategoryForm,
+				},
+
 				{
 					path: "application/categories/add",
+					component: CategoryForm,
+				},
+				{
+					path: "application/categories/:uuid",
 					component: CategoryForm,
 				},
 
@@ -96,10 +113,23 @@ const router = createRouter({
 					},
 				},
 				{
+					path: "dashboard/:uuid",
+					component: DashboardForm,
+					meta: {
+						title: "Edit Dashboard",
+					},
+				},
+				{
 					path: "dashboard/design/:uuid",
 					component: DashboardDesign,
 					props: true,
 				},
+				{
+					path: "dashboard/design/:uuid/:uuid2",
+					component: WidgetForm,
+					props: true,
+				},
+
 				{
 					path: "data-model",
 					component: DataModel,
@@ -111,6 +141,10 @@ const router = createRouter({
 				{
 					name: "AddDataModel",
 					path: "data-model/add-data-model",
+					component: DataModelsForm,
+				},
+				{
+					path: "data-model/:uuid",
 					component: DataModelsForm,
 				},
 				{
@@ -138,7 +172,7 @@ const router = createRouter({
 						},
 						{
 							path: "edit",
-							component: EditRule,
+							component: BusinessRuleForms,
 						},
 					],
 				},

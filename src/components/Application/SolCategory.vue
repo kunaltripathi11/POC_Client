@@ -25,7 +25,10 @@
 					<td>{{ cat.title }}</td>
 
 					<td class="text-center">
-						<base-action @delete="deleteSolCategory(cat.uuid)" />
+						<base-action
+							@delete="deleteSolCategory(cat.uuid)"
+							@edit="editSolCategory(cat)"
+						/>
 					</td>
 				</tr>
 				<tr v-if="!solCategory || (solCategory && !solCategory.length)">
@@ -58,8 +61,11 @@ export default {
 		await this.fetchSolCategory();
 	},
 	methods: {
-		...mapActions("SolCategory", ["fetchSolCategory", "deleteSolCategory"]),
-		...mapMutations("SolCategory", ["setSolCategory"]),
+		...mapActions("SolCategory", [
+			"fetchSolCategory",
+			"deleteSolCategory",
+			"editSolCategory",
+		]),
 	},
 	watch: {
 		$route(to) {
@@ -76,7 +82,8 @@ export default {
 	border: 1px solid #e5e7eb;
 	border-radius: 10px;
 
-	max-height: calc(100vh - 9rem);
+	margin-bottom: 2rem;
+	max-height: fit-content;
 }
 .table {
 	overflow-y: auto;

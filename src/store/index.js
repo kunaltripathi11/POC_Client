@@ -8,6 +8,9 @@ import Dashboard from "./modules/Dashboard";
 import Widget from "./modules/Widgets";
 import Tags from "./modules/Tags";
 
+import createPresistedState from "vuex-persistedstate";
+import Pagination from "./modules/Pagination";
+
 const store = createStore({
 	modules: {
 		SolCategory,
@@ -18,10 +21,33 @@ const store = createStore({
 		Dashboard,
 		Widget,
 		Tags,
+		Pagination,
 	},
-	state() {},
-	mutations: {},
-	actions: {},
+	state() {
+		return {
+			selected: null,
+		};
+	},
+	mutations: {
+		SELECTED(state, data) {
+			state.selected = data;
+		},
+	},
+	actions: {
+		SET_SELECTED({ commit }, data) {
+			commit("SELECTED", data);
+		},
+	},
+	getters: {
+		getSelected(state) {
+			return state.selected;
+		},
+	},
+	plugins: [
+		createPresistedState({
+			path: "selected",
+		}),
+	],
 });
 
 export default store;

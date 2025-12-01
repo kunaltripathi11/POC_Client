@@ -88,7 +88,11 @@ export default {
 	},
 	methods: {
 		...mapActions("SolCategory", ["fetchSolCategory"]),
-		...mapActions("Category", ["createCategory", "fetchCategory"]),
+		...mapActions("Category", [
+			"createCategory",
+			"fetchCategory",
+			"updateCategory",
+		]),
 
 		validate() {
 			this.errors = {};
@@ -100,8 +104,17 @@ export default {
 
 		checkLocalDuplicate() {
 			const name = (this.form.category_name || "").toLowerCase();
+			let nameSet = this.categoryNameSet;
 			if (!name) return;
-			if (this.categoryNameSet.includes(name)) {
+
+			if (this.isEdit) {
+				nameSet = nameSet.filter(
+					(cat) =>
+						cat !== this.selected.category_name.toLowerCase().trim()
+				);
+			}
+
+			if (nameSet.includes(name)) {
 				this.errors.category_name = "Name Already Present";
 			} else if (this.errors.category_name === "Name Already Present") {
 				this.errors.category_name = "";
@@ -119,6 +132,7 @@ export default {
 				if (this.errors.category_name) return;
 
 				this.submitting = true;
+
 				const payload = {
 					category_name: this.form.category_name,
 					display_order: this.form.display_order || null,
@@ -126,26 +140,40 @@ export default {
 				};
 
 				console.log(payload);
+				if (!this.isEdit) {
+					const result = await this.createCategory(payload);
+					if (result.success) {
+						this.successMessage = "Category created successfully!";
 
-				const result = await this.createCategory(payload);
+						toastService.success(this.successMessage);
 
-				// await this.fetchCategory();
+						this.$router.replace("/admin/application/categories");
+					} else {
+						this.generalError =
+							result.error ||
+							"Failed to create solution category";
+						toastService.error("Failed To create  Category");
+					}
+				} else {
+					const result = await this.updateCategory({
+						payload,
+						uuid: this.$route.params.uuid,
+					});
+
+					if (result.success) {
+						toastService.success("Category Updated Successfully");
+
+						this.$router.replace("/admin/application/categories");
+					} else {
+						this.generalError =
+							result.error || "Failed to Update category";
+						toastService.error("Failed To Update  Category");
+					}
+				}
 
 				this.form.category_name = "";
 				this.form.display_order = null;
 				this.form.solution_category_id = null;
-
-				if (result.success) {
-					this.successMessage = "Category created successfully!";
-
-					toastService.success(this.successMessage);
-
-					this.$router.replace("/admin/application/categories");
-				} else {
-					this.generalError =
-						result.error || "Failed to create solution category";
-					toastService.error("Failed To create  Category");
-				}
 			} catch (error) {
 				this.formError = error.message || "Something went wrong";
 			} finally {
@@ -157,10 +185,20 @@ export default {
 	async mounted() {
 		await this.fetchCategory();
 		await this.fetchSolCategory();
+
+		if (this.isEdit) {
+			this.form.category_name = this.selected.category_name;
+			this.form.display_order = this.selected.display_order;
+			this.form.solution_category_id = this.selected.solution_category_id;
+		}
 	},
 	computed: {
 		...mapGetters("SolCategory", ["filteredSolCategory"]),
 		...mapGetters("Category", ["filteredCategory"]),
+
+		isEdit() {
+			return !!this.$route.params.uuid;
+		},
 		solutionCategory() {
 			return this.filteredSolCategory.map((sc) => ({
 				value: sc.id,
@@ -178,6 +216,9 @@ export default {
 			return Array.from(uniqueCategories).map((c) =>
 				(c.category_name || "").trim().toLowerCase()
 			);
+		},
+		selected() {
+			return this.$store.getters.getSelected;
 		},
 	},
 };

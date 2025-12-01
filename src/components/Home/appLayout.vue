@@ -5,10 +5,20 @@
 				{{ greet }}, <span class="user-name">Name</span>
 			</h2>
 		</div>
-
+		<div class="category-top-bar container">
+			<div
+				v-for="cat in sol_categories"
+				:key="cat"
+				class="category"
+				:class="{ activeCat: selectedSolutionCategory === cat }"
+				@click="selectedSolutionCategory = cat"
+			>
+				{{ cat === "No Solution Category" ? "Others" : cat }}
+			</div>
+		</div>
 		<div class="main-content container mt-4">
 			<div
-				v-for="(apps, category) in orderedApplications"
+				v-for="(apps, category) in filteredBySolution"
 				:key="category"
 				class="category-section mb-5"
 			>
@@ -42,7 +52,11 @@ import { mapGetters, mapActions } from "vuex";
 
 export default {
 	data() {
-		return { isLoading: true };
+		return {
+			isLoading: true,
+			selectedSolutionCategory: "All",
+			selectedCategory: "All",
+		};
 	},
 	computed: {
 		greet() {
@@ -54,6 +68,53 @@ export default {
 
 		...mapGetters("Application", ["categorizedApplications"]),
 
+		sol_categories() {
+			const set = new Set();
+			let noSolCat = false;
+
+			Object.values(this.categorizedApplications || {}).forEach(
+				(applist) => {
+					applist.forEach((app) => {
+						if (
+							app.solution_title &&
+							app.solution_title.trim() !== ""
+						) {
+							set.add(app.solution_title);
+						} else {
+							noSolCat = true;
+						}
+					});
+				}
+			);
+			const list = ["All", ...Array.from(set)];
+			if (noSolCat) {
+				list.push("No Solution Category");
+			}
+			return list;
+		},
+
+		filteredBySolution() {
+			const selected = this.selectedSolutionCategory;
+			if (selected === "All") return this.orderedApplications;
+
+			const filtered = {};
+			for (const category in this.orderedApplications) {
+				const apps = this.orderedApplications[category];
+				const match = apps.filter((app) => {
+					if (selected === "No Solution Category") {
+						return (
+							!app.solution_title ||
+							app.solution_title.trim() === ""
+						);
+					}
+					return app.solution_title === selected;
+				});
+				if (match.length > 0) {
+					filtered[category] = match;
+				}
+			}
+			return filtered;
+		},
 		orderedApplications() {
 			if (!this.categorizedApplications) return {};
 			const apps = { ...this.categorizedApplications };
@@ -98,9 +159,9 @@ export default {
 	align-items: center;
 
 	padding: 0 3rem;
-	padding-top: 4rem;
+	padding-top: 3rem;
 
-	margin: 0 auto 2rem;
+	margin: 0 auto 1rem;
 	width: 75%;
 }
 
@@ -171,11 +232,38 @@ export default {
 	line-height: 1.2;
 }
 
+.category-top-bar {
+	display: flex;
+	gap: 1rem;
+	overflow-x: auto;
+	padding: 0.3rem 4rem;
+	margin-bottom: 1.2rem;
+	scrollbar-width: none;
+}
+.category-top-bar::-webkit-scrollbar {
+	display: none;
+}
+.category {
+	padding: 6px 14px;
+	background: #e2e8f0;
+	color: #1e293b;
+	border-radius: 20px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: 0.2s;
+}
+
+.activeCat {
+	background: #1846e8;
+	color: #fff;
+}
+
 @media (max-width: 768px) {
 	.greeting-bar {
 		flex-direction: column;
 		text-align: center;
-		padding: 1rem 1.5rem;
 	}
 	.greeting-text {
 		font-size: 1.3rem;

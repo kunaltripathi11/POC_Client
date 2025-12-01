@@ -18,7 +18,7 @@ export default {
 			groups[category].push(app);
 			return groups;
 		}, {});
-		console.log(groupedApps);
+
 		return groupedApps;
 	},
 

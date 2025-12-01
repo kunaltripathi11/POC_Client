@@ -146,7 +146,7 @@
 					class="btn btn-primary"
 					:disabled="submitting"
 				>
-					Create Application
+					{{ isEdit ? "Update Application" : "Create Application" }}
 				</button>
 				<button
 					type="button"
@@ -166,6 +166,7 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import SearchableDropdown from "../Layout/searchableDropdown.vue";
+import toastService from "../../service/toastService";
 
 export default {
 	components: {
@@ -197,6 +198,16 @@ export default {
 		await this.fetchApplications();
 		await this.fetchCategory();
 		await this.fetchMaterialIcons();
+
+		if (this.isEdit) {
+			this.form.title = this.selectedApp.title;
+			this.form.category_id = this.selectedApp.category_id;
+			this.form.display_order = this.selectedApp.display_order;
+			this.form.app_package = this.selectedApp.app_package;
+			this.form.icon = this.selectedApp.icon;
+			this.form.active = this.selectedApp.active;
+			this.form.hide_app = this.selectedApp.hide_app;
+		}
 	},
 	computed: {
 		...mapGetters("Application", ["allApplications"]),
@@ -214,12 +225,18 @@ export default {
 				(c.title || "").trim().toLowerCase()
 			);
 		},
+		selectedApp() {
+			return this.$store.getters.getSelected;
+		},
 
 		categoryOptions() {
 			return this.filteredCategory.map((cat) => ({
 				value: cat.id,
 				label: cat.category_name,
 			}));
+		},
+		isEdit() {
+			return !!this.$route.params.uuid;
 		},
 
 		filteredMaterialIcons() {
@@ -247,6 +264,7 @@ export default {
 		...mapActions("Application", [
 			"fetchApplications",
 			"createApplications",
+			"updateApplication",
 		]),
 		...mapActions("Category", ["fetchCategory"]),
 
@@ -297,10 +315,18 @@ export default {
 
 		async checkUniqueName() {
 			const title = (this.form.title || "").trim().toLowerCase();
-			console.log("title", title);
-			console.log("applicationNameSet", this.applicationNameSet);
+			let nameSet = this.applicationNameSet;
+			console.log("NAMESET ", nameSet);
 			if (!title) return;
-			if (this.applicationNameSet.includes(title)) {
+			if (this.isEdit) {
+				console.log("title", title);
+
+				nameSet = nameSet.filter(
+					(app) => app !== this.selectedApp.title.toLowerCase().trim()
+				);
+			}
+
+			if (nameSet.includes(title)) {
 				this.errors.title = "Name Already Present";
 			} else if (this.errors.title === "Name Already Present") {
 				this.errors.title = "";
@@ -326,8 +352,39 @@ export default {
 					active: this.form.active,
 					hide_app: this.form.hide_app,
 				};
+				if (this.isEdit) {
+					const result = await this.updateApplication({
+						uuid: this.$route.params.uuid,
+						payload: payload,
+					});
+					if (result.success) {
+						this.successMessage =
+							"Application updated successfully!";
 
-				await this.createApplications(payload);
+						toastService.success(this.successMessage);
+
+						this.$router.replace("/admin/application/apps");
+					} else {
+						this.generalError =
+							result.error || "Failed to update Application";
+						toastService.error("Failed To update Application");
+					}
+				} else {
+					const result = await this.createApplications(payload);
+
+					if (result.success) {
+						this.successMessage =
+							"Application created successfully!";
+
+						toastService.success(this.successMessage);
+
+						this.$router.replace("/admin/application/apps");
+					} else {
+						this.generalError =
+							result.error || "Failed to create Application";
+						toastService.error("Failed To create Application");
+					}
+				}
 
 				this.form = {
 					title: "",
@@ -338,8 +395,6 @@ export default {
 					active: true,
 					hide_app: false,
 				};
-
-				this.$router.replace("/admin/application/apps");
 			} catch (error) {
 				this.formError = error.message || "Something went wrong";
 			} finally {
