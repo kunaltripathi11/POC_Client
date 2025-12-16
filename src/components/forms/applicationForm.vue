@@ -420,14 +420,14 @@ a {
 }
 
 .main {
-	padding: 1rem 0 0 1rem;
-	margin-left: 13rem;
-	margin-top: 4rem;
-	width: calc(100vw - 13rem);
-	height: calc(100vh - 4rem);
+	padding: 1rem 2rem 0 2rem;
+
+	width: 100%;
+	height: calc(100vh - var(--header-height));
 	background: #f8fcff;
 	border: 1px solid #e5e7eb;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+	border: 1px solid #e5e7eb;
+
 	overflow-y: auto;
 }
 
@@ -447,7 +447,7 @@ a {
 
 form {
 	padding: 1.5rem;
-	max-width: 600px;
+	max-width: 48vw;
 }
 
 .gap-2 {
@@ -535,7 +535,6 @@ input:checked + .slider:before {
 	top: 100%;
 	left: 0;
 	right: 0;
-	margin-top: 0.5rem;
 	background: white;
 	border: 1px solid #ced4da;
 	border-radius: 0.375rem;

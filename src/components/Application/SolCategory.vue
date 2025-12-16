@@ -9,43 +9,55 @@
 				</button>
 			</router-link>
 		</div>
-		<table class="table table-hover align-middle shadow-sm">
-			<thead class="table-primary">
-				<tr>
-					<th>ID</th>
-					<th>UUID</th>
-					<th>Solution Category</th>
-					<th class="text-center">Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr v-for="cat in solCategory">
-					<td>{{ cat.id }}</td>
-					<td>{{ cat.uuid }}</td>
-					<td>{{ cat.title }}</td>
+		<div class="table-wrapper">
+			<table class="table table-hover align-middle shadow-sm">
+				<thead class="table-primary">
+					<tr>
+						<th>ID</th>
+						<th>UUID</th>
+						<th>Solution Category</th>
+						<th class="text-center">Actions</th>
+					</tr>
+				</thead>
 
-					<td class="text-center">
-						<base-action
-							@delete="deleteSolCategory(cat.uuid)"
-							@edit="editSolCategory(cat)"
-						/>
-					</td>
-				</tr>
-				<tr v-if="!solCategory || (solCategory && !solCategory.length)">
-					<td colspan="6" class="text-center py-3">
-						No Solution Category Available
-					</td>
-				</tr>
-			</tbody>
-		</table>
+				<tbody>
+					<tr v-for="cat in paginatedSolCategory">
+						<td>{{ cat.id }}</td>
+						<td>{{ cat.uuid }}</td>
+						<td>{{ cat.title }}</td>
+
+						<td class="text-center">
+							<base-action
+								@delete="deleteSolCategory(cat.uuid)"
+								@edit="editSolCategory(cat)"
+							/>
+						</td>
+					</tr>
+
+					<tr v-if="!solCategory || !solCategory.length">
+						<td colspan="6" class="text-center py-3">
+							No Solution Category Available
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="pageination">
+			<Pagination
+				:total-items="solCategory.length"
+				v-if="getPerPage < solCategory.length"
+			/>
+		</div>
 	</div>
 </template>
 <script>
 import BaseAction from "../UI/BaseAction.vue";
-import { mapActions, mapMutations, mapGetters } from "vuex";
+import { mapActions, mapGetters } from "vuex";
+import Pagination from "../UI/Pagination.vue";
 
 export default {
-	components: { BaseAction },
+	components: { BaseAction, Pagination },
 	data() {
 		return {
 			route: this.$route.path,
@@ -53,6 +65,13 @@ export default {
 	},
 	computed: {
 		...mapGetters("SolCategory", ["filteredSolCategory"]),
+		...mapGetters("Pagination", ["getCurrentPage", "getPerPage"]),
+
+		paginatedSolCategory() {
+			const start = (this.getCurrentPage - 1) * this.getPerPage;
+			return this.solCategory.slice(start, start + this.getPerPage);
+		},
+
 		solCategory() {
 			return this.filteredSolCategory;
 		},
@@ -76,29 +95,30 @@ export default {
 </script>
 <style scoped>
 .main-content {
-	padding: 1rem 1rem 0 1rem;
+	padding: 1rem 1rem 1rem 1rem;
 	background: #fff;
 	margin: 0 1rem;
 	border: 1px solid #e5e7eb;
 	border-radius: 10px;
 
-	margin-bottom: 2rem;
-	max-height: fit-content;
+	margin-bottom: 0.2rem;
+	max-height: calc(100vh - 9rem);
 }
-.table {
+
+.table-wrapper {
+	border-radius: 10px;
+	overflow: hidden;
+	border: 1px solid #e5e7eb;
+	max-height: calc(100vh - 16rem);
+
 	overflow-y: auto;
-	max-height: 80vh;
+	border: 1px solid #e5e7eb;
 	border-radius: 10px;
 }
-td,
-th {
-	vertical-align: middle;
+
+thead th {
+	position: sticky;
+	top: 0;
+	z-index: 5;
 }
-/* button:hover {
-	border: 1px solid gray !important;
-	border-radius: 30%;
-}
-button {
-	border-radius: 30%;
-} */
 </style>

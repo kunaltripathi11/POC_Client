@@ -5,7 +5,8 @@
 				to="/admin/application"
 				class="tab"
 				:class="{ active: activeItem === 'app' }"
-			 style="margin-left: 1rem;">
+				style="margin-left: 1rem"
+			>
 				Application
 			</router-link>
 
@@ -72,8 +73,7 @@ export default {
 
 <style scoped>
 .filter {
-	margin-top: 5rem;
-	margin-left: 13rem;
+	margin-top: 1rem;
 }
 .tabs {
 	display: flex;
@@ -95,7 +95,7 @@ a:hover {
 	/* position: absolute; */
 }
 .active {
-	background: rgb(31, 97, 210) !important;
+	background: rgb(0, 51, 141) !important;
 	color: white !important;
 }
 .spacer {

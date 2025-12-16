@@ -1,5 +1,5 @@
 <template>
-	<div class="container main">
+	<div class="main">
 		<div class="header">
 			<div class="back">
 				<router-link to="/admin/application/solution-categories">
@@ -12,9 +12,9 @@
 			</div>
 		</div>
 
-		<form @submit.prevent="onSubmit" class="container mt-4">
+		<form @submit.prevent="onSubmit">
 			<div class="mb-4">
-				<p class="text-muted small">
+				<p class="text-muted">
 					Enter Unique title for Solution Category
 				</p>
 			</div>
@@ -203,34 +203,34 @@ a {
 }
 
 .main {
-	margin: 5rem 20rem;
-	padding: 0.6rem;
-	width: 65vw;
-	height: 80vh;
-	background: #f9fafb;
+	padding: 1rem 2rem 0 2rem;
+
+	width: 100%;
+	height: calc(100vh - var(--header-height));
+	background: #f8fcff;
 	border: 1px solid #e5e7eb;
-	border-radius: 7px;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+	border: 1px solid #e5e7eb;
+
+	overflow-y: auto;
 }
 
 .header {
 	border: 1px solid gray;
-	border-radius: 10px;
 }
 
 .back {
 	width: 100%;
-	border-bottom: 1px solid #e5e7eb;
+	border-bottom: 1px solid black;
 	padding: 0.7rem;
 }
 
-.back a {
-	color: #1f53a5;
-	transition: color 0.2s;
+.heading {
+	padding: 0.4rem;
 }
 
-.back a:hover {
-	color: #1f2937;
+form {
+	padding: 1.5rem;
+	max-width: 48vw;
 }
 
 .heading {

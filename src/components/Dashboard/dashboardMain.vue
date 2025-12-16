@@ -88,12 +88,9 @@ export default {
 		async handleDrop(e) {
 			this.isDragOver = false;
 
-			console.log("Dash", this.dashboardId);
 			if (!this.draggedWidget) {
-				console.log("Parent no widget");
 				return;
 			}
-			console.log("Dragged Widget", this.draggedWidget);
 			this.$emit("widget-drop", this.draggedWidget);
 		},
 	},
@@ -104,12 +101,13 @@ export default {
 .main-content {
 	background: white;
 	border-radius: 10px;
-	padding: 2rem;
-	min-height: 60vh;
-	border: 1px solid #e5e7eb;
+	min-height: calc(100vh - 14rem);
 	transition: all 0.3s ease;
 	height: calc(100vh - 20vh - 4rem);
-	margin-top: calc(20vh + 5rem);
+	max-height: fit-content;
+	margin: 1rem;
+	margin-top: calc(20vh);
+	padding-top: 2.5rem;
 }
 
 .main-content.drag-over {

@@ -11,7 +11,10 @@ export default {
 			const json = await response.json();
 
 			commit("setOneRule", json.data);
+
 			state.columns = json.columns;
+
+			return { name: json.RuleName };
 		} catch (err) {
 			console.log("ERROR In Fetching One rule", err);
 		}

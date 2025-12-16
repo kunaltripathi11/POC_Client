@@ -1,8 +1,14 @@
 <template>
-	<div class="d-flex flex-column flex-shrink-0 pt-3 sidebar">
+	<div
+		class="d-flex flex-column flex-shrink-0 pt-3 sidebar"
+		:class="{ collapsed: isCollapse }"
+	>
 		<ul class="nav flex-column mb-auto">
 			<router-link to="/launchpad">
-				<div class="sidebar-items">
+				<div
+					class="sidebar-items"
+					v-tooltip="isCollapse ? 'Home – All Apps' : ''"
+				>
 					<li>
 						<font-awesome-icon icon="fa-solid fa-house" size="lg" />
 						<span class="nav-text">&nbsp; Home - All Apps</span>
@@ -12,7 +18,10 @@
 			<router-link to="/admin/dashboard">
 				<div
 					class="sidebar-items"
-					:class="{ active: activeItem === 'dashboard' }"
+					:class="{
+						active: activeItem === 'dashboard',
+					}"
+					v-tooltip="isCollapse ? 'Dashboard' : ''"
 				>
 					<li class="nav-item">
 						<font-awesome-icon
@@ -27,7 +36,10 @@
 			<router-link to="/admin/application">
 				<div
 					class="sidebar-items"
-					:class="{ active: activeItem === 'app' }"
+					:class="{
+						active: activeItem === 'app',
+					}"
+					v-tooltip="isCollapse ? 'Application' : ''"
 				>
 					<li>
 						<font-awesome-icon
@@ -42,7 +54,10 @@
 			<div class="analytics" @click="toggleAnalytics">
 				<div
 					class="sidebar-items"
-					:class="{ active: activeItem === 'analytics' }"
+					:class="{
+						active: activeItem === 'analytics',
+					}"
+					v-tooltip="isCollapse ? 'Analytics' : ''"
 				>
 					<li>
 						<font-awesome-icon
@@ -99,15 +114,28 @@
 export default {
 	data() {
 		return {
-			activeItem: null,
+			activeItem: "app",
 			isAnalytics: false,
 			activeChild: null,
 		};
 	},
 	mounted() {
 		this.checkActive(this.$route);
+
+		this.handleResize();
+		window.addEventListener("resize", this.handleResize);
 	},
+	beforeUnmount() {
+		window.removeEventListener("resize", this.handleResize);
+	},
+
 	methods: {
+		handleResize() {
+			const shouldCollapse = window.innerWidth < 1000;
+			if (this.isCollapse !== shouldCollapse) {
+				this.$store.dispatch("Sidebar/setCollapsed", shouldCollapse);
+			}
+		},
 		setActiveItem(val) {
 			this.activeItem = val;
 		},
@@ -132,6 +160,11 @@ export default {
 				this.setActiveItem("analytics");
 				this.setActiveChild("business_rules");
 			}
+		},
+	},
+	computed: {
+		isCollapse() {
+			return this.$store.getters["Sidebar/isCollapsed"];
 		},
 	},
 	watch: {
@@ -183,7 +216,6 @@ a:hover {
 }
 .submenu {
 	padding: 0;
-	/* margin-left: 0.4rem; */
 }
 .submenu li {
 	list-style: none;
@@ -197,7 +229,19 @@ a:hover {
 .fade-enter-from .fade-leave-to {
 	opacity: 0;
 }
-/* .router-link-active {
-	color: white !important;
-} */
+.collapsed {
+	width: 4rem;
+}
+
+.collapsed .nav-text {
+	display: none;
+}
+
+.collapsed li {
+	justify-content: center;
+}
+
+.sidebar {
+	overflow-x: hidden;
+}
 </style>

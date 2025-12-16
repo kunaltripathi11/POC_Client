@@ -8,53 +8,54 @@
 				</button>
 			</router-link>
 		</div>
-		<table class="table table-hover align-middle shadow-sm">
-			<thead class="table-primary">
-				<tr>
-					<th>ID</th>
-					<th>Application Name</th>
-					<th>Category</th>
-					<th>Order</th>
-					<th>Application Icon</th>
-					<th>Active</th>
-					<th class="text-center">Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr v-for="(app, index) in paginatedApps" :key="index">
-					<td>{{ index + 1 }}</td>
-					<td>{{ app.title }}</td>
-					<td>{{ app.category_name }}</td>
-					<td>{{ app.display_order }}</td>
-					<td>
-						<span class="material-icons">
-							{{ app.icon.toLowerCase() }}</span
-						>
-					</td>
-					<td>{{ app.active ? "Active" : "InActive" }}</td>
 
-					<td class="text-center">
-						<base-action
-							@delete="deleteApplication(app.uuid)"
-							@edit="editApplication(app)"
-						/>
-					</td>
-				</tr>
-				<tr
-					v-if="
-						!applications || (applications && !applications.length)
-					"
-				>
-					<td colspan="6" class="text-center text-muted py-3">
-						No Applications Available
-					</td>
-				</tr>
-			</tbody>
-		</table>
+		<div class="table-wrapper">
+			<table class="table table-hover align-middle shadow-sm">
+				<thead class="table-primary">
+					<tr>
+						<th>ID</th>
+						<th>Application Name</th>
+						<th>Category</th>
+						<th>Order</th>
+						<th>Application Icon</th>
+						<th>Active</th>
+						<th class="text-center">Actions</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr v-for="(app, index) in paginatedApps" :key="index">
+						<td>{{ index + 1 }}</td>
+						<td>{{ app.title }}</td>
+						<td>{{ app.category_name }}</td>
+						<td>{{ app.display_order }}</td>
+						<td>
+							<span class="material-icons">
+								{{ app.icon.toLowerCase() }}
+							</span>
+						</td>
+						<td>{{ app.active ? "Active" : "Inactive" }}</td>
+						<td class="text-center">
+							<base-action
+								@delete="deleteApplication(app.uuid)"
+								@edit="editApplication(app)"
+							/>
+						</td>
+					</tr>
+
+					<tr v-if="!applications || !applications.length">
+						<td colspan="7" class="text-center text-muted py-3">
+							No Applications Available
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
 		<div>
 			<Pagination
 				:total-items="applications.length"
-				v-if="this.getPerPage > totalItems"
+				v-if="getPerPage < applications.length"
 			></Pagination>
 		</div>
 	</div>
@@ -72,8 +73,7 @@ export default {
 		};
 	},
 	async mounted() {
-		this.apps = await this.fetchApplications();
-		console.log("SPPPPPPPPPPD", this.applications.length);
+		await this.fetchApplications();
 	},
 	computed: {
 		...mapGetters("Application", ["allApplications"]),
@@ -87,7 +87,11 @@ export default {
 			return this.applications.slice(start, start + this.getPerPage);
 		},
 	},
-
+	updated() {
+		console.log("Apps", this.paginatedApps);
+		console.log("ALL", this.applications);
+		console.log("curr", this.getCurrentPage);
+	},
 	methods: {
 		...mapActions("Application", [
 			"fetchApplications",
@@ -103,20 +107,30 @@ export default {
 </script>
 <style scoped>
 .main-content {
-	padding: 1rem 1rem 0 1rem;
+	padding: 1rem 1rem 1rem 1rem;
 	background: #fff;
 	margin: 0 1rem;
-	margin-bottom: 2rem;
 	border: 1px solid #e5e7eb;
 	border-radius: 10px;
-	max-height: fit-content;
+
+	margin-bottom: 0.2rem;
+	max-height: calc(100vh - 9rem);
 }
-.table {
+
+.table-wrapper {
 	border-radius: 10px;
 	overflow: hidden;
+	border: 1px solid #e5e7eb;
+	max-height: calc(100vh - 16rem);
+
+	overflow-y: auto;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
 }
-td,
-th {
-	vertical-align: middle;
+
+thead th {
+	position: sticky;
+	top: 0;
+	z-index: 5;
 }
 </style>

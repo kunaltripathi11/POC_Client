@@ -20,8 +20,9 @@ import DataModelsForm from "./components/forms/dataModelsForm.vue";
 import BusinessRuleForms from "./components/forms/businessRuleForms.vue";
 import BusinessRulePage from "./components/Pages/BusinessRulePage.vue";
 import GetRuleOverview from "./components/Business Rules/getRuleOverview.vue";
-import EditRule from "./components/Business Rules/EditRule.vue";
 import WidgetForm from "./components/forms/WidgetForm.vue";
+import store from "./store/index";
+import LoginPage from "./components/Pages/LoginPage.vue";
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -183,6 +184,7 @@ const router = createRouter({
 				},
 			],
 		},
+		{ path: "/login", component: LoginPage },
 	],
 });
 
@@ -192,6 +194,11 @@ router.beforeEach((to, from, next) => {
 	} else {
 		document.title = "Sofy";
 	}
+	next();
+});
+
+router.beforeEach((to, from, next) => {
+	store.dispatch("Pagination/UPDATE_PAGE", 1);
 	next();
 });
 

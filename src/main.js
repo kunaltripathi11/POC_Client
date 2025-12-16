@@ -17,6 +17,8 @@ library.add(fas, far, fab);
 
 import App from "./App.vue";
 import router from "./Route";
+import FloatingVue from "floating-vue";
+import "floating-vue/dist/style.css";
 
 const app = createApp(App);
 
@@ -29,6 +31,7 @@ let options = {
 	closeOnClick: false,
 	pauseOnHover: true,
 };
+app.use(FloatingVue);
 app.use(Toast, options);
 app.config.globalProperties.$toast = useToast();
 app.mount("#app");

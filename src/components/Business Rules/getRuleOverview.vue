@@ -63,7 +63,7 @@ export default {
 	border-radius: 10px;
 	background-color: #fafafa;
 
-	max-width: calc(100vw - 13rem - 2rem);
+	max-width: calc(100vw - 2rem);
 	overflow: hidden;
 	margin-bottom: 2rem;
 }

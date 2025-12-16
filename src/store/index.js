@@ -10,6 +10,7 @@ import Tags from "./modules/Tags";
 
 import createPresistedState from "vuex-persistedstate";
 import Pagination from "./modules/Pagination";
+import Sidebar from "./modules/Sidebar";
 
 const store = createStore({
 	modules: {
@@ -22,6 +23,7 @@ const store = createStore({
 		Widget,
 		Tags,
 		Pagination,
+		Sidebar,
 	},
 	state() {
 		return {
@@ -45,7 +47,7 @@ const store = createStore({
 	},
 	plugins: [
 		createPresistedState({
-			path: "selected",
+			paths: ["selected"],
 		}),
 	],
 });

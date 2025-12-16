@@ -12,6 +12,7 @@
 					</router-link>
 				</div>
 			</div>
+
 			<div class="header-bottom">
 				<div class="bottom-headings">
 					<ul class="list-unstyled d-flex flex-direction-row">
@@ -25,6 +26,7 @@
 						</router-link>
 
 						<router-link
+							@click="editRule(getRuleToEdit)"
 							:to="`/admin/business-rules/${this.$route.params.uuid}/edit`"
 							class="text-decoration-none"
 						>
@@ -34,7 +36,7 @@
 						</router-link>
 					</ul>
 				</div>
-				<h3>name</h3>
+				<h4>{{ ruleName }}</h4>
 			</div>
 		</div>
 		<router-view></router-view>
@@ -46,11 +48,19 @@ import { mapActions, mapGetters } from "vuex";
 
 export default {
 	data() {
-		return { isSelected: "overview", route: this.$router.route };
+		return {
+			isSelected: "overview",
+			route: this.$router.route,
+			ruleName: "",
+		};
 	},
 
 	methods: {
-		...mapActions("BusinessRule", ["fetchRuleByID"]),
+		...mapActions("BusinessRule", [
+			"fetchRuleByID",
+			"editRule",
+			"fetchRules",
+		]),
 
 		changeSelected(route) {
 			if (route.path.includes("overview")) this.isSelected = "overview";
@@ -58,7 +68,11 @@ export default {
 		},
 	},
 	computed: {
-		...mapGetters("BusinessRule", ["getColumns", "getRuleById"]),
+		...mapGetters("BusinessRule", [
+			"getColumns",
+			"getRuleById",
+			"filteredRules",
+		]),
 		columns() {
 			return this.getColumns;
 		},
@@ -66,11 +80,24 @@ export default {
 		rules() {
 			return this.getRuleById;
 		},
+
+		getRuleToEdit() {
+			let reqRule = {};
+			for (let rule of this.filteredRules) {
+				if (this.$route.params.uuid === rule.uuid) {
+					reqRule = rule;
+					break;
+				}
+			}
+			return reqRule;
+		},
 	},
 
-	mounted() {
-		this.fetchRuleByID(this.$route.params.uuid);
+	async mounted() {
+		await this.fetchRules();
+		const ruleDetail = await this.fetchRuleByID(this.$route.params.uuid);
 		this.changeSelected(this.$route);
+		this.ruleName = ruleDetail.name;
 	},
 
 	watch: {
@@ -89,7 +116,7 @@ h2 {
 .main {
 	width: calc(100vw-15rem);
 	margin-top: 1rem;
-	margin-left: 14rem;
+	margin-left: 1rem;
 }
 .table {
 	border-radius: 10px;
@@ -102,8 +129,8 @@ th {
 .header {
 	width: calc(100vw-15rem);
 	height: 9rem;
-	margin-left: 14rem;
-	margin-top: 6rem;
+	margin-left: 1rem;
+	margin-top: 1rem;
 	margin-right: 1rem;
 	border: 0.7px solid rgb(154, 151, 151);
 }
@@ -131,6 +158,10 @@ li {
 	height: 2rem;
 	padding-top: 0.22rem;
 	cursor: pointer;
+}
+h4,
+.bottom-headings ul {
+	padding-left: 1rem;
 }
 .header-bottom li.active {
 	color: #ffffff;

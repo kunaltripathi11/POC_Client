@@ -147,7 +147,6 @@ export default {
 
 <style scoped>
 .main {
-	padding-top: 2rem;
 	min-height: 100vh;
 	background: #f9fbfd;
 	font-family: "Inter", sans-serif;
@@ -159,7 +158,7 @@ export default {
 	align-items: center;
 
 	padding: 0 3rem;
-	padding-top: 3rem;
+	padding-top: 1rem;
 
 	margin: 0 auto 1rem;
 	width: 75%;

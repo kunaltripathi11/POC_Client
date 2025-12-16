@@ -1,65 +1,84 @@
 <template>
 	<nav class="navbar navbar-expand-lg shadow-lg fixed-top">
 		<font-awesome-icon
+			v-if="this.$route.path.includes('admin') && isDesktop"
 			icon="fa-solid fa-bars"
 			size="xl"
 			style="color: #ffffff"
 			class="sidebar-toggle"
+			@click="toggledSidebar"
 		/>
-		<div class="container-fluid text-white">
+
+		<div
+			class="container-fluid text-white"
+			:class="{ collapsed: isHeaderCollapsed }"
+		>
 			<router-link to="/launchpad">
 				<span class="brand-name px-2"
 					><img
 						src="/kpmg.svg"
 						alt="Kpmg Icon"
-						width="100px"
-						height="50px"
+						width="100rem"
+						height="50rem"
 				/></span>
 			</router-link>
 			<div>
-				<div class="nav-items">
+				<div
+					class="nav-items"
+					v-tooltip="isHeaderCollapsed ? 'Sofy Docs' : ''"
+				>
 					<span
 						><font-awesome-icon
 							icon="fa-solid fa-book"
 							size="lg"
 							style="color: white" /></span
-					><span>&nbsp;Sofy Docs</span>
+					><span class="nav-text">&nbsp;Sofy Docs</span>
 				</div>
-				<div class="nav-items" v-if="route === '/launchpad'||route === '/'">
+				<div
+					class="nav-items"
+					v-tooltip="isHeaderCollapsed ? 'Administration' : ''"
+					v-if="route === '/launchpad' || route === '/'"
+				>
 					<router-link to="/admin">
 						<span>
-							<span>
-								<font-awesome-icon
-									icon="fa-solid fa-gears"
-									size="lg"
-									style="color: white" /></span
-							>&nbsp;Administration</span
-						>
+							<font-awesome-icon
+								icon="fa-solid fa-gears"
+								size="lg"
+								style="color: white"
+						/></span>
+						<span class="nav-text"> &nbsp;Administration</span>
 					</router-link>
 				</div>
-				<div class="nav-items" v-else>
+				<div
+					class="nav-items"
+					v-tooltip="isHeaderCollapsed ? 'Home' : ''"
+					v-else
+				>
 					<router-link to="/">
 						<span
-							><span
-								><font-awesome-icon
-									icon="fa-solid fa-house"
-									size="lg" /></span
-							>&nbsp;Home</span
-						>
+							><font-awesome-icon
+								icon="fa-solid fa-house"
+								size="lg" /></span
+						><span class="nav-text">&nbsp;Home</span>
 					</router-link>
 				</div>
-				<div class="nav-items">
+				<div
+					class="nav-items"
+					v-tooltip="isHeaderCollapsed ? 'Quick Links' : ''"
+				>
 					<span
-						><span
-							><font-awesome-icon
-								icon="fa-regular fa-star"
-								size="lg"
-								style="color: #ffffff" /></span
-						>&nbsp;Quick Links</span
-					>
+						><font-awesome-icon
+							icon="fa-regular fa-star"
+							size="lg"
+							style="color: #ffffff" /></span
+					><span class="nav-text">&nbsp;Quick Links</span>
 				</div>
 
-				<div class="dropdown" style="display: inline">
+				<div
+					class="dropdown"
+					style="display: inline"
+					v-tooltip="'Profile'"
+				>
 					<button data-bs-toggle="dropdown">
 						<div class="nav-items">
 							<span>
@@ -104,13 +123,46 @@ export default {
 	data() {
 		return {
 			route: this.$route.path,
+			isDesktop: window.innerWidth > 1000,
 		};
 	},
-	watch:{
-		$route(to){
+	methods: {
+		handleResize() {
+			this.isDesktop = window.innerWidth > 1000;
+			const shouldCollapse = window.innerWidth < 1000;
+			if (this.isHeaderCollapsed !== shouldCollapse) {
+				this.$store.dispatch(
+					"Sidebar/setHeaderCollapsed",
+					shouldCollapse
+				);
+			}
+		},
+
+		toggledSidebar() {
+			this.$store.dispatch("Sidebar/toggleSidebar");
+		},
+	},
+	mounted() {
+		window.addEventListener("resize", this.handleResize);
+		this.handleResize();
+	},
+	beforeUnmount() {
+		window.removeEventListener("resize", this.handleResize);
+	},
+
+	computed: {
+		isCollapse() {
+			return this.$store.getters["Sidebar/isCollapsed"];
+		},
+		isHeaderCollapsed() {
+			return this.$store.getters["Sidebar/isHeaderCollapse"];
+		},
+	},
+	watch: {
+		$route(to) {
 			this.route = to.path;
-		}
-	}
+		},
+	},
 };
 </script>
 
@@ -152,5 +204,19 @@ a:hover {
 	.dropdown-item {
 		color: black !important;
 	}
+}
+
+.collapsed .nav-text {
+	display: none;
+}
+
+.collapsed .nav-items {
+	padding: 0 0.8rem;
+}
+
+.nav-items {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 }
 </style>

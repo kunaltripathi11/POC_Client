@@ -23,6 +23,6 @@ export default {
 	margin-left: 4rem;
 	margin-right: -10rem;
 	height: calc(100vh - 5rem);
-	width: calc(100vw - 14rem);
+	width: calc(100% - 4rem);
 }
 </style>

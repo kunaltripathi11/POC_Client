@@ -227,29 +227,33 @@ export default {
 a {
 	text-decoration: none;
 }
+
 .main {
-	padding: 1rem 0 0 1rem;
-	margin-left: 13rem;
-	margin-top: 4rem;
-	width: calc(100vw - 13rem);
-	height: calc(100vh - 4rem);
+	padding: 1rem 2rem 0 2rem;
+	width: 100%;
+	height: calc(100vh - var(--header-height));
 	background: #f8fcff;
 	border: 1px solid #e5e7eb;
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+	overflow-y: auto;
 }
 
 .header {
 	border: 1px solid gray;
-	/* border-radius: 10px; */
-	/* margin: 0.7rem; */
+}
 
-	.back {
-		width: 100%;
-		border-bottom: 1px solid black;
-		padding: 0.7rem;
-	}
-	.heading {
-		padding: 0.4rem;
-	}
+.back {
+	width: 100%;
+	border-bottom: 1px solid black;
+	padding: 0.7rem;
+}
+
+.heading {
+	padding: 0.4rem;
+}
+
+form {
+	padding: 1.5rem;
+	max-width: 48vw;
 }
 </style>

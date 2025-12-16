@@ -24,7 +24,7 @@
 					<span>Back to Dashboard</span>
 				</router-link>
 			</div>
-			<div>NAme</div>
+			<div class="header-title">{{ dashboardName }}</div>
 			<div class="header-bottom">
 				<ul class="list-unstyled">
 					<li
@@ -57,12 +57,15 @@
 			:draggedWidget="draggedWidgetType"
 			@widget-drop="handleWidgetDrop"
 		/>
-		<h1 v-else-if="isSelected === 'filter'">filter</h1>
-		<h1 v-else-if="isSelected === 'logs'">Logs</h1>
+		<h1 v-else-if="isSelected === 'filter'" style="margin-top: 21vh">
+			filter
+		</h1>
+		<h1 v-else-if="isSelected === 'logs'" style="margin-top: 21vh">Logs</h1>
 	</div>
 </template>
 
 <script>
+import { mapActions } from "vuex";
 import DashboardMain from "../Dashboard/dashboardMain.vue";
 import AddWidgetDrawer from "../Layout/addWigdetDrawer.vue";
 
@@ -81,8 +84,16 @@ export default {
 		dashboardId() {
 			return this.$store.getters["Widget/getDashboardId"];
 		},
+		dashboardDetails() {
+			return this.$store.getters["Dashboard/getDashboardById"];
+		},
+
+		dashboardName() {
+			return this.dashboardDetails?.[0]?.name;
+		},
 	},
 	methods: {
+		...mapActions("Dashboard", ["fetchDashboardById"]),
 		changeSelected(option) {
 			this.isSelected = option;
 		},
@@ -109,6 +120,9 @@ export default {
 			});
 		},
 	},
+	async mounted() {
+		await this.fetchDashboardById(this.$route.params.uuid);
+	},
 };
 </script>
 
@@ -117,65 +131,66 @@ export default {
 	color: red;
 }
 .dashboard-container {
-	background-color: #f5f7fa;
-	min-height: 100vh;
-	max-width: 100vw;
-	margin-top: 4rem;
-	margin-left: 13rem;
-	/* position: relative; */
-	transition: all 0.3s ease;
+	transition: padding-left 0.3s ease;
 }
 
 .header-section {
-	/* display: flex; */
-
 	position: fixed;
-	top: 4rem;
-	justify-content: space-between;
-	height: 20vh;
-	width: calc(100vw - 13rem);
-	align-items: center;
-	background: white;
+	top: var(--header-height);
+	left: calc(var(--sidebar-width) + 1rem);
+	right: 1rem;
+	background: #ffffff;
 	padding: 1rem 1.5rem;
-	/* border-radius: 8px; */
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-	margin-bottom: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
 	border-bottom: 1px solid black;
-	z-index: 999;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+	transition: left 0.3s ease;
+	z-index: 998;
 }
+
 .header-top {
+	padding-bottom: 0.5rem;
 	border-bottom: 1px solid black;
-	width: 100%;
-	/* padding: 0; */
 }
+
+.header-title {
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #111827;
+}
+
 .header-bottom {
 	display: flex;
+	align-items: center;
 	justify-content: space-between;
 }
+
 .header-bottom ul {
 	display: flex;
-	gap: 1rem;
+	gap: 0.75rem;
+	margin: 0;
+	padding: 0;
 }
 
 .header-bottom li {
-	width: 4rem;
-	text-align: center;
-	margin: 1rem;
+	padding: 0.4rem 0.75rem;
 	cursor: pointer;
-	border-radius: 7px;
-	font-weight: 700;
-	background-color: transparent;
-	position: relative;
+	border-radius: 6px;
+	font-weight: 600;
+	color: #374151;
+	transition: all 0.2s ease;
 }
 
 .header-bottom li:hover {
-	background-color: #eeeeee;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+	background: #f3f4f6;
 }
+
 .header-bottom li.active {
+	background: #2563eb;
 	color: #ffffff;
-	background-color: #2563eb;
-	box-shadow: 0 4px 10px rgba(76, 92, 117, 0.4);
+	box-shadow: 0 3px 8px rgba(37, 99, 235, 0.35);
 }
 
 .back-link {
@@ -185,31 +200,26 @@ export default {
 	color: #2563eb;
 	font-weight: 600;
 	text-decoration: none;
-	transition: color 0.2s;
 }
 
 .back-link:hover {
-	color: #1d4ed8;
+	color: #1e40af;
 }
 
 .btn {
 	height: 2.3rem;
-	width: 9rem;
-	display: flex;
-	position: absolute;
-	right: 3rem;
+	padding: 0 1rem;
+	display: inline-flex;
 	align-items: center;
 	gap: 0.4rem;
-	border: none;
 	border-radius: 6px;
-	cursor: pointer;
 	font-weight: 500;
-	transition: all 0.2s;
+	transition: all 0.2s ease;
 }
 
 .btn-primary {
 	background-color: #2563eb;
-	color: white;
+	color: #ffffff;
 }
 
 .btn-primary:hover {

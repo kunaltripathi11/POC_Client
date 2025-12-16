@@ -70,14 +70,14 @@ export default {
 	async createDashboard({ commit, dispatch }, payload) {
 		try {
 			commit("setError", null);
-			await fetch(`${API_URL}admin/dashboard/add`, {
+			const response = await fetch(`${API_URL}admin/dashboard/add`, {
 				method: "POST",
 				headers: { "content-type": "application/json" },
 				body: JSON.stringify(payload),
 			});
-
+			const json = response.json();
 			dispatch("fetchDashboards");
-			return { success: true, data: response.data };
+			return { success: true, data: json.data };
 		} catch (error) {
 			console.log("Error creating Application", error);
 			commit("setError", error.message || "Failed to create Application");

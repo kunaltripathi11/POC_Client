@@ -4,7 +4,7 @@
 			@click="goToPage(getCurrentPage - 1)"
 			:disabled="getCurrentPage === 1"
 		>
-			Prev
+			<font-awesome-icon icon="fa-solid fa-angle-left" />
 		</button>
 
 		<button
@@ -20,7 +20,7 @@
 			@click="goToPage(getCurrentPage + 1)"
 			:disabled="getCurrentPage === totalPages"
 		>
-			Next
+			<font-awesome-icon icon="fa-solid fa-angle-right" />
 		</button>
 	</div>
 </template>
@@ -51,8 +51,38 @@ export default {
 
 <style scoped>
 .pagination-container {
-	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
 
-	right: 4rem;
+	margin-top: 0.3rem;
+	margin-bottom: 0.3rem;
+}
+
+.pagination-container button {
+	border: none;
+	padding: 8px 14px;
+	background: #f1f1f1;
+	color: #333;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 14px;
+	min-width: 25px;
+}
+
+.pagination-container button:hover:not(:disabled) {
+	background: #dcdcdc;
+}
+
+.pagination-container button:disabled {
+	cursor: not-allowed;
+	opacity: 0.4;
+}
+
+.pagination-container .activePage {
+	background: rgb(0, 51, 141);
+	color: #fff;
+	font-weight: bold;
 }
 </style>

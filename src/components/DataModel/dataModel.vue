@@ -80,9 +80,8 @@ export default {
 </script>
 <style scoped>
 .main-content {
-	margin-top: 6rem;
-	margin-left: 14rem;
-	margin-right: 1rem;
+	margin: 1rem 1rem 0 1rem;
+
 	height: calc(100vh - 8rem);
 
 	padding: 1rem 1rem 0 1rem;
@@ -90,7 +89,7 @@ export default {
 	border: 1px solid #e5e7eb;
 	border-radius: 10px;
 
-	height: calc(100vh - 7rem);
+	height: calc(100vh - 6rem);
 }
 .table {
 	border-radius: 10px;

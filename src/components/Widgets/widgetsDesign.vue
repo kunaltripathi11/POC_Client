@@ -1,13 +1,34 @@
 <template>
 	<div class="build-main">
 		<div v-if="!widget.rule_id">
-			Configure Widget
-			<button
-				class="btn btn-sm btn-outline-primary"
-				@click="configure(widget)"
-			>
-				Configure
-			</button>
+			<div class="widget-actions head">
+				<button
+					class="btn btn-sm btn-danger"
+					@click="
+						$emit('delete-widget', {
+							uuid: widget.uuid,
+							dashUUID: this.$route.params.uuid,
+						})
+					"
+				>
+					<font-awesome-icon icon="fa-solid fa-trash" size="sm" />
+				</button>
+				<button
+					class="btn btn-sm btn-primary"
+					@click="configure(widget)"
+				>
+					<font-awesome-icon icon="fa-solid fa-pen " size="sm" />
+				</button>
+			</div>
+			<div class="widget">
+				Configure Widget
+				<button
+					class="btn btn-sm btn-outline-primary"
+					@click="configure(widget)"
+				>
+					Configure
+				</button>
+			</div>
 		</div>
 
 		<div v-else>
@@ -95,11 +116,10 @@ export default {
 <style scoped>
 .build-main {
 	border: 2px dashed #ccc;
-	padding: 20px;
+	padding: 0.5rem;
 	border-radius: 10px;
 	background-color: #fafafa;
 
-	max-width: calc(100vw - 13rem - 2rem);
 	overflow: hidden;
 }
 
@@ -107,8 +127,7 @@ export default {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 1rem;
-	padding: 0.5rem 0;
+	margin-bottom: 0.5rem;
 }
 
 .widget-title {
@@ -122,7 +141,7 @@ export default {
 }
 
 .table-wrapper {
-	max-height: 60vh;
+	max-height: calc(100vh - 22rem);
 	overflow-x: auto;
 	overflow-y: auto;
 	background: white;
@@ -138,5 +157,10 @@ export default {
 td,
 th {
 	white-space: nowrap;
+}
+
+.head {
+	display: flex;
+	flex-direction: row-reverse;
 }
 </style>

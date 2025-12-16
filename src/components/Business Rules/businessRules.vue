@@ -11,7 +11,6 @@
 
 				<li
 					:class="{ active: isSelected === 'archive' }"
-					view
 					@click="changeSelected('archive')"
 				>
 					ARCHIVE
@@ -24,91 +23,109 @@
 				<button class="btn btn-primary mb-3">Create Model</button>
 			</router-link>
 		</div>
+		<div class="table-wrapper">
+			<table class="table table-hover align-middle shadow-sm">
+				<thead class="table-primary">
+					<tr>
+						<th>Name</th>
+						<th>Description</th>
+						<th>Tags</th>
 
-		<table class="table table-hover align-middle shadow-sm">
-			<thead class="table-primary">
-				<tr>
-					<th>Name</th>
-					<th>Description</th>
-					<th>Tags</th>
+						<th class="text-center">Actions</th>
+					</tr>
+				</thead>
+				<tbody v-if="isSelected === 'active'">
+					<tr v-for="rule in paginatedRules">
+						<td>
+							<router-link
+								:to="`/admin/business-rules/${rule.uuid}`"
+								class="text-decoration-none fw-semibold text-primary"
+								>{{ rule.name }}
+							</router-link>
+						</td>
+						<td>{{ rule.description }}</td>
+						<td>{{ rule.tags }}</td>
+						<td class="text-center">
+							<base-action
+								@delete="archiveRule(rule.uuid)"
+								@edit="editRule(rule)"
+							/>
+						</td>
+					</tr>
+					<tr
+						v-if="
+							!businessRules ||
+							(businessRules && businessRules.length === 0)
+						"
+					>
+						<td colspan="6" class="text-center text-muted py-3">
+							No Business Rules Available
+						</td>
+					</tr>
+				</tbody>
+				<tbody v-else>
+					<tr v-for="rule in paginatedArchivedRules">
+						<td>
+							{{ rule.name }}
+						</td>
+						<td>{{ rule.description }}</td>
+						<td>{{ rule.tags }}</td>
+						<td class="text-center">
+							<button
+								class="btn btn-sm me-2 action"
+								@click="activateRule(rule.uuid)"
+							>
+								<font-awesome-icon
+									icon="fa-solid fa-arrow-rotate-right"
+									style="color: blue"
+								/>
+							</button>
+							<button
+								class="btn btn-sm action"
+								@click="deleteRule(rule.uuid)"
+							>
+								<font-awesome-icon
+									icon="fa-solid fa-trash"
+									style="color: red"
+								/>
+							</button>
+						</td>
+					</tr>
+					<tr
+						v-if="
+							!archivedRules ||
+							(archivedRules && archivedRules.length === 0)
+						"
+					>
+						<td colspan="6" class="text-center text-muted py-3">
+							No Archived Business Rules Available
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 
-					<th class="text-center">Actions</th>
-				</tr>
-			</thead>
-			<tbody v-if="isSelected === 'active'">
-				<tr v-for="rule in businessRules">
-					<td>
-						<router-link
-							:to="`/admin/business-rules/${rule.uuid}`"
-							class="text-decoration-none fw-semibold text-primary"
-							>{{ rule.name }}
-						</router-link>
-					</td>
-					<td>{{ rule.description }}</td>
-					<td>{{ rule.tags }}</td>
-					<td class="text-center">
-						<base-action
-							@delete="archiveRule(rule.uuid)"
-							@edit="editRule(rule)"
-						/>
-					</td>
-				</tr>
-				<tr
-					v-if="
-						!businessRules ||
-						(businessRules && businessRules.length === 0)
-					"
-				>
-					<td colspan="6" class="text-center text-muted py-3">
-						No Business Rules Available
-					</td>
-				</tr>
-			</tbody>
-			<tbody v-else>
-				<tr v-for="rule in archivedRules">
-					<td>
-						{{ rule.name }}
-					</td>
-					<td>{{ rule.description }}</td>
-					<td>{{ rule.tags }}</td>
-					<td class="text-center">
-						<button
-							class="btn btn-sm me-2 action"
-							@click="activateRule(rule.uuid)"
-						>
-							<font-awesome-icon
-								icon="fa-solid fa-arrow-rotate-right"
-								style="color: blue"
-							/>
-						</button>
-						<button
-							class="btn btn-sm action"
-							@click="deleteRule(rule.uuid)"
-						>
-							<font-awesome-icon
-								icon="fa-solid fa-trash"
-								style="color: red"
-							/>
-						</button>
-					</td>
-				</tr>
-				<tr
-					v-if="
-						!archivedRules ||
-						(archivedRules && archivedRules.length === 0)
-					"
-				>
-					<td colspan="6" class="text-center text-muted py-3">
-						No Archived Business Rules Available
-					</td>
-				</tr>
-			</tbody>
-		</table>
+		<div>
+			<Pagination
+				:total-items="businessRules.length"
+				v-if="
+					getPerPage < businessRules.length && isSelected === 'active'
+				"
+			></Pagination>
+			<Pagination
+				:total-items="archivedRules.length"
+				v-if="
+					getPerPage < archivedRules.length &&
+					isSelected === 'archive'
+				"
+			></Pagination>
+		</div>
 	</div>
 </template>
 <script>
 import { mapActions, mapGetters } from "vuex";
 import BaseAction from "../UI/BaseAction.vue";
+import Pagination from "../UI/Pagination.vue";
 
 export default {
 	data() {
@@ -117,6 +134,16 @@ export default {
 
 	computed: {
 		...mapGetters("BusinessRule", ["filteredRules", "getArchivedRules"]),
+		...mapGetters("Pagination", ["getCurrentPage", "getPerPage"]),
+
+		paginatedRules() {
+			const start = (this.getCurrentPage - 1) * this.getPerPage;
+			return this.businessRules.slice(start, start + this.getPerPage);
+		},
+		paginatedArchivedRules() {
+			const start = (this.getCurrentPage - 1) * this.getPerPage;
+			return this.archivedRules.slice(start, start + this.getPerPage);
+		},
 		businessRules() {
 			return this.filteredRules;
 		},
@@ -144,6 +171,7 @@ export default {
 	},
 	components: {
 		BaseAction,
+		Pagination,
 	},
 	watch: {
 		async isSelected(newValue, oldValue) {
@@ -158,17 +186,12 @@ export default {
 </script>
 <style scoped>
 .main-content {
-	margin-top: 6rem;
-	margin-left: 14rem;
-	margin-right: 1rem;
-	height: calc(100vh - 8rem);
-
+	margin: 1rem 1rem 0 1rem;
 	padding: 1rem 1rem 0 1rem;
-
 	border: 1px solid #e5e7eb;
 	border-radius: 10px;
-
 	height: calc(100vh - 7rem);
+	overflow: auto;
 }
 .table {
 	border-radius: 10px;
@@ -194,7 +217,7 @@ li {
 .select li.active {
 	color: #ffffff;
 
-	background-color: #2563eb;
+	background-color: rgb(23, 79, 176);
 	box-shadow: 0 4px 10px rgba(76, 92, 117, 0.4);
 	border-radius: 9px;
 }
