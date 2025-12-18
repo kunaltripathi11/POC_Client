@@ -5,7 +5,8 @@ export default {
 	async fetchCategory({ commit }) {
 		try {
 			const response = await fetch(
-				`${API_URL}admin/application/categories`
+				`${API_URL}admin/application/categories`,
+				{ credentials: "include" }
 			);
 			const json = await response.json();
 
@@ -31,6 +32,7 @@ export default {
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify(payload),
+					credentials: "include",
 				}
 			);
 			const json = await result.json();
@@ -48,6 +50,7 @@ export default {
 					method: "POST",
 					headers: { "content-type": "application/json" },
 					body: JSON.stringify(payload),
+					credentials: "include",
 				}
 			);
 
@@ -66,6 +69,7 @@ export default {
 		if (!confirm("Sure? This will Delete the Category.")) return;
 		await fetch(`${API_URL}admin/application/categories/${uuid}`, {
 			method: "DELETE",
+			credentials: "include",
 		});
 		await dispatch("fetchCategory");
 	},

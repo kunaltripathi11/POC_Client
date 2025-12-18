@@ -11,6 +11,7 @@ import Tags from "./modules/Tags";
 import createPresistedState from "vuex-persistedstate";
 import Pagination from "./modules/Pagination";
 import Sidebar from "./modules/Sidebar";
+import Auth from "./modules/Auth";
 
 const store = createStore({
 	modules: {
@@ -24,6 +25,7 @@ const store = createStore({
 		Tags,
 		Pagination,
 		Sidebar,
+		Auth,
 	},
 	state() {
 		return {

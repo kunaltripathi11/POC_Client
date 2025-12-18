@@ -126,6 +126,7 @@ td,
 th {
 	vertical-align: middle;
 }
+
 .header {
 	width: calc(100vw-15rem);
 	height: 9rem;

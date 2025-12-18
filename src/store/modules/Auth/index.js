@@ -4,13 +4,13 @@ import actions from "./actions";
 
 export default {
 	namespaced: true,
-	state() {
-		return {
-			widget: [],
-			allWidget: [],
-			dashboard_id: null,
-		};
-	},
+
+	state: () => ({
+		user: null,
+		isAuthenticated: false,
+		loading: false,
+		error: null,
+	}),
 	mutations,
 	actions,
 	getters,

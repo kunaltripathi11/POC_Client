@@ -41,6 +41,8 @@ export default {
 	data() {
 		return {
 			isDragOver: false,
+			id: null,
+			variable: "",
 		};
 	},
 	async mounted() {
@@ -48,12 +50,14 @@ export default {
 		let variable;
 
 		if (this.$route.params.uuid) {
-			id = this.$route.params.uuid;
-			variable = "uuid";
+			this.id = this.$route.params.uuid;
+			this.variable = "uuid";
 		} else if (this.$route.params.url) {
-			id = "/" + this.$route.params.url;
-			variable = "url";
+			this.id = "/" + this.$route.params.url;
+			this.variable = "url";
 		}
+		id = this.id;
+		variable = this.variable;
 
 		await this.fetchWidgets({ id, variable });
 
@@ -72,7 +76,9 @@ export default {
 		...mapActions("Widget", ["fetchWidgets", "removeWidget"]),
 
 		async deleteWidget(uuid) {
-			await this.removeWidget(uuid);
+			const id = this.id;
+			const variable = this.variable;
+			await this.removeWidget({ uuid, id, variable });
 		},
 
 		handleWidgetDragStart(widget) {

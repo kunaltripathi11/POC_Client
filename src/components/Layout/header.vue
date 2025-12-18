@@ -91,8 +91,8 @@
 						</div>
 					</button>
 					<ul class="dropdown-menu">
-						<li class="dropdown-item">Name</li>
-						<li class="dropdown-item">Role</li>
+						<li class="dropdown-item">{{ Name }}</li>
+						<li class="dropdown-item">{{ role }}</li>
 						<li>
 							<router-link
 								to="/change_password"
@@ -107,9 +107,13 @@
 							</router-link>
 						</li>
 						<li>
-							<router-link to="/login" class="dropdown-item">
-								Logout
-							</router-link>
+							<span
+								@click="logoutUser"
+								class="dropdown-item"
+								style="cursor: pointer"
+							>
+								Logout</span
+							>
 						</li>
 					</ul>
 				</div>
@@ -119,6 +123,8 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex/dist/vuex.cjs.js";
+
 export default {
 	data() {
 		return {
@@ -127,6 +133,13 @@ export default {
 		};
 	},
 	methods: {
+		...mapActions("Auth", ["logout"]),
+
+		async logoutUser() {
+			await this.logout();
+			this.$router.replace("/login");
+		},
+
 		handleResize() {
 			this.isDesktop = window.innerWidth > 1000;
 			const shouldCollapse = window.innerWidth < 1000;
@@ -151,6 +164,7 @@ export default {
 	},
 
 	computed: {
+		...mapGetters("Auth", ["Name", "role"]),
 		isCollapse() {
 			return this.$store.getters["Sidebar/isCollapsed"];
 		},

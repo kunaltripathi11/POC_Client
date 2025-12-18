@@ -3,19 +3,33 @@
 	<div class="main-content mt-3">
 		<div style="display: flex; justify-content: space-between">
 			<h3 class="fw-bold mb-2">Solution Category List</h3>
-			<router-link to="/admin/application/solution-categories/add">
-				<button class="btn btn-primary mb-2" @click="create">
-					Create Sol
-				</button>
-			</router-link>
+			<div style="display: flex; justify-content: space-between">
+				<BaseSearch v-model="searchQuery"></BaseSearch>
+				<router-link to="/admin/application/solution-categories/add">
+					<button class="btn btn-primary mb-2" @click="create">
+						Create Sol
+					</button>
+				</router-link>
+			</div>
 		</div>
 		<div class="table-wrapper">
 			<table class="table table-hover align-middle shadow-sm">
 				<thead class="table-primary">
 					<tr>
-						<th>ID</th>
+						<th @click="sortBy('id')" class="sortable">
+							ID
+							<span v-if="sortKey === 'id'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
 						<th>UUID</th>
-						<th>Solution Category</th>
+						<th @click="sortBy('title')" class="sortable">
+							Solution Category
+							<span v-if="sortKey === 'title'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
+
 						<th class="text-center">Actions</th>
 					</tr>
 				</thead>
@@ -34,7 +48,12 @@
 						</td>
 					</tr>
 
-					<tr v-if="!solCategory || !solCategory.length">
+					<tr
+						v-if="
+							!paginatedSolCategory ||
+							!paginatedSolCategory.length
+						"
+					>
 						<td colspan="6" class="text-center py-3">
 							No Solution Category Available
 						</td>
@@ -43,10 +62,10 @@
 			</table>
 		</div>
 
-		<div class="pageination">
+		<div>
 			<Pagination
-				:total-items="solCategory.length"
-				v-if="getPerPage < solCategory.length"
+				:total-items="filteredSolCategories.length"
+				v-if="getPerPage < filteredSolCategories.length"
 			/>
 		</div>
 	</div>
@@ -55,21 +74,40 @@
 import BaseAction from "../UI/BaseAction.vue";
 import { mapActions, mapGetters } from "vuex";
 import Pagination from "../UI/Pagination.vue";
+import BaseSearch from "../UI/BaseSearch.vue";
+import sortMixin from "../../mixins/sortMixin";
 
 export default {
-	components: { BaseAction, Pagination },
+	components: { BaseAction, Pagination, BaseSearch },
 	data() {
 		return {
 			route: this.$route.path,
+			searchQuery: "",
 		};
 	},
+	mixins: [sortMixin],
 	computed: {
 		...mapGetters("SolCategory", ["filteredSolCategory"]),
 		...mapGetters("Pagination", ["getCurrentPage", "getPerPage"]),
 
 		paginatedSolCategory() {
 			const start = (this.getCurrentPage - 1) * this.getPerPage;
-			return this.solCategory.slice(start, start + this.getPerPage);
+			return this.sortedSolCategory.slice(start, start + this.getPerPage);
+		},
+		sortedSolCategory() {
+			return this.sortItems(this.filteredSolCategories);
+		},
+		filteredSolCategories() {
+			if (!this.searchQuery) return this.solCategory;
+
+			const q = this.searchQuery.toLowerCase();
+
+			const a = this.solCategory.filter((cat) =>
+				[cat.title]
+					.filter(Boolean)
+					.some((val) => String(val).toLowerCase().includes(q))
+			);
+			return a;
 		},
 
 		solCategory() {
@@ -120,5 +158,15 @@ thead th {
 	position: sticky;
 	top: 0;
 	z-index: 5;
+	background-color: #9cc7f5;
+}
+.sortable {
+	cursor: pointer;
+	user-select: none;
+}
+
+.sortable span {
+	font-size: 0.7rem;
+	margin-left: 4px;
 }
 </style>

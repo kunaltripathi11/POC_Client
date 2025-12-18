@@ -1,7 +1,7 @@
 <template>
 	<MainContent />
 	<div class="main">
-		<DashboardMain />
+		<DashboardMain class="dashboard" />
 	</div>
 </template>
 
@@ -21,8 +21,10 @@ export default {
 	padding: 0 0 0 0;
 	margin: -10rem;
 	margin-left: 4rem;
-	margin-right: -10rem;
 	height: calc(100vh - 5rem);
 	width: calc(100% - 4rem);
+}
+.dashboard {
+	margin-top: 10rem;
 }
 </style>

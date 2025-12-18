@@ -1,6 +1,6 @@
 <template>
 	<div class="app-layout" :class="{ collapsed: isCollapsed }">
-		<Sidebar />
+		<Sidebar v-if="this.$route.path.includes('admin')" />
 
 		<main class="app-contents">
 			<RouterView />

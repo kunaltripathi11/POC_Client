@@ -4,7 +4,9 @@ import router from "../../../Route";
 export default {
 	async fetchApplications({ commit }) {
 		try {
-			const response = await fetch(`${API_URL}admin/application/apps`);
+			const response = await fetch(`${API_URL}admin/application/apps`, {
+				credentials: "include",
+			});
 			const json = await response.json();
 			commit("setApplication", json.data);
 		} catch (err) {
@@ -23,6 +25,7 @@ export default {
 					headers: {
 						"Content-Type": "application/json",
 					},
+					credentials: "include",
 					body: JSON.stringify(payload),
 				}
 			);
@@ -64,6 +67,7 @@ export default {
 					headers: {
 						"Content-Type": "application/json",
 					},
+					credentials: "include",
 					body: JSON.stringify(payload),
 				}
 			);
@@ -78,6 +82,7 @@ export default {
 		if (!confirm("Sure? This will delete the Application.")) return;
 		await fetch(`${API_URL}admin/application/apps/edit/${uuid}`, {
 			method: "DELETE",
+			credentials: "include",
 		});
 		await dispatch("fetchApplications");
 	},

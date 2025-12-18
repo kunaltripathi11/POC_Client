@@ -4,7 +4,9 @@ import router from "../../../Route";
 export default {
 	async fetchModels({ commit }) {
 		try {
-			const response = await fetch(`${API_URL}admin/data-model`);
+			const response = await fetch(`${API_URL}admin/data-model`, {
+				credentials: "include",
+			});
 			const json = await response.json();
 
 			commit("setModel", json.data);
@@ -26,6 +28,7 @@ export default {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(payload),
+				credentials: "include",
 			});
 			const json = await result.json();
 			console.log("DATA", result);
@@ -40,6 +43,7 @@ export default {
 		console.log(uuid, "uuid");
 		await fetch(`${API_URL}admin/data-model/${uuid}`, {
 			method: "DELETE",
+			credentials: "include",
 		});
 		await dispatch("fetchModels");
 	},
@@ -53,6 +57,7 @@ export default {
 					method: "POST",
 					headers: { "content-type": "application/json" },
 					body: JSON.stringify(payload),
+					credentials: "include",
 				}
 			);
 

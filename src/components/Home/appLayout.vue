@@ -2,7 +2,7 @@
 	<div class="main">
 		<div class="greeting-bar">
 			<h2 class="greeting-text">
-				{{ greet }}, <span class="user-name">Name</span>
+				{{ greet }}, <span class="user-name">{{ nameOfUser }}</span>
 			</h2>
 		</div>
 		<div class="category-top-bar container">
@@ -59,14 +59,18 @@ export default {
 		};
 	},
 	computed: {
+		...mapGetters("Auth", ["Name"]),
+		...mapGetters("Application", ["categorizedApplications"]),
+
 		greet() {
 			const hour = new Date().getHours();
 			if (hour < 12) return "Good Morning";
 			if (hour < 17) return "Good Afternoon";
 			return "Good Evening";
 		},
-
-		...mapGetters("Application", ["categorizedApplications"]),
+		nameOfUser() {
+			return this.Name.split(" ")[0];
+		},
 
 		sol_categories() {
 			const set = new Set();
@@ -117,6 +121,7 @@ export default {
 		},
 		orderedApplications() {
 			if (!this.categorizedApplications) return {};
+
 			const apps = { ...this.categorizedApplications };
 			const ordered = {};
 			const keys = Object.keys(apps).filter((k) => k !== "Uncategorized");
@@ -131,7 +136,6 @@ export default {
 		...mapActions("Application", ["fetchApplications"]),
 
 		goToApp(url) {
-			console.log(url);
 			this.$router.push(`${url}`);
 		},
 	},

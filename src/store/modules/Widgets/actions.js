@@ -10,6 +10,7 @@ export default {
 					dashboard_id: payload.dashboard_id,
 					widget_type: payload.widget_type,
 				}),
+				credentials: "include",
 			});
 
 			if (!response.ok) {
@@ -30,15 +31,14 @@ export default {
 
 		try {
 			const response = await fetch(
-				`${API_URL}admin/widget?id=${id}&variable=${variable}`
+				`${API_URL}admin/widget?id=${id}&variable=${variable}`,
+				{ credentials: "include" }
 			);
 
 			const json = await response.json();
 
 			commit("setWidget", json.data);
 			state.dashboard_id = json.dashboard_id;
-
-			state.columns = json.columns;
 		} catch (error) {
 			console.log("Error in loading!!!", error);
 		}
@@ -52,6 +52,7 @@ export default {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(payload),
+				credentials: "include",
 			});
 
 			const json = await response.json();
@@ -62,18 +63,19 @@ export default {
 		}
 	},
 
-	async removeWidget({ dispatch }, { uuid, dashUUID }) {
+	async removeWidget({ dispatch }, { uuid, id, variable }) {
 		try {
 			if (!confirm("Sure? This will delete the widget.")) return;
 			const response = await fetch(`${API_URL}admin/widget/${uuid}`, {
 				method: "DELETE",
+				credentials: "include",
 			});
 			if (!response.ok) {
 				console.log("Unable to delete");
 			}
 			await dispatch("fetchWidgets", {
-				id: dashUUID,
-				variable: "uuid",
+				id: id,
+				variable: variable,
 			});
 		} catch (error) {
 			console.log("ERROR in Deleting", error);
@@ -88,6 +90,7 @@ export default {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(payload),
+				credentials: "include",
 			});
 			const json = await response.json();
 			return { success: true, data: json.data };

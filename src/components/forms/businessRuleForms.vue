@@ -458,12 +458,6 @@ export default {
 					});
 				}
 
-				// if (
-				// 	this.form.link_to === "Dashboard" &&
-				// 	this.form.destination_id
-				// ) {
-				// }
-
 				this.form = {
 					name: "",
 					description: "",

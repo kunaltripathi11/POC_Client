@@ -7,9 +7,8 @@ export default {
 
 	categorizedApplications(state) {
 		let a = state.applications;
-
 		let gp = a.filter((app) => {
-			return app?.hide_app === false;
+			return app?.hide_app === false && app?.url !== null;
 		});
 
 		let groupedApps = gp.reduce((groups, app) => {

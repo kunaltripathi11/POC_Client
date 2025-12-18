@@ -2,23 +2,49 @@
 	<div class="main-content mt-3">
 		<div style="display: flex; justify-content: space-between">
 			<h3 class="fw-bold mb-2">Application List</h3>
-			<router-link to="/admin/application/apps/add-app">
-				<button class="btn btn-primary mb-2" @click="create">
-					Create App
-				</button>
-			</router-link>
+			<div style="display: flex; justify-content: space-between">
+				<BaseSearch v-model="searchQuery"></BaseSearch>
+				<router-link to="/admin/application/apps/add-app">
+					<button class="btn btn-primary mb-2" @click="create">
+						Create App
+					</button>
+				</router-link>
+			</div>
 		</div>
 
 		<div class="table-wrapper">
 			<table class="table table-hover align-middle shadow-sm">
-				<thead class="table-primary">
+				<thead>
 					<tr>
 						<th>ID</th>
-						<th>Application Name</th>
-						<th>Category</th>
-						<th>Order</th>
+						<th @click="sortBy('title')" class="sortable">
+							Application Name
+							<span v-if="sortKey === 'title'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
+
+						<th @click="sortBy('category_name')" class="sortable">
+							Category
+							<span v-if="sortKey === 'category_name'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
+
+						<th @click="sortBy('display_order')" class="sortable">
+							Order
+							<span v-if="sortKey === 'display_order'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
+
 						<th>Application Icon</th>
-						<th>Active</th>
+						<th @click="sortBy('active')" class="sortable">
+							Active
+							<span v-if="sortKey === 'active'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
 						<th class="text-center">Actions</th>
 					</tr>
 				</thead>
@@ -43,7 +69,7 @@
 						</td>
 					</tr>
 
-					<tr v-if="!applications || !applications.length">
+					<tr v-if="!paginatedApps || !paginatedApps.length">
 						<td colspan="7" class="text-center text-muted py-3">
 							No Applications Available
 						</td>
@@ -54,8 +80,8 @@
 
 		<div>
 			<Pagination
-				:total-items="applications.length"
-				v-if="getPerPage < applications.length"
+				:total-items="filteredApplications.length"
+				v-if="getPerPage < filteredApplications.length"
 			></Pagination>
 		</div>
 	</div>
@@ -65,13 +91,17 @@
 import BaseAction from "../UI/BaseAction.vue";
 import { mapActions, mapGetters } from "vuex";
 import Pagination from "../UI/Pagination.vue";
+import BaseSearch from "../UI/BaseSearch.vue";
+import sortMixin from "../../mixins/sortMixin";
 
 export default {
 	data() {
 		return {
 			apps: [],
+			searchQuery: "",
 		};
 	},
+	mixins: [sortMixin],
 	async mounted() {
 		await this.fetchApplications();
 	},
@@ -82,16 +112,35 @@ export default {
 		applications() {
 			return this.allApplications;
 		},
+		filteredApplications() {
+			if (!this.searchQuery) return this.applications;
+
+			const q = this.searchQuery.toLowerCase();
+
+			const a = this.applications.filter((app) =>
+				[
+					app.title,
+					app.category_name,
+					app.icon,
+					app.display_order,
+					app.active ? "active" : "inactive",
+				]
+					.filter(Boolean)
+					.some((val) => String(val).toLowerCase().includes(q))
+			);
+			return a;
+		},
+
+		sortedApps() {
+			return this.sortItems(this.filteredApplications);
+		},
+
 		paginatedApps() {
 			const start = (this.getCurrentPage - 1) * this.getPerPage;
-			return this.applications.slice(start, start + this.getPerPage);
+			return this.sortedApps.slice(start, start + this.getPerPage);
 		},
 	},
-	updated() {
-		console.log("Apps", this.paginatedApps);
-		console.log("ALL", this.applications);
-		console.log("curr", this.getCurrentPage);
-	},
+
 	methods: {
 		...mapActions("Application", [
 			"fetchApplications",
@@ -102,6 +151,7 @@ export default {
 	components: {
 		BaseAction,
 		Pagination,
+		BaseSearch,
 	},
 };
 </script>
@@ -132,5 +182,15 @@ thead th {
 	position: sticky;
 	top: 0;
 	z-index: 5;
+	background-color: #9cc7f5;
+}
+.sortable {
+	cursor: pointer;
+	user-select: none;
+}
+
+.sortable span {
+	font-size: 0.7rem;
+	margin-left: 4px;
 }
 </style>

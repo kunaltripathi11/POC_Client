@@ -2,9 +2,14 @@
 	<div class="main-content">
 		<div style="display: flex; justify-content: space-between">
 			<h3 class="fw-bold mb-3">Dashboard List</h3>
-			<router-link to="/admin/dashboard/add">
-				<button class="btn btn-primary mb-3">Create Dashboard</button>
-			</router-link>
+			<div style="display: flex; justify-content: space-between">
+				<BaseSearch v-model="searchQuery"></BaseSearch>
+				<router-link to="/admin/dashboard/add">
+					<button class="btn btn-primary mb-3">
+						Create Dashboard
+					</button>
+				</router-link>
+			</div>
 		</div>
 
 		<div class="table-wrapper">
@@ -12,10 +17,33 @@
 				<thead class="table-primary sticky-header">
 					<tr>
 						<th>Id</th>
-						<th>Title</th>
-						<th>Application</th>
-						<th>URL</th>
-						<th>Updated At</th>
+						<th @click="sortBy('name')" class="sortable">
+							Title
+							<span v-if="sortKey === 'name'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
+
+						<th @click="sortBy('application')" class="sortable">
+							Application
+							<span v-if="sortKey === 'application'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
+
+						<th @click="sortBy('url')" class="sortable">
+							URL
+							<span v-if="sortKey === 'url'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
+						<th @click="sortBy('updated_at')" class="sortable">
+							Updated At
+							<span v-if="sortKey === 'updated_at'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
+
 						<th class="text-center">Actions</th>
 					</tr>
 				</thead>
@@ -46,7 +74,11 @@
 						</td>
 					</tr>
 
-					<tr v-if="!dashboards || !dashboards.length">
+					<tr
+						v-if="
+							!paginatedDashboards || !paginatedDashboards.length
+						"
+					>
 						<td colspan="6" class="text-center text-muted py-3">
 							No Dashboards Available
 						</td>
@@ -57,8 +89,8 @@
 
 		<div>
 			<Pagination
-				:total-items="dashboards.length"
-				v-if="getPerPage < dashboards.length"
+				:total-items="filteredDashboardsSearch.length"
+				v-if="getPerPage < filteredDashboardsSearch.length"
 			/>
 		</div>
 	</div>
@@ -68,11 +100,14 @@
 import BaseAction from "../UI/BaseAction.vue";
 import { mapActions, mapGetters } from "vuex";
 import Pagination from "../UI/Pagination.vue";
+import BaseSearch from "../UI/BaseSearch.vue";
+import sortMixin from "../../mixins/sortMixin";
 
 export default {
 	data() {
-		return {};
+		return { searchQuery: "" };
 	},
+	mixins: [sortMixin],
 	async mounted() {
 		await this.fetchDashboards();
 	},
@@ -82,9 +117,23 @@ export default {
 
 		paginatedDashboards() {
 			const start = (this.getCurrentPage - 1) * this.getPerPage;
-			return this.dashboards.slice(start, start + this.getPerPage);
+			return this.sortedDashboard.slice(start, start + this.getPerPage);
 		},
+		sortedDashboard() {
+			return this.sortItems(this.filteredDashboardsSearch);
+		},
+		filteredDashboardsSearch() {
+			if (!this.searchQuery) return this.dashboards;
 
+			const q = this.searchQuery.toLowerCase();
+
+			const a = this.dashboards.filter((dash) =>
+				[dash.name, dash.application, dash.url]
+					.filter(Boolean)
+					.some((val) => String(val).toLowerCase().includes(q))
+			);
+			return a;
+		},
 		dashboards() {
 			return this.filteredDashboards;
 		},
@@ -107,6 +156,7 @@ export default {
 	components: {
 		BaseAction,
 		Pagination,
+		BaseSearch,
 	},
 };
 </script>
@@ -133,5 +183,15 @@ thead th {
 	position: sticky;
 	top: 0;
 	z-index: 5;
+	background-color: #9cc7f5;
+}
+.sortable {
+	cursor: pointer;
+	user-select: none;
+}
+
+.sortable span {
+	font-size: 0.7rem;
+	margin-left: 4px;
 }
 </style>

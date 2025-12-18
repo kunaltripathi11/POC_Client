@@ -25,6 +25,7 @@ export default {
 					headers: {
 						"Content-Type": "application/json",
 					},
+					credentials: "include",
 
 					body: JSON.stringify({ inputTag }),
 				});
@@ -54,6 +55,7 @@ export default {
 					},
 
 					body: JSON.stringify({ business_rule_id, tags }),
+					credentials: "include",
 				});
 
 				if (!response.ok) {

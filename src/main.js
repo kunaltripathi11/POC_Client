@@ -31,6 +31,7 @@ let options = {
 	closeOnClick: false,
 	pauseOnHover: true,
 };
+
 app.use(FloatingVue);
 app.use(Toast, options);
 app.config.globalProperties.$toast = useToast();

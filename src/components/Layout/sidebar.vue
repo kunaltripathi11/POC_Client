@@ -143,16 +143,19 @@ export default {
 			this.activeChild = val;
 		},
 		toggleAnalytics() {
+			this.$router.replace("/admin/business-rules");
 			this.activeItem = "analytics";
-			this.isAnalytics = !this.isAnalytics;
+			this.isAnalytics = true;
 		},
 		checkActive(route) {
 			if (route.path.includes("/application")) {
 				this.setActiveItem("app");
 				this.setActiveChild("");
+				this.isAnalytics = false;
 			} else if (route.path.includes("/dashboard")) {
 				this.setActiveItem("dashboard");
 				this.setActiveChild("");
+				this.isAnalytics = false;
 			} else if (route.path.includes("/data-model")) {
 				this.setActiveItem("analytics");
 				this.setActiveChild("data_models");

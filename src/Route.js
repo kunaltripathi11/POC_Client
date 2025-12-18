@@ -27,22 +27,29 @@ import LoginPage from "./components/Pages/LoginPage.vue";
 const router = createRouter({
 	history: createWebHistory(),
 	routes: [
-		{ path: "/", component: AppLayout, redirect: "/launchpad" },
+		{
+			path: "/",
+			component: AppLayout,
+			redirect: "/launchpad",
+			meta: { isAuthReq: true },
+		},
 		{
 			path: "/:url",
 			component: ApplicationPage,
-			meta: { title: "Application" },
+			meta: { title: "Application", isAuthReq: true },
 		},
 		{
 			path: "/launchpad",
 			component: AppLayout,
 			meta: {
 				title: "Launchpad",
+				isAuthReq: true,
 			},
 		},
 		{
 			path: "/admin",
 			redirect: "/admin/application/apps",
+			meta: { isAuthReq: true },
 			component: MainContent,
 			children: [
 				{
@@ -184,21 +191,30 @@ const router = createRouter({
 				},
 			],
 		},
-		{ path: "/login", component: LoginPage },
+
+		{ path: "/login", component: LoginPage, meta: { title: "Login" } },
 	],
 });
 
-router.beforeEach((to, from, next) => {
-	if (to.meta && to.meta.title) {
-		document.title = to.meta.title;
-	} else {
-		document.title = "Sofy";
-	}
-	next();
-});
+router.beforeEach(async (to, from, next) => {
+	document.title = to.meta.title || "Sofy";
 
-router.beforeEach((to, from, next) => {
+	let authChecked = false;
 	store.dispatch("Pagination/UPDATE_PAGE", 1);
+
+	if (!authChecked) {
+		const a = await store.dispatch("Auth/fetchUser");
+		authChecked = true;
+	}
+	const isAuthenticated = store.getters["Auth/isAuthenticated"];
+	if (to.meta.isAuthReq && !isAuthenticated) {
+		return next("/login");
+	}
+	console.log("Path", to.path, isAuthenticated);
+	if (to.path === "/login" && isAuthenticated) {
+		return next("/launchpad");
+	}
+
 	next();
 });
 

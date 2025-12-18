@@ -47,12 +47,7 @@
 
 					<button
 						class="btn btn-sm btn-danger"
-						@click="
-							$emit('delete-widget', {
-								uuid: widget.uuid,
-								dashUUID: this.$route.params.uuid,
-							})
-						"
+						@click="$emit('delete-widget', widget.uuid)"
 					>
 						<font-awesome-icon icon="fa-solid fa-trash" />
 					</button>
@@ -62,14 +57,24 @@
 				<table class="table table-hover align-middle shadow-sm">
 					<thead class="table-primary">
 						<tr>
-							<th v-for="col in widget.columns" :key="col">
+							<th
+								v-for="col in widget.columns"
+								:key="col"
+								class="sortable"
+								@click="sortBy(col)"
+							>
 								{{ col }}
+								<span v-if="sortKey === col" class="sort-icon">
+									<span class="material-icons">
+										{{ sortOrder === "asc" ? "▲" : "▼" }}
+									</span>
+								</span>
 							</th>
 						</tr>
 					</thead>
 
 					<tbody>
-						<tr v-for="(row, index) in widget.query" :key="index">
+						<tr v-for="(row, index) in sortedRows" :key="index">
 							<td v-for="col in widget.columns" :key="col">
 								{{ row[col] }}
 							</td>
@@ -89,9 +94,11 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import sortMixin from "../../mixins/sortMixin";
 
 export default {
 	props: ["widget"],
+	mixins: [sortMixin],
 	data() {
 		return {
 			showModal: false,
@@ -99,11 +106,12 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters("Widget", ["getColumns"]),
-		columns() {
-			return this.getColumns;
+		sortedRows() {
+			if (!this.widget.query) return [];
+			return this.sortItems(this.widget.query);
 		},
 	},
+
 	methods: {
 		...mapActions("Widget", ["fetchWidgets"]),
 		configure(widget) {
@@ -158,9 +166,20 @@ td,
 th {
 	white-space: nowrap;
 }
-
+th {
+	background-color: #9cc7f5;
+}
 .head {
 	display: flex;
 	flex-direction: row-reverse;
+}
+.sortable {
+	cursor: pointer;
+	user-select: none;
+}
+
+.sortable span {
+	font-size: 0.7rem;
+	margin-left: 4px;
 }
 </style>

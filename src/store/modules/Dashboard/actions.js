@@ -4,7 +4,9 @@ import router from "../../../Route";
 export default {
 	async fetchDashboards({ commit }) {
 		try {
-			const response = await fetch(`${API_URL}admin/dashboard`);
+			const response = await fetch(`${API_URL}admin/dashboard`, {
+				credentials: "include",
+			});
 			const json = await response.json();
 			if (!response.ok) {
 				const errMessage = json.message;
@@ -20,7 +22,9 @@ export default {
 	},
 	async fetchDashboardById({ commit }, uuid) {
 		try {
-			const response = await fetch(`${API_URL}admin/dashboard/${uuid}`);
+			const response = await fetch(`${API_URL}admin/dashboard/${uuid}`, {
+				credentials: "include",
+			});
 			const json = await response.json();
 
 			commit("setOneDashboard", json.data);
@@ -45,6 +49,7 @@ export default {
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(payload),
+				credentials: "include",
 			});
 			const json = await result.json();
 			return { success: true, data: json.data };
@@ -59,6 +64,7 @@ export default {
 		try {
 			await fetch(`${API_URL}admin/dashboard/${uuid}`, {
 				method: "DELETE",
+				credentials: "include",
 			});
 
 			await dispatch("fetchDashboards");
@@ -74,6 +80,7 @@ export default {
 				method: "POST",
 				headers: { "content-type": "application/json" },
 				body: JSON.stringify(payload),
+				credentials: "include",
 			});
 			const json = response.json();
 			dispatch("fetchDashboards");
@@ -91,7 +98,10 @@ export default {
 
 	async fetchApps({ commit }) {
 		try {
-			const response = await fetch(`${API_URL}admin/dashboard/fetchApps`);
+			const response = await fetch(
+				`${API_URL}admin/dashboard/fetchApps`,
+				{ credentials: "include" }
+			);
 			const json = await response.json();
 			if (!response.ok) {
 				const errMessage = json.message;

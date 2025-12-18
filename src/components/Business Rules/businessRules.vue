@@ -19,18 +19,30 @@
 		</div>
 		<div style="display: flex; justify-content: space-between">
 			<h3 class="fw-bold mb-3">Business Rules</h3>
-			<router-link to="/admin/business-rules/add-business-rules">
-				<button class="btn btn-primary mb-3">Create Model</button>
-			</router-link>
+			<div style="display: flex; justify-content: space-between">
+				<BaseSearch v-model="searchQuery"></BaseSearch>
+				<router-link to="/admin/business-rules/add-business-rules">
+					<button class="btn btn-primary mb-3">Create Model</button>
+				</router-link>
+			</div>
 		</div>
 		<div class="table-wrapper">
 			<table class="table table-hover align-middle shadow-sm">
 				<thead class="table-primary">
 					<tr>
-						<th>Name</th>
-						<th>Description</th>
+						<th @click="sortBy('name')" class="sortable">
+							Name
+							<span v-if="sortKey === 'name'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
+						<th @click="sortBy('description')" class="sortable">
+							Description
+							<span v-if="sortKey === 'description'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
 						<th>Tags</th>
-
 						<th class="text-center">Actions</th>
 					</tr>
 				</thead>
@@ -45,6 +57,7 @@
 						</td>
 						<td>{{ rule.description }}</td>
 						<td>{{ rule.tags }}</td>
+
 						<td class="text-center">
 							<base-action
 								@delete="archiveRule(rule.uuid)"
@@ -54,8 +67,9 @@
 					</tr>
 					<tr
 						v-if="
-							!businessRules ||
-							(businessRules && businessRules.length === 0)
+							!filteredActiveRuleSearch ||
+							(filteredActiveRuleSearch &&
+								filteredActiveRuleSearch.length === 0)
 						"
 					>
 						<td colspan="6" class="text-center text-muted py-3">
@@ -93,8 +107,9 @@
 					</tr>
 					<tr
 						v-if="
-							!archivedRules ||
-							(archivedRules && archivedRules.length === 0)
+							!filteredArchivedRuleSearch ||
+							(filteredArchivedRuleSearch &&
+								filteredArchivedRuleSearch.length === 0)
 						"
 					>
 						<td colspan="6" class="text-center text-muted py-3">
@@ -107,15 +122,16 @@
 
 		<div>
 			<Pagination
-				:total-items="businessRules.length"
+				:total-items="filteredActiveRuleSearch.length"
 				v-if="
-					getPerPage < businessRules.length && isSelected === 'active'
+					getPerPage < filteredActiveRuleSearch.length &&
+					isSelected === 'active'
 				"
 			></Pagination>
 			<Pagination
-				:total-items="archivedRules.length"
+				:total-items="filteredArchivedRuleSearch.length"
 				v-if="
-					getPerPage < archivedRules.length &&
+					getPerPage < filteredArchivedRuleSearch.length &&
 					isSelected === 'archive'
 				"
 			></Pagination>
@@ -126,23 +142,28 @@
 import { mapActions, mapGetters } from "vuex";
 import BaseAction from "../UI/BaseAction.vue";
 import Pagination from "../UI/Pagination.vue";
+import BaseSearch from "../UI/BaseSearch.vue";
+import sortMixin from "../../mixins/sortMixin";
 
 export default {
 	data() {
-		return { isSelected: "active" };
+		return { isSelected: "active", searchQuery: "" };
 	},
-
+	mixins: [sortMixin],
 	computed: {
 		...mapGetters("BusinessRule", ["filteredRules", "getArchivedRules"]),
 		...mapGetters("Pagination", ["getCurrentPage", "getPerPage"]),
 
 		paginatedRules() {
 			const start = (this.getCurrentPage - 1) * this.getPerPage;
-			return this.businessRules.slice(start, start + this.getPerPage);
+			return this.sortedActiveRules.slice(start, start + this.getPerPage);
 		},
 		paginatedArchivedRules() {
 			const start = (this.getCurrentPage - 1) * this.getPerPage;
-			return this.archivedRules.slice(start, start + this.getPerPage);
+			return this.sortedArchivedRules.slice(
+				start,
+				start + this.getPerPage
+			);
 		},
 		businessRules() {
 			return this.filteredRules;
@@ -150,6 +171,39 @@ export default {
 
 		archivedRules() {
 			return this.getArchivedRules;
+		},
+		sortedActiveRules() {
+			return this.sortItems(this.filteredActiveRuleSearch);
+		},
+
+		sortedArchivedRules() {
+			return this.sortItems(this.filteredArchivedRuleSearch);
+		},
+
+		filteredActiveRuleSearch() {
+			if (!this.searchQuery) return this.businessRules;
+
+			const q = this.searchQuery.toLowerCase();
+
+			const a = this.businessRules.filter((rule) =>
+				[rule.name, rule.description, rule.tags]
+					.filter(Boolean)
+					.some((val) => String(val).toLowerCase().includes(q))
+			);
+			return a;
+		},
+
+		filteredArchivedRuleSearch() {
+			if (!this.searchQuery) return this.archivedRules;
+
+			const q = this.searchQuery.toLowerCase();
+
+			const a = this.archivedRules.filter((rule) =>
+				[rule.name, rule.description, rule.tags]
+					.filter(Boolean)
+					.some((val) => String(val).toLowerCase().includes(q))
+			);
+			return a;
 		},
 	},
 	async mounted() {
@@ -172,6 +226,7 @@ export default {
 	components: {
 		BaseAction,
 		Pagination,
+		BaseSearch,
 	},
 	watch: {
 		async isSelected(newValue, oldValue) {
@@ -201,6 +256,9 @@ td,
 th {
 	vertical-align: middle;
 }
+th {
+	background-color: #9cc7f5;
+}
 ul {
 	padding-left: 0.1rem;
 	padding-top: 0.1rem;
@@ -226,5 +284,14 @@ li {
 	border-radius: 50% !important;
 	margin: 3px;
 	padding: 5px;
+}
+.sortable {
+	cursor: pointer;
+	user-select: none;
+}
+
+.sortable span {
+	font-size: 0.7rem;
+	margin-left: 4px;
 }
 </style>

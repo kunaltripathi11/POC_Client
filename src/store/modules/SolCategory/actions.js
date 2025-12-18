@@ -5,7 +5,8 @@ export default {
 	async fetchSolCategory({ commit }) {
 		try {
 			const response = await fetch(
-				`${API_URL}admin/application/solution-categories`
+				`${API_URL}admin/application/solution-categories`,
+				{ credentials: "include" }
 			);
 			const json = await response.json();
 
@@ -31,6 +32,7 @@ export default {
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify(payload),
+					credentials: "include",
 				}
 			);
 			return { success: true, data: response.data };
@@ -43,6 +45,7 @@ export default {
 		if (!confirm("Sure? This will hide the Category.")) return;
 		await fetch(`${API_URL}admin/application/solution-categories/${uuid}`, {
 			method: "DELETE",
+			credentials: "include",
 		});
 		await dispatch("fetchSolCategory");
 	},
@@ -59,6 +62,7 @@ export default {
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify(payload),
+					credentials: "include",
 				}
 			);
 			if (!response.ok) {

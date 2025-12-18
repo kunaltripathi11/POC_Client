@@ -2,14 +2,26 @@
 	<div class="main">
 		<div class="table-wrapper">
 			<table class="table table-hover align-middle shadow-sm">
-				<thead class="table-primary">
+				<thead>
 					<tr>
-						<th v-for="column in columns">{{ column }}</th>
+						<th
+							v-for="column in columns"
+							:key="column"
+							class="sortable"
+							@click="sortBy(column)"
+						>
+							{{ column }}
+							<span v-if="sortKey === column" class="sort-icon">
+								<span class="material-icons">
+									{{ sortOrder === "asc" ? "▲" : "▼" }}
+								</span>
+							</span>
+						</th>
 					</tr>
 				</thead>
 
 				<tbody>
-					<tr v-for="(rule, index) in rules" :key="index">
+					<tr v-for="(rule, index) in sortedRule" :key="index">
 						<td v-for="(column, index1) in columns" :key="index1">
 							{{ rule[column] }}
 						</td>
@@ -28,11 +40,13 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import sortMixin from "../../mixins/sortMixin";
 
 export default {
 	data() {
 		return { isSelected: "overview" };
 	},
+	mixins: [sortMixin],
 
 	methods: {
 		...mapActions("BusinessRule", ["fetchRuleByID"]),
@@ -48,6 +62,9 @@ export default {
 
 		rules() {
 			return this.getRuleById;
+		},
+		sortedRule() {
+			return this.sortItems(this.rules);
 		},
 	},
 
@@ -81,9 +98,19 @@ export default {
 	top: 0;
 	z-index: 2;
 	background: #e8f1ff;
+	background-color: #9cc7f5;
 }
 td,
 th {
 	white-space: nowrap;
+}
+.sortable {
+	cursor: pointer;
+	user-select: none;
+}
+
+.sortable span {
+	font-size: 0.7rem;
+	margin-left: 4px;
 }
 </style>
