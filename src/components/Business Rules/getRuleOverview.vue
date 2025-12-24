@@ -21,7 +21,13 @@
 				</thead>
 
 				<tbody>
-					<tr v-for="(rule, index) in sortedRule" :key="index">
+					<TableSkeleton
+						v-if="isTableLoading"
+						v-for="n in 10"
+						:key="'skeleton-' + n"
+						:columns="columns.length"
+					/>
+					<tr v-for="(rule, index) in paginatedRules" :key="index">
 						<td v-for="(column, index1) in columns" :key="index1">
 							{{ rule[column] }}
 						</td>
@@ -35,14 +41,24 @@
 				</tbody>
 			</table>
 		</div>
+		<Pagination
+			v-if="rules.length > getPerPage"
+			:total-items="rules.length"
+		/>
 	</div>
 </template>
 
 <script>
 import { mapActions, mapGetters } from "vuex";
 import sortMixin from "../../mixins/sortMixin";
+import TableSkeleton from "../UI/TableSkeleton.vue";
+import Pagination from "../UI/Pagination.vue";
 
 export default {
+	components: {
+		TableSkeleton,
+		Pagination,
+	},
 	data() {
 		return { isSelected: "overview" };
 	},
@@ -56,6 +72,14 @@ export default {
 	},
 	computed: {
 		...mapGetters("BusinessRule", ["getColumns", "getRuleById"]),
+		...mapGetters("Pagination", ["getCurrentPage", "getPerPage"]),
+
+		isTableLoading() {
+			return this.$store.getters["TableLoader/isTableLoading"](
+				"rulesOverviewTable"
+			);
+		},
+
 		columns() {
 			return this.getColumns;
 		},
@@ -65,6 +89,10 @@ export default {
 		},
 		sortedRule() {
 			return this.sortItems(this.rules);
+		},
+		paginatedRules() {
+			const start = (this.getCurrentPage - 1) * this.getPerPage;
+			return this.sortedRule?.slice(start, start + this.getPerPage);
 		},
 	},
 

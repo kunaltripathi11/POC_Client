@@ -4,6 +4,9 @@ import router from "../../../Route";
 export default {
 	async fetchCategory({ commit }) {
 		try {
+			commit("TableLoader/START_TABLE_LOADING", "categoryTable", {
+				root: true,
+			});
 			const response = await fetch(
 				`${API_URL}admin/application/categories`,
 				{ credentials: "include" }
@@ -13,6 +16,12 @@ export default {
 			commit("setCategories", json.data);
 		} catch (err) {
 			console.error("Error loading Category", err);
+		} finally {
+			setTimeout(() => {
+				commit("TableLoader/STOP_TABLE_LOADING", "categoryTable", {
+					root: true,
+				});
+			}, 2000);
 		}
 	},
 

@@ -35,7 +35,13 @@
 				</thead>
 
 				<tbody>
-					<tr v-for="cat in paginatedSolCategory">
+					<TableSkeleton
+						v-if="isTableLoading"
+						v-for="n in getPerPage"
+						:key="'skeleton-' + n"
+						:columns="4"
+					/>
+					<tr v-else v-for="cat in paginatedSolCategory">
 						<td>{{ cat.id }}</td>
 						<td>{{ cat.uuid }}</td>
 						<td>{{ cat.title }}</td>
@@ -76,9 +82,10 @@ import { mapActions, mapGetters } from "vuex";
 import Pagination from "../UI/Pagination.vue";
 import BaseSearch from "../UI/BaseSearch.vue";
 import sortMixin from "../../mixins/sortMixin";
+import TableSkeleton from "../UI/TableSkeleton.vue";
 
 export default {
-	components: { BaseAction, Pagination, BaseSearch },
+	components: { BaseAction, Pagination, BaseSearch, TableSkeleton },
 	data() {
 		return {
 			route: this.$route.path,
@@ -90,6 +97,11 @@ export default {
 		...mapGetters("SolCategory", ["filteredSolCategory"]),
 		...mapGetters("Pagination", ["getCurrentPage", "getPerPage"]),
 
+		isTableLoading() {
+			return this.$store.getters["TableLoader/isTableLoading"](
+				"solCategoryTable"
+			);
+		},
 		paginatedSolCategory() {
 			const start = (this.getCurrentPage - 1) * this.getPerPage;
 			return this.sortedSolCategory.slice(start, start + this.getPerPage);

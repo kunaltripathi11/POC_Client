@@ -31,7 +31,7 @@
 						v-for="app in apps"
 						:key="app.id"
 						class="app-card"
-						@click="goToApp(app.url)"
+						@click="goToApp(app)"
 						:class="app.active ? 'activeApp' : 'inactiveApp'"
 					>
 						<div class="app-content">
@@ -135,8 +135,10 @@ export default {
 	methods: {
 		...mapActions("Application", ["fetchApplications"]),
 
-		goToApp(url) {
-			this.$router.push(`${url}`);
+		goToApp(app) {
+			this.$router.push(app.url);
+			console.log("APPP", app);
+			this.$store.commit("SET_DASH_UUID", app.dashboard_uuid);
 		},
 	},
 	async mounted() {

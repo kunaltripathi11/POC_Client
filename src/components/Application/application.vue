@@ -11,7 +11,6 @@
 				</router-link>
 			</div>
 		</div>
-
 		<div class="table-wrapper">
 			<table class="table table-hover align-middle shadow-sm">
 				<thead>
@@ -45,12 +44,29 @@
 								{{ sortOrder === "asc" ? "▲" : "▼" }}
 							</span>
 						</th>
+
+						<th @click="sortBy('updated_by_name')" class="sortable">
+							Last Updated By
+							<span v-if="sortKey === 'updated_by_name'">
+								{{ sortOrder === "asc" ? "▲" : "▼" }}
+							</span>
+						</th>
 						<th class="text-center">Actions</th>
 					</tr>
 				</thead>
 
 				<tbody>
-					<tr v-for="(app, index) in paginatedApps" :key="index">
+					<TableSkeleton
+						v-if="isTableLoading"
+						v-for="n in getPerPage"
+						:key="'skeleton-' + n"
+						:columns="8"
+					/>
+					<tr
+						v-else
+						v-for="(app, index) in paginatedApps"
+						:key="index"
+					>
 						<td>{{ index + 1 }}</td>
 						<td>{{ app.title }}</td>
 						<td>{{ app.category_name }}</td>
@@ -61,6 +77,7 @@
 							</span>
 						</td>
 						<td>{{ app.active ? "Active" : "Inactive" }}</td>
+						<td>{{ app.updated_by_name }}</td>
 						<td class="text-center">
 							<base-action
 								@delete="deleteApplication(app.uuid)"
@@ -93,8 +110,17 @@ import { mapActions, mapGetters } from "vuex";
 import Pagination from "../UI/Pagination.vue";
 import BaseSearch from "../UI/BaseSearch.vue";
 import sortMixin from "../../mixins/sortMixin";
+import BaseSpinner from "../UI/BaseSpinner.vue";
+import TableSkeleton from "../UI/TableSkeleton.vue";
 
 export default {
+	components: {
+		BaseAction,
+		Pagination,
+		BaseSearch,
+		BaseSpinner,
+		TableSkeleton,
+	},
 	data() {
 		return {
 			apps: [],
@@ -104,11 +130,18 @@ export default {
 	mixins: [sortMixin],
 	async mounted() {
 		await this.fetchApplications();
+		console.log("isTableLoading", this.isTableLoading);
 	},
+
 	computed: {
 		...mapGetters("Application", ["allApplications"]),
 		...mapGetters("Pagination", ["getCurrentPage", "getPerPage"]),
 
+		isTableLoading() {
+			return this.$store.getters["TableLoader/isTableLoading"](
+				"applicationTable"
+			);
+		},
 		applications() {
 			return this.allApplications;
 		},
@@ -124,6 +157,7 @@ export default {
 					app.icon,
 					app.display_order,
 					app.active ? "active" : "inactive",
+					app.updated_by_name,
 				]
 					.filter(Boolean)
 					.some((val) => String(val).toLowerCase().includes(q))
@@ -137,7 +171,7 @@ export default {
 
 		paginatedApps() {
 			const start = (this.getCurrentPage - 1) * this.getPerPage;
-			return this.sortedApps.slice(start, start + this.getPerPage);
+			return this.sortedApps?.slice(start, start + this.getPerPage);
 		},
 	},
 
@@ -147,11 +181,6 @@ export default {
 			"deleteApplication",
 			"editApplication",
 		]),
-	},
-	components: {
-		BaseAction,
-		Pagination,
-		BaseSearch,
 	},
 };
 </script>

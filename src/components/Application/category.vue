@@ -48,7 +48,13 @@
 				</thead>
 
 				<tbody>
-					<tr v-for="cat in paginatedCategory" :key="cat.uuid">
+					<TableSkeleton
+						v-if="isTableLoading"
+						v-for="n in getPerPage"
+						:key="'skeleton-' + n"
+						:columns="5"
+					/>
+					<tr v-else v-for="cat in paginatedCategory" :key="cat.uuid">
 						<td>{{ cat.id }}</td>
 						<td>{{ cat.title }}</td>
 						<td>{{ cat.category_name }}</td>
@@ -56,7 +62,7 @@
 
 						<td class="text-center">
 							<base-action
-								@delete="deleteCategory(cat.uuid)"
+								@delete="deleteCat(cat.uuid)"
 								@edit="editCategory(cat)"
 							/>
 						</td>
@@ -86,6 +92,7 @@ import { mapActions, mapGetters } from "vuex";
 import Pagination from "../UI/Pagination.vue";
 import BaseSearch from "../UI/BaseSearch.vue";
 import sortMixin from "../../mixins/sortMixin";
+import TableSkeleton from "../UI/TableSkeleton.vue";
 
 export default {
 	data() {
@@ -118,9 +125,15 @@ export default {
 			const start = (this.getCurrentPage - 1) * this.getPerPage;
 			return this.sortedCategory.slice(start, start + this.getPerPage);
 		},
+		isTableLoading() {
+			return this.$store.getters["TableLoader/isTableLoading"](
+				"categoryTable"
+			);
+		},
 	},
 	async mounted() {
 		await this.fetchCategory();
+		console.log("LOADDDD", this.isTableLoading);
 	},
 	methods: {
 		...mapActions("Category", [
@@ -128,11 +141,20 @@ export default {
 			"deleteCategory",
 			"editCategory",
 		]),
+
+		deleteCat(uuid) {
+			this.isTableLoading = true;
+			this.deleteCategory(uuid);
+			setTimeout(() => {
+				this.isTableLoading = false;
+			}, 2000);
+		},
 	},
 	components: {
 		BaseAction,
 		Pagination,
 		BaseSearch,
+		TableSkeleton,
 	},
 };
 </script>

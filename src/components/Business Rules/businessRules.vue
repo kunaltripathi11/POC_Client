@@ -17,124 +17,157 @@
 				</li>
 			</ul>
 		</div>
-		<div style="display: flex; justify-content: space-between">
-			<h3 class="fw-bold mb-3">Business Rules</h3>
-			<div style="display: flex; justify-content: space-between">
-				<BaseSearch v-model="searchQuery"></BaseSearch>
-				<router-link to="/admin/business-rules/add-business-rules">
-					<button class="btn btn-primary mb-3">Create Model</button>
-				</router-link>
+		<div class="content-wrapper">
+			<div v-if="isLoading" class="content-loader">
+				<BaseSpinner />
 			</div>
-		</div>
-		<div class="table-wrapper">
-			<table class="table table-hover align-middle shadow-sm">
-				<thead class="table-primary">
-					<tr>
-						<th @click="sortBy('name')" class="sortable">
-							Name
-							<span v-if="sortKey === 'name'">
-								{{ sortOrder === "asc" ? "▲" : "▼" }}
-							</span>
-						</th>
-						<th @click="sortBy('description')" class="sortable">
-							Description
-							<span v-if="sortKey === 'description'">
-								{{ sortOrder === "asc" ? "▲" : "▼" }}
-							</span>
-						</th>
-						<th>Tags</th>
-						<th class="text-center">Actions</th>
-					</tr>
-				</thead>
-				<tbody v-if="isSelected === 'active'">
-					<tr v-for="rule in paginatedRules">
-						<td>
-							<router-link
-								:to="`/admin/business-rules/${rule.uuid}`"
-								class="text-decoration-none fw-semibold text-primary"
-								>{{ rule.name }}
-							</router-link>
-						</td>
-						<td>{{ rule.description }}</td>
-						<td>{{ rule.tags }}</td>
+			<div class="content-body" :class="{ blurred: isLoading }">
+				<div style="display: flex; justify-content: space-between">
+					<h3 class="fw-bold mb-3">Business Rules</h3>
+					<div style="display: flex; justify-content: space-between">
+						<BaseSearch v-model="searchQuery"></BaseSearch>
+						<router-link
+							to="/admin/business-rules/add-business-rules"
+						>
+							<button class="btn btn-primary mb-3">
+								Create Model
+							</button>
+						</router-link>
+					</div>
+				</div>
+				<div class="table-wrapper">
+					<table class="table table-hover align-middle shadow-sm">
+						<thead class="table-primary">
+							<tr>
+								<th @click="sortBy('name')" class="sortable">
+									Name
+									<span v-if="sortKey === 'name'">
+										{{ sortOrder === "asc" ? "▲" : "▼" }}
+									</span>
+								</th>
+								<th
+									@click="sortBy('description')"
+									class="sortable"
+								>
+									Description
+									<span v-if="sortKey === 'description'">
+										{{ sortOrder === "asc" ? "▲" : "▼" }}
+									</span>
+								</th>
+								<th>Tags</th>
+								<th class="text-center">Actions</th>
+							</tr>
+						</thead>
 
-						<td class="text-center">
-							<base-action
-								@delete="archiveRule(rule.uuid)"
-								@edit="editRule(rule)"
+						<tbody v-if="isSelected === 'active'">
+							<TableSkeleton
+								v-if="isTableLoading"
+								v-for="n in getPerPage"
+								:key="'skeleton-' + n"
+								:columns="4"
 							/>
-						</td>
-					</tr>
-					<tr
-						v-if="
-							!filteredActiveRuleSearch ||
-							(filteredActiveRuleSearch &&
-								filteredActiveRuleSearch.length === 0)
-						"
-					>
-						<td colspan="6" class="text-center text-muted py-3">
-							No Business Rules Available
-						</td>
-					</tr>
-				</tbody>
-				<tbody v-else>
-					<tr v-for="rule in paginatedArchivedRules">
-						<td>
-							{{ rule.name }}
-						</td>
-						<td>{{ rule.description }}</td>
-						<td>{{ rule.tags }}</td>
-						<td class="text-center">
-							<button
-								class="btn btn-sm me-2 action"
-								@click="activateRule(rule.uuid)"
-							>
-								<font-awesome-icon
-									icon="fa-solid fa-arrow-rotate-right"
-									style="color: blue"
-								/>
-							</button>
-							<button
-								class="btn btn-sm action"
-								@click="deleteRule(rule.uuid)"
-							>
-								<font-awesome-icon
-									icon="fa-solid fa-trash"
-									style="color: red"
-								/>
-							</button>
-						</td>
-					</tr>
-					<tr
-						v-if="
-							!filteredArchivedRuleSearch ||
-							(filteredArchivedRuleSearch &&
-								filteredArchivedRuleSearch.length === 0)
-						"
-					>
-						<td colspan="6" class="text-center text-muted py-3">
-							No Archived Business Rules Available
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+							<tr v-else v-for="rule in paginatedRules">
+								<td>
+									<router-link
+										:to="`/admin/business-rules/${rule.uuid}`"
+										class="text-decoration-none fw-semibold text-primary"
+										>{{ rule.name }}
+									</router-link>
+								</td>
+								<td>{{ rule.description }}</td>
+								<td>{{ rule.tags }}</td>
 
-		<div>
-			<Pagination
-				:total-items="filteredActiveRuleSearch.length"
-				v-if="
-					getPerPage < filteredActiveRuleSearch.length &&
-					isSelected === 'active'
-				"
-			></Pagination>
-			<Pagination
-				:total-items="filteredArchivedRuleSearch.length"
-				v-if="
-					getPerPage < filteredArchivedRuleSearch.length &&
-					isSelected === 'archive'
-				"
-			></Pagination>
+								<td class="text-center">
+									<base-action
+										@delete="archiveRule(rule.uuid)"
+										@edit="editRule(rule)"
+									/>
+								</td>
+							</tr>
+							<tr
+								v-if="
+									!filteredActiveRuleSearch ||
+									(filteredActiveRuleSearch &&
+										filteredActiveRuleSearch.length === 0)
+								"
+							>
+								<td
+									colspan="6"
+									class="text-center text-muted py-3"
+								>
+									No Business Rules Available
+								</td>
+							</tr>
+						</tbody>
+						<tbody v-else>
+							<TableSkeleton
+								v-if="isTableLoading"
+								v-for="n in getPerPage"
+								:key="'skeleton-' + n"
+								:columns="4"
+							/>
+							<tr v-else v-for="rule in paginatedArchivedRules">
+								<td>
+									{{ rule.name }}
+								</td>
+								<td>{{ rule.description }}</td>
+								<td>{{ rule.tags }}</td>
+								<td class="text-center">
+									<button
+										class="btn btn-sm me-2 action"
+										@click="activateRule(rule.uuid)"
+									>
+										<font-awesome-icon
+											icon="fa-solid fa-arrow-rotate-right"
+											style="color: blue"
+										/>
+									</button>
+									<button
+										class="btn btn-sm action"
+										@click="deleteRule(rule.uuid)"
+									>
+										<font-awesome-icon
+											icon="fa-solid fa-trash"
+											style="color: red"
+										/>
+									</button>
+								</td>
+							</tr>
+							<tr
+								v-if="
+									!filteredArchivedRuleSearch ||
+									(filteredArchivedRuleSearch &&
+										filteredArchivedRuleSearch.length === 0)
+								"
+							>
+								<td
+									colspan="6"
+									class="text-center text-muted py-3"
+								>
+									No Archived Business Rules Available
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<div>
+					<Pagination
+						:total-items="filteredActiveRuleSearch.length"
+						v-if="
+							getPerPage < filteredActiveRuleSearch.length &&
+							isSelected === 'active'
+						"
+					></Pagination>
+					<Pagination
+						:total-items="filteredArchivedRuleSearch.length"
+						v-if="
+							getPerPage < filteredArchivedRuleSearch.length &&
+							isSelected === 'archive'
+						"
+					></Pagination>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -144,8 +177,17 @@ import BaseAction from "../UI/BaseAction.vue";
 import Pagination from "../UI/Pagination.vue";
 import BaseSearch from "../UI/BaseSearch.vue";
 import sortMixin from "../../mixins/sortMixin";
+import TableSkeleton from "../UI/TableSkeleton.vue";
+import BaseSpinner from "../UI/BaseSpinner.vue";
 
 export default {
+	components: {
+		BaseAction,
+		Pagination,
+		BaseSearch,
+		TableSkeleton,
+		BaseSpinner,
+	},
 	data() {
 		return { isSelected: "active", searchQuery: "" };
 	},
@@ -154,6 +196,14 @@ export default {
 		...mapGetters("BusinessRule", ["filteredRules", "getArchivedRules"]),
 		...mapGetters("Pagination", ["getCurrentPage", "getPerPage"]),
 
+		isTableLoading() {
+			return this.$store.getters["TableLoader/isTableLoading"](
+				"rulesTable"
+			);
+		},
+		isLoading() {
+			return this.$store.getters["Loader/isLoading"];
+		},
 		paginatedRules() {
 			const start = (this.getCurrentPage - 1) * this.getPerPage;
 			return this.sortedActiveRules.slice(start, start + this.getPerPage);
@@ -208,6 +258,11 @@ export default {
 	},
 	async mounted() {
 		await this.fetchRules();
+
+		console.log("IS table rulesTable", this.isTableLoading);
+	},
+	updated() {
+		console.log("IS table rulesTable", this.isTableLoading);
 	},
 	methods: {
 		...mapActions("BusinessRule", [
@@ -223,11 +278,7 @@ export default {
 			this.isSelected = option;
 		},
 	},
-	components: {
-		BaseAction,
-		Pagination,
-		BaseSearch,
-	},
+
 	watch: {
 		async isSelected(newValue, oldValue) {
 			if (newValue === "archive") {
@@ -293,5 +344,25 @@ li {
 .sortable span {
 	font-size: 0.7rem;
 	margin-left: 4px;
+}
+.content-wrapper {
+	position: relative;
+	min-height: 300px;
+}
+
+.content-loader {
+	position: absolute;
+	inset: 0;
+	background: rgba(255, 255, 255, 0.6);
+	z-index: 10;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.content-body.blurred {
+	opacity: 0;
+	pointer-events: none;
 }
 </style>

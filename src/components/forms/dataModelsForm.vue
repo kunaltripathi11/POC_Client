@@ -8,7 +8,9 @@
 				</router-link>
 			</div>
 			<div class="heading">
-				<h2 class="fw-semibold">Add Data Model</h2>
+				<h2 class="fw-semibold">
+					{{ isEdit ? "Update Data Model" : "Add Data Model" }}
+				</h2>
 			</div>
 		</div>
 		<form @submit.prevent="onSubmit" novalidate>

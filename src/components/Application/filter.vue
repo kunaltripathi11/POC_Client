@@ -26,11 +26,20 @@
 			</router-link>
 			<div class="spacer"></div>
 		</div>
-		<router-view></router-view>
+		<div class="content-wrapper">
+			<div v-if="isLoading" class="content-loader">
+				<BaseSpinner />
+			</div>
+
+			<div :class="{ blurred: isLoading }">
+				<router-view />
+			</div>
+		</div>
 	</div>
 </template>
 
 <script>
+import BaseSpinner from "../UI/BaseSpinner.vue";
 import Application from "./application.vue";
 import Category from "./category.vue";
 
@@ -38,12 +47,18 @@ export default {
 	components: {
 		Application,
 		Category,
+		BaseSpinner,
 	},
 	data() {
 		return {
 			activeItem: null,
 			route: this.$router.route,
 		};
+	},
+	computed: {
+		isLoading() {
+			return this.$store.getters["Loader/isLoading"];
+		},
 	},
 
 	mounted() {
@@ -100,5 +115,26 @@ a:hover {
 }
 .spacer {
 	flex: 1;
+}
+
+.content-wrapper {
+	position: relative;
+	margin-top: 1rem;
+}
+
+.content-loader {
+	position: absolute;
+	inset: 0;
+	background: rgba(255, 255, 255, 0.6);
+	z-index: 5;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.blurred {
+	opacity: 0;
+	pointer-events: none;
 }
 </style>

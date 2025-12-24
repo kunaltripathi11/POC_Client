@@ -8,7 +8,9 @@
 				>
 			</div>
 			<div class="heading">
-				<h2 class="fw-semibold">Add Category</h2>
+				<h2 class="fw-semibold">
+					{{ isEdit ? "Update Category" : "Add Category" }}
+				</h2>
 			</div>
 		</div>
 		<form @submit.prevent="onSubmit" novalidate>
@@ -49,7 +51,7 @@
 			</searchable-dropdown>
 			<div class="d-flex">
 				<button class="btn btn-primary" :disabled="submitting">
-					Create Category
+					{{ isEdit ? "Update Category" : "Create Category" }}
 				</button>
 				<button
 					type="button"
@@ -74,9 +76,9 @@ export default {
 	data() {
 		return {
 			form: {
-				category_name: this.value?.category_name || "",
-				display_order: this.value?.display_order ?? null,
-				solution_category_id: this.value?.solution_category_id ?? null,
+				category_name: "",
+				display_order: null,
+				solution_category_id: null,
 			},
 			errors: {},
 			formError: "",
@@ -187,10 +189,12 @@ export default {
 		await this.fetchSolCategory();
 
 		if (this.isEdit) {
+			console.log("selected ", this.selected);
 			this.form.category_name = this.selected.category_name;
 			this.form.display_order = this.selected.display_order;
-			this.form.solution_category_id = this.selected.solution_category_id;
+			this.form.solution_category_id = this.selected.sol_category_id;
 		}
+		console.log("This Form", this.form);
 	},
 	computed: {
 		...mapGetters("SolCategory", ["filteredSolCategory"]),

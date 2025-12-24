@@ -8,7 +8,9 @@
 				</router-link>
 			</div>
 			<div class="heading">
-				<h2 class="fw-semibold">Add Business Rule</h2>
+				<h2 class="fw-semibold">
+					{{ isEdit ? "Add Business Rule" : "Update Business Rule" }}
+				</h2>
 			</div>
 		</div>
 		<form @submit.prevent="onSubmit" novalidate>
@@ -181,7 +183,9 @@
 						v-if="submitting"
 						class="spinner-border spinner-border-sm me-2"
 					></span>
-					Create Business Rule
+					{{
+						isEdit ? "Create Business Rule" : "Update Business Rule"
+					}}
 				</button>
 				<button
 					type="button"

@@ -64,6 +64,19 @@
 				</div>
 				<div
 					class="nav-items"
+					v-tooltip="isHeaderCollapsed ? 'Edit' : ''"
+					v-if="this.$route.params.url"
+				>
+					<router-link :to="`/admin/dashboard/design/${dashUUID}`">
+						<span
+							><font-awesome-icon
+								icon="fa-regular fa-pen-to-square"
+								size="lg" /></span
+						><span class="nav-text">&nbsp;Edit</span>
+					</router-link>
+				</div>
+				<div
+					class="nav-items"
 					v-tooltip="isHeaderCollapsed ? 'Quick Links' : ''"
 				>
 					<span
@@ -165,6 +178,9 @@ export default {
 
 	computed: {
 		...mapGetters("Auth", ["Name", "role"]),
+		dashUUID() {
+			return this.$store.getters.getDashUUID;
+		},
 		isCollapse() {
 			return this.$store.getters["Sidebar/isCollapsed"];
 		},
@@ -175,6 +191,9 @@ export default {
 	watch: {
 		$route(to) {
 			this.route = to.path;
+			if (!to.params.url) {
+				this.$store.commit("SET_DASH_UUID", null);
+			}
 		},
 	},
 };

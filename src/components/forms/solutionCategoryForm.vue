@@ -8,7 +8,13 @@
 				</router-link>
 			</div>
 			<div class="heading">
-				<h2 class="fw-semibold">Add Solution Category</h2>
+				<h2 class="fw-semibold">
+					{{
+						isEdit
+							? "Update Solution Category"
+							: "Create Solution Category"
+					}}
+				</h2>
 			</div>
 		</div>
 
@@ -46,7 +52,13 @@
 					class="btn btn-primary p-2 px-4"
 					:disabled="isSubmitting"
 				>
-					{{ isSubmitting ? "Submitting..." : "Submit" }}
+					{{
+						isSubmitting
+							? "Submitting..."
+							: isEdit
+							? "Update Sol Category"
+							: "Create Sol Category"
+					}}
 				</button>
 				<button
 					type="button"

@@ -8,7 +8,9 @@
 				</router-link>
 			</div>
 			<div class="heading">
-				<h2 class="fw-semibold">Add Application</h2>
+				<h2 class="fw-semibold">
+					{{ isEdit ? "Edit Application" : "Add Application" }}
+				</h2>
 			</div>
 		</div>
 		<form @submit.prevent="onSubmit" novalidate>
@@ -146,7 +148,7 @@
 					class="btn btn-primary"
 					:disabled="submitting"
 				>
-					{{ isEdit ? "Update Application" : "Create Application" }}
+					{{ isEdit ? "Edit Application" : "Create Application" }}
 				</button>
 				<button
 					type="button"

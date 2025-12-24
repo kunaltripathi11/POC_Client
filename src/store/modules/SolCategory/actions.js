@@ -4,6 +4,9 @@ import router from "../../../Route";
 export default {
 	async fetchSolCategory({ commit }) {
 		try {
+			commit("TableLoader/START_TABLE_LOADING", "solCategoryTable", {
+				root: true,
+			});
 			const response = await fetch(
 				`${API_URL}admin/application/solution-categories`,
 				{ credentials: "include" }
@@ -13,6 +16,12 @@ export default {
 			commit("setSolCategories", json.data);
 		} catch (err) {
 			console.error("Error loading Solution Category", err);
+		} finally {
+			setTimeout(() => {
+				commit("TableLoader/STOP_TABLE_LOADING", "solCategoryTable", {
+					root: true,
+				});
+			}, 2000);
 		}
 	},
 

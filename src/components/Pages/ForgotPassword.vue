@@ -1,46 +1,24 @@
 <template>
 	<div class="login-wrapper">
 		<div class="login-card">
-			<h2 class="title">Sign in</h2>
-			<p class="subtitle">Welcome back! Please login to your account</p>
+			<h2 class="title">Forgot Password</h2>
+			<p class="subtitle">
+				Enter your registered email to receive a reset link
+			</p>
 
-			<form @submit.prevent="loginUser" novalidate>
+			<form @submit.prevent="submit" novalidate>
 				<div class="form-group">
-					<label>Username</label>
+					<label>Email</label>
 					<input
-						type="text"
-						v-model.trim="form.username"
-						placeholder="Enter your username"
-						@blur="validateUsername"
+						type="email"
+						v-model.trim="email"
+						placeholder="Enter your email"
+						@blur="validateEmail"
 					/>
-					<small v-if="errors.username" class="error">
-						{{ errors.username }}
+
+					<small v-if="error" class="error">
+						{{ error }}
 					</small>
-				</div>
-
-				<div class="form-group">
-					<label>Password</label>
-					<div class="password-wrapper">
-						<input
-							:type="showPassword ? 'text' : 'password'"
-							v-model="form.password"
-							placeholder="Enter your password"
-							@blur="validatePassword"
-						/>
-						<span class="toggle" @click="updateShowPass">
-							<font-awesome-icon
-								:icon="
-									showPassword
-										? 'fa-regular fa-eye'
-										: 'fa-regular fa-eye-slash'
-								"
-							/>
-						</span>
-
-						<small v-if="errors.password" class="error">
-							{{ errors.password }}
-						</small>
-					</div>
 				</div>
 
 				<button
@@ -48,17 +26,11 @@
 					class="btn"
 					:disabled="isInvalid || loading"
 				>
-					{{ loading ? "Signing in..." : "Login" }}
+					{{ loading ? "Sending..." : "Send Reset Link" }}
 				</button>
 
 				<p class="forgot">
-					<router-link to="/forgot_password">
-						Forgot password?
-					</router-link>
-				</p>
-
-				<p v-if="error" class="error global-error">
-					{{ error }}
+					<router-link to="/login">Back to login</router-link>
 				</p>
 			</form>
 		</div>
@@ -71,71 +43,42 @@ import { mapActions, mapState } from "vuex";
 export default {
 	data() {
 		return {
-			showPassword: false,
-			form: {
-				username: "",
-				password: "",
-			},
-			errors: {
-				username: null,
-				password: null,
-			},
+			email: "",
+			error: null,
 		};
 	},
 
 	computed: {
-		...mapState("Auth", ["loading", "error"]),
+		...mapState("Auth", ["loading"]),
 
 		isInvalid() {
-			return (
-				!!this.errors.username ||
-				!!this.errors.password ||
-				!this.form.username ||
-				!this.form.password
-			);
+			return !this.email || !!this.error;
 		},
 	},
 
 	methods: {
-		updateShowPass() {
-			this.showPassword = !this.showPassword;
-		},
-		...mapActions("Auth", ["login"]),
+		...mapActions("Auth", ["forgotPassword"]),
 
-		validateUsername() {
-			if (!this.form.username) {
-				this.errors.username = "Username is required";
-			} else if (this.form.username.length < 3) {
-				this.errors.username = "Username must be at least 3 characters";
+		validateEmail() {
+			const regex =
+				/^[A-Za-z][^\s@!#$%^&*()|]+@[^\s@!#$%^&*()|]+\.[^\s@!#$%^&*()|\d]+$/;
+			if (!this.email) {
+				this.error = "Email is required";
+			} else if (!regex.test(this.email)) {
+				this.error = "Enter a valid email address";
 			} else {
-				this.errors.username = null;
+				this.error = null;
 			}
 		},
 
-		validatePassword() {
-			if (!this.form.password) {
-				this.errors.password = "Password is required";
-			} else if (this.form.password.length < 8) {
-				this.errors.password = "Password must be at least 8 characters";
-			} else {
-				this.errors.password = null;
-			}
-		},
+		async submit() {
+			this.validateEmail();
+			if (this.error) return;
 
-		validateForm() {
-			this.validateUsername();
-			this.validatePassword();
-
-			return !this.errors.username && !this.errors.password;
-		},
-
-		async loginUser() {
-			if (!this.validateForm()) return;
-
-			const success = await this.login(this.form);
+			const success = await this.forgotPassword({ email: this.email });
 
 			if (success) {
-				this.$router.replace("/launchpad");
+				this.email = "";
 			}
 		},
 	},

@@ -12,6 +12,8 @@ import createPresistedState from "vuex-persistedstate";
 import Pagination from "./modules/Pagination";
 import Sidebar from "./modules/Sidebar";
 import Auth from "./modules/Auth";
+import Loader from "./modules/Loader/loader";
+import TableLoader from "./modules/Loader/TableLoader";
 
 const store = createStore({
 	modules: {
@@ -26,15 +28,23 @@ const store = createStore({
 		Pagination,
 		Sidebar,
 		Auth,
+		Loader,
+		TableLoader,
 	},
 	state() {
 		return {
 			selected: null,
+
+			DashUUIDForApp: null,
 		};
 	},
 	mutations: {
 		SELECTED(state, data) {
 			state.selected = data;
+		},
+
+		SET_DASH_UUID(state, data) {
+			state.DashUUIDForApp = data;
 		},
 	},
 	actions: {
@@ -46,10 +56,14 @@ const store = createStore({
 		getSelected(state) {
 			return state.selected;
 		},
+
+		getDashUUID(state) {
+			return state.DashUUIDForApp;
+		},
 	},
 	plugins: [
 		createPresistedState({
-			paths: ["selected"],
+			paths: ["selected", "DashUUIDForApp"],
 		}),
 	],
 });

@@ -60,8 +60,6 @@ export default {
 		variable = this.variable;
 
 		await this.fetchWidgets({ id, variable });
-
-		console.log("WIDGETS", this.widgets);
 	},
 	computed: {
 		...mapGetters("Widget", ["getAllWidgets", "getDashboardId"]),

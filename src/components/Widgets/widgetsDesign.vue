@@ -116,7 +116,7 @@ export default {
 		...mapActions("Widget", ["fetchWidgets"]),
 		configure(widget) {
 			this.$store.dispatch("SET_SELECTED", widget);
-			this.$router.push(`${this.$route.path}/${widget.uuid}`);
+			this.$router.replace(`${this.$route.path}/${widget.uuid}`);
 		},
 	},
 };

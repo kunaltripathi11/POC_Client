@@ -4,6 +4,9 @@ import router from "../../../Route";
 export default {
 	async fetchDashboards({ commit }) {
 		try {
+			commit("TableLoader/START_TABLE_LOADING", "dashboardTable", {
+				root: true,
+			});
 			const response = await fetch(`${API_URL}admin/dashboard`, {
 				credentials: "include",
 			});
@@ -18,10 +21,19 @@ export default {
 		} catch (err) {
 			commit("setError", err);
 			console.error("Error loading Dashboard", err);
+		} finally {
+			setTimeout(() => {
+				commit("TableLoader/STOP_TABLE_LOADING", "dashboardTable", {
+					root: true,
+				});
+			}, 2000);
 		}
 	},
 	async fetchDashboardById({ commit }, uuid) {
 		try {
+			commit("TableLoader/START_TABLE_LOADING", "dashboardTable", {
+				root: true,
+			});
 			const response = await fetch(`${API_URL}admin/dashboard/${uuid}`, {
 				credentials: "include",
 			});
@@ -32,6 +44,12 @@ export default {
 		} catch (err) {
 			commit("setError", err);
 			console.error("Error loading Dashboard", err);
+		} finally {
+			setTimeout(() => {
+				commit("TableLoader/STOP_TABLE_LOADING", "dashboardTable", {
+					root: true,
+				});
+			}, 2000);
 		}
 	},
 

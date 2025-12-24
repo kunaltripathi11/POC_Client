@@ -2,15 +2,24 @@ import { API_URL } from "../../../config";
 import router from "../../../Route";
 
 export default {
-	async fetchApplications({ commit }) {
+	async fetchApplications({ commit, dispatch }) {
+		commit("TableLoader/START_TABLE_LOADING", "applicationTable", {
+			root: true,
+		});
+
 		try {
 			const response = await fetch(`${API_URL}admin/application/apps`, {
 				credentials: "include",
 			});
+
 			const json = await response.json();
 			commit("setApplication", json.data);
-		} catch (err) {
-			console.error("Error loading Application", err);
+		} finally {
+			setTimeout(() => {
+				commit("TableLoader/STOP_TABLE_LOADING", "applicationTable", {
+					root: true,
+				});
+			}, 2000);
 		}
 	},
 

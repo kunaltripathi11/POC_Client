@@ -8,7 +8,9 @@
 				</router-link>
 			</div>
 			<div class="heading">
-				<h2 class="fw-semibold">Add Dashboard</h2>
+				<h2 class="fw-semibold">
+					{{ isEdit ? "Add Dashboard" : "Update Dashboard" }}
+				</h2>
 			</div>
 		</div>
 		<form @submit.prevent="onSubmit" novalidate>

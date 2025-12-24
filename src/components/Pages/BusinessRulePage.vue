@@ -39,14 +39,26 @@
 				<h4>{{ ruleName }}</h4>
 			</div>
 		</div>
-		<router-view></router-view>
+		<div class="content-wrapper">
+			<div v-if="isLoading" class="content-loader">
+				<BaseSpinner />
+			</div>
+
+			<div :class="{ blurred: isLoading }">
+				<router-view />
+			</div>
+		</div>
 	</div>
 </template>
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import BaseSpinner from "../UI/BaseSpinner.vue";
 
 export default {
+	components: {
+		BaseSpinner,
+	},
 	data() {
 		return {
 			isSelected: "overview",
@@ -73,6 +85,11 @@ export default {
 			"getRuleById",
 			"filteredRules",
 		]),
+
+		isLoading() {
+			return this.$store.getters["Loader/isLoading"];
+		},
+
 		columns() {
 			return this.getColumns;
 		},
@@ -169,5 +186,25 @@ h4,
 	background-color: #2563eb;
 	box-shadow: 0 4px 10px rgba(76, 92, 117, 0.4);
 	border-radius: 9px;
+}
+
+.content-wrapper {
+	position: relative;
+}
+
+.content-loader {
+	position: absolute;
+	inset: 0;
+	background: rgba(255, 255, 255, 0.6);
+	z-index: 5;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.blurred {
+	opacity: 0;
+	pointer-events: none;
 }
 </style>

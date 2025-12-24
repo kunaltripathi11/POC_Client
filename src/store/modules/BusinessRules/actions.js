@@ -5,6 +5,9 @@ import toastService from "../../../service/toastService";
 export default {
 	async fetchRuleByID({ commit, state }, uuid) {
 		try {
+			commit("TableLoader/START_TABLE_LOADING", "rulesOverviewTable", {
+				root: true,
+			});
 			const response = await fetch(
 				`${API_URL}admin/business-rules/${uuid}`,
 				{ credentials: "include" }
@@ -17,16 +20,24 @@ export default {
 
 			commit("setOneRule", json.data);
 			state.columns = json.columns;
-
 			return { name: json.RuleName };
 		} catch (err) {
 			console.error("ERROR In Fetching One rule", err);
 			toastService.error("Failed to load business rule");
+		} finally {
+			setTimeout(() => {
+				commit("TableLoader/STOP_TABLE_LOADING", "rulesOverviewTable", {
+					root: true,
+				});
+			}, 2000);
 		}
 	},
 
 	async fetchRules({ commit }) {
 		try {
+			commit("TableLoader/START_TABLE_LOADING", "rulesTable", {
+				root: true,
+			});
 			const response = await fetch(`${API_URL}admin/business-rules`, {
 				credentials: "include",
 			});
@@ -40,11 +51,20 @@ export default {
 		} catch (err) {
 			console.error("Error loading Business Rules", err);
 			toastService.error("Failed to load business rules");
+		} finally {
+			setTimeout(() => {
+				commit("TableLoader/STOP_TABLE_LOADING", "rulesTable", {
+					root: true,
+				});
+			}, 2000);
 		}
 	},
 
 	async fetchArchivedRules({ commit }) {
 		try {
+			commit("TableLoader/START_TABLE_LOADING", "rulesTable", {
+				root: true,
+			});
 			const response = await fetch(
 				`${API_URL}admin/business-rules/archive`,
 				{
@@ -61,6 +81,12 @@ export default {
 		} catch (err) {
 			console.error("Error loading Archived Rules", err);
 			toastService.error("Failed to load archived rules");
+		} finally {
+			setTimeout(() => {
+				commit("TableLoader/STOP_TABLE_LOADING", "rulesTable", {
+					root: true,
+				});
+			}, 2000);
 		}
 	},
 
