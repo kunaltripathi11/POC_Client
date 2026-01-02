@@ -7,11 +7,9 @@ export default {
 
 	mutations: {
 		START_TABLE_LOADING(state, key) {
-			console.log("Start");
 			state.tables[key] = true;
 		},
 		STOP_TABLE_LOADING(state, key) {
-			console.log("Stop");
 			state.tables[key] = false;
 		},
 		RESET_TABLE_LOADING(state, key) {

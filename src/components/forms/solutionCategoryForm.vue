@@ -93,17 +93,21 @@ export default {
 	},
 
 	computed: {
+		...mapGetters("SolCategory", ["filteredSolCategory"]),
+
 		isEdit() {
 			return !!this.$route.params.uuid;
 		},
-		selected() {
-			return this.$store.getters.getSelected;
-		},
 	},
 
-	mounted() {
+	async mounted() {
+		await this.fetchSolCategory();
+
 		if (this.isEdit) {
-			this.formdata.title = this.selected.title;
+			const solCategory = this.filteredSolCategory.find(
+				(solCategory) => solCategory.uuid === this.$route.params.uuid
+			);
+			this.formdata.title = solCategory.title;
 		}
 	},
 
@@ -111,7 +115,7 @@ export default {
 		...mapActions("SolCategory", [
 			"fetchSolCategory",
 			"createSolCategory",
-			"clearError",
+
 			"updateSolCategory",
 		]),
 		validateForm() {
@@ -135,7 +139,6 @@ export default {
 		clearError() {
 			this.errors.title = "";
 			this.generalError = "";
-			this.$store.dispatch("SolCategory/clearError");
 		},
 
 		async onSubmit() {
@@ -157,10 +160,6 @@ export default {
 				if (!this.isEdit) {
 					result = await this.createSolCategory(payload);
 					if (result.success) {
-						this.successMessage =
-							"Solution Category created successfully!";
-
-						toastService.success(this.successMessage);
 						this.resetForm();
 						this.$router.replace(
 							"/admin/application/solution-categories"
@@ -169,9 +168,6 @@ export default {
 						this.generalError =
 							result.error ||
 							"Failed to create solution category";
-						toastService.error(
-							"Failed To create Solution Category"
-						);
 					}
 				} else {
 					result = await this.updateSolCategory({
@@ -179,7 +175,6 @@ export default {
 						uuid: this.$route.params.uuid,
 					});
 
-					toastService.success("Updated Successfully");
 					this.resetForm();
 					this.$router.replace(
 						"/admin/application/solution-categories"

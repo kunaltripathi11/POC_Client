@@ -63,7 +63,11 @@
 						<td class="text-center">
 							<base-action
 								@delete="deleteCat(cat.uuid)"
-								@edit="editCategory(cat)"
+								@edit="
+									this.$router.push(
+										`/admin/application/categories/${cat.uuid}`
+									)
+								"
 							/>
 						</td>
 					</tr>
@@ -133,13 +137,11 @@ export default {
 	},
 	async mounted() {
 		await this.fetchCategory();
-		console.log("LOADDDD", this.isTableLoading);
 	},
 	methods: {
 		...mapActions("Category", [
 			"fetchCategory",
 			"deleteCategory",
-			"editCategory",
 		]),
 
 		deleteCat(uuid) {
@@ -175,7 +177,7 @@ export default {
 	overflow: hidden;
 	border: 1px solid #e5e7eb;
 	max-height: calc(100vh - 16rem);
-
+	overflow-x: auto;
 	overflow-y: auto;
 	border: 1px solid #e5e7eb;
 	border-radius: 10px;
@@ -186,6 +188,10 @@ thead th {
 	top: 0;
 	z-index: 5;
 	background-color: #9cc7f5;
+}
+td,
+th {
+	white-space: nowrap;
 }
 .sortable {
 	cursor: pointer;

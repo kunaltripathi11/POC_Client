@@ -80,7 +80,11 @@
 								<td class="text-center">
 									<base-action
 										@delete="archiveRule(rule.uuid)"
-										@edit="editRule(rule)"
+										@edit="
+											this.$router.push(
+												`/admin/business-rules/${rule.uuid}/edit`
+											)
+										"
 									/>
 								</td>
 							</tr>
@@ -258,18 +262,13 @@ export default {
 	},
 	async mounted() {
 		await this.fetchRules();
+	},
 
-		console.log("IS table rulesTable", this.isTableLoading);
-	},
-	updated() {
-		console.log("IS table rulesTable", this.isTableLoading);
-	},
 	methods: {
 		...mapActions("BusinessRule", [
 			"fetchRules",
 			"archiveRule",
 			"fetchArchivedRules",
-			"editRule",
 			"deleteRule",
 			"activateRule",
 		]),
@@ -314,7 +313,6 @@ ul {
 	padding-left: 0.1rem;
 	padding-top: 0.1rem;
 	padding-bottom: 0.1rem;
-	/* border-bottom: 1px solid rgb(218, 209, 209); */
 }
 li {
 	width: 7rem;

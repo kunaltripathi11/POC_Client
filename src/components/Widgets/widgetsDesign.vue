@@ -4,12 +4,7 @@
 			<div class="widget-actions head">
 				<button
 					class="btn btn-sm btn-danger"
-					@click="
-						$emit('delete-widget', {
-							uuid: widget.uuid,
-							dashUUID: this.$route.params.uuid,
-						})
-					"
+					@click="$emit('delete-widget', widget.uuid)"
 				>
 					<font-awesome-icon icon="fa-solid fa-trash" size="sm" />
 				</button>
@@ -37,25 +32,30 @@
 					{{ widget.name || "New Widget" }}
 				</h5>
 
-				<div class="widget-actions">
-					<button
-						class="btn btn-sm btn-primary"
-						@click="configure(widget)"
-					>
-						<font-awesome-icon icon="fa-solid fa-pen" />
-					</button>
+				<div class="widget-header-actions">
+					<BaseSearch v-model="search" class="widget-search" />
 
-					<button
-						class="btn btn-sm btn-danger"
-						@click="$emit('delete-widget', widget.uuid)"
-					>
-						<font-awesome-icon icon="fa-solid fa-trash" />
-					</button>
+					<div class="widget-actions" v-if="!this.$route.params.url">
+						<button
+							class="btn btn-sm btn-primary"
+							@click="configure(widget)"
+						>
+							<font-awesome-icon icon="fa-solid fa-pen" />
+						</button>
+
+						<button
+							class="btn btn-sm btn-danger"
+							@click="$emit('delete-widget', widget.uuid)"
+						>
+							<font-awesome-icon icon="fa-solid fa-trash" />
+						</button>
+					</div>
 				</div>
 			</div>
+
 			<div class="table-wrapper">
 				<table class="table table-hover align-middle shadow-sm">
-					<thead class="table-primary">
+					<thead>
 						<tr>
 							<th
 								v-for="col in widget.columns"
@@ -74,7 +74,17 @@
 					</thead>
 
 					<tbody>
-						<tr v-for="(row, index) in sortedRows" :key="index">
+						<TableSkeleton
+							v-if="isTableLoading"
+							v-for="n in perPage"
+							:key="'skeleton-' + n"
+							:columns="widget.columns?.length"
+						/>
+						<tr
+							v-else
+							v-for="(row, index) in paginatedRows"
+							:key="index"
+						>
 							<td v-for="col in widget.columns" :key="col">
 								{{ row[col] }}
 							</td>
@@ -88,35 +98,79 @@
 					</tbody>
 				</table>
 			</div>
+			<WidgetPagination
+				:page="page"
+				:per-page="perPage"
+				:total-items="filteredRows.length"
+				@update:page="page = $event"
+				v-if="filteredRows.length > perPage"
+			/>
 		</div>
 	</div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
 import sortMixin from "../../mixins/sortMixin";
+import WidgetPagination from "../UI/WidgetPagination.vue";
+import TableSkeleton from "../UI/TableSkeleton.vue";
+import BaseSearch from "../UI/BaseSearch.vue";
 
 export default {
+	components: { WidgetPagination, TableSkeleton, BaseSearch },
 	props: ["widget"],
 	mixins: [sortMixin],
 	data() {
 		return {
 			showModal: false,
 			selectedWidget: null,
+			search: "",
+			page: 1,
+			perPage: 10,
 		};
 	},
 	computed: {
+		isTableLoading() {
+			let id;
+			if (this.$route.params.uuid) {
+				id = this.$route.params.uuid;
+			} else if (this.$route.params.url) {
+				id = this.$route.params.url;
+			}
+			console.log();
+			return this.$store.getters["TableLoader/isTableLoading"](
+				`Widget_${id}`
+			);
+		},
+		filteredRows() {
+			if (!this.search) return this.widget.query || [];
+
+			const q = this.search.toLowerCase();
+			const c = this.widget.query.filter((row) =>
+				Object.values(row).some((val) =>
+					String(val).toLowerCase().includes(q)
+				)
+			);
+			return c;
+		},
+
 		sortedRows() {
-			if (!this.widget.query) return [];
-			return this.sortItems(this.widget.query);
+			return this.sortItems(this.filteredRows);
+		},
+
+		paginatedRows() {
+			const start = (this.page - 1) * this.perPage;
+			return this.sortedRows.slice(start, start + this.perPage);
 		},
 	},
 
 	methods: {
-		...mapActions("Widget", ["fetchWidgets"]),
 		configure(widget) {
-			this.$store.dispatch("SET_SELECTED", widget);
 			this.$router.replace(`${this.$route.path}/${widget.uuid}`);
+		},
+	},
+	watch: {
+		search() {
+			this.page = 1;
 		},
 	},
 };
@@ -133,8 +187,9 @@ export default {
 
 .widget-header {
 	display: flex;
-	justify-content: space-between;
 	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
 	margin-bottom: 0.5rem;
 }
 
@@ -142,6 +197,23 @@ export default {
 	margin: 0;
 	font-size: 1.1rem;
 	font-weight: 600;
+	white-space: nowrap;
+}
+
+.widget-header-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.widget-search {
+	width: 220px;
+}
+
+.widget-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 }
 
 .widget-actions > button {
@@ -154,19 +226,28 @@ export default {
 	overflow-y: auto;
 	background: white;
 	border-radius: 8px;
+
+	/* 👇 important */
+	position: relative;
+}
+
+.table-wrapper table {
+	border-collapse: separate;
+	border-spacing: 0;
 }
 
 .table-wrapper thead th {
 	position: sticky;
 	top: 0;
-	z-index: 2;
-	background: #e8f1ff;
+	z-index: 3;
+	background-color: #9cc7f5 !important;
 }
+
 td,
 th {
 	white-space: nowrap;
 }
-th {
+thead {
 	background-color: #9cc7f5;
 }
 .head {

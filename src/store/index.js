@@ -33,37 +33,23 @@ const store = createStore({
 	},
 	state() {
 		return {
-			selected: null,
-
 			DashUUIDForApp: null,
 		};
 	},
 	mutations: {
-		SELECTED(state, data) {
-			state.selected = data;
-		},
-
 		SET_DASH_UUID(state, data) {
 			state.DashUUIDForApp = data;
 		},
 	},
-	actions: {
-		SET_SELECTED({ commit }, data) {
-			commit("SELECTED", data);
-		},
-	},
+	actions: {},
 	getters: {
-		getSelected(state) {
-			return state.selected;
-		},
-
 		getDashUUID(state) {
 			return state.DashUUIDForApp;
 		},
 	},
 	plugins: [
 		createPresistedState({
-			paths: ["selected", "DashUUIDForApp"],
+			paths: ["DashUUIDForApp"],
 		}),
 	],
 });

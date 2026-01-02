@@ -1,39 +1,37 @@
 <template>
-	<transition name="slide">
-		<div v-if="show" class="widget-drawer">
-			<div class="drawer-header">
-				<h5 class="drawer-title">
-					<font-awesome-icon icon="fa-solid fa-th" />
-					Add Widget
-				</h5>
-			</div>
+	<div class="widget-drawer" :class="{ open: show }">
+		<div class="drawer-header">
+			<h5 class="drawer-title">
+				<font-awesome-icon icon="fa-solid fa-th" />
+				Add Widget
+			</h5>
+		</div>
 
-			<div class="drawer-body">
-				<p class="drawer-description">
-					Drag and drop widgets to the main content area
-				</p>
+		<div class="drawer-body">
+			<p class="drawer-description">
+				Drag and drop widgets to the main content area
+			</p>
 
-				<div class="widget-list">
-					<div
-						v-for="widget in widgets"
-						:key="widget.id"
-						class="widget-item"
-						draggable="true"
-						@dragstart="handleDragStart(widget)"
-						@dragend="handleDragEnd"
-					>
-						<div class="widget-icon">
-							<font-awesome-icon :icon="widget.icon" />
-						</div>
-						<div class="widget-info">
-							<h6 class="widget-name">{{ widget.name }}</h6>
-							<p class="widget-desc">{{ widget.description }}</p>
-						</div>
+			<div class="widget-list">
+				<div
+					v-for="widget in widgets"
+					:key="widget.id"
+					class="widget-item"
+					draggable="true"
+					@dragstart="handleDragStart(widget)"
+					@dragend="handleDragEnd"
+				>
+					<div class="widget-icon">
+						<font-awesome-icon :icon="widget.icon" />
+					</div>
+					<div class="widget-info">
+						<h6 class="widget-name">{{ widget.name }}</h6>
+						<p class="widget-desc">{{ widget.description }}</p>
 					</div>
 				</div>
 			</div>
 		</div>
-	</transition>
+	</div>
 </template>
 
 <script>
@@ -99,17 +97,20 @@ export default {
 <style scoped>
 .widget-drawer {
 	position: fixed;
-	right: 0;
 	top: 4rem;
-	height: calc(100vh - 4rem);
-	width: 20vw;
-	min-width: 320px;
 	background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
 	box-shadow: -4px 0 16px rgba(0, 0, 0, 0.1);
-	z-index: 1000;
+	right: calc(-1 * var(--drawer-width));
+	width: var(--drawer-width);
+	height: calc(100vh - var(--header-height));
 	display: flex;
 	flex-direction: column;
-	overflow: hidden;
+	transition: right 0.3s ease;
+	z-index: 1000;
+}
+
+.widget-drawer.open {
+	right: 0;
 }
 
 .drawer-header {
@@ -211,15 +212,5 @@ export default {
 	color: #d1d5db;
 	font-size: 1rem;
 	flex-shrink: 0;
-}
-
-.slide-enter-active,
-.slide-leave-active {
-	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.slide-enter-from,
-.slide-leave-to {
-	transform: translateX(100%);
 }
 </style>

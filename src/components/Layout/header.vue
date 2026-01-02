@@ -1,7 +1,11 @@
 <template>
 	<nav class="navbar navbar-expand-lg shadow-lg fixed-top">
 		<font-awesome-icon
-			v-if="this.$route.path.includes('admin') && isDesktop"
+			v-if="
+				(this.$route.path.includes('admin') ||
+					this.$route.params.url) &&
+				isDesktop
+			"
 			icon="fa-solid fa-bars"
 			size="xl"
 			style="color: #ffffff"
@@ -104,18 +108,24 @@
 						</div>
 					</button>
 					<ul class="dropdown-menu">
-						<li class="dropdown-item">{{ Name }}</li>
-						<li class="dropdown-item">{{ role }}</li>
+						<li class="dropdown-item border-bottom">
+							<div>{{ Name }}</div>
+							<div>{{ role }}</div>
+						</li>
+
 						<li>
 							<router-link
 								to="/change_password"
-								class="dropdown-item"
+								class="dropdown-item border-bottom"
 							>
 								Change Password
 							</router-link>
 						</li>
 						<li>
-							<router-link to="/account" class="dropdown-item">
+							<router-link
+								to="/account"
+								class="dropdown-item border-bottom"
+							>
 								Account Details
 							</router-link>
 						</li>
@@ -231,11 +241,12 @@ a:hover {
 }
 
 .dropdown-menu {
+	padding: 0;
 	left: -7.5rem !important;
 	top: 2.4rem;
-
 	.dropdown-item {
 		color: black !important;
+		/* border-bottom: 1px solid rgb(168, 157, 157); */
 	}
 }
 

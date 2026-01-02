@@ -83,6 +83,7 @@ export default {
 			errors: {},
 			formError: "",
 			submitting: false,
+			category: {},
 		};
 	},
 	components: {
@@ -112,7 +113,7 @@ export default {
 			if (this.isEdit) {
 				nameSet = nameSet.filter(
 					(cat) =>
-						cat !== this.selected.category_name.toLowerCase().trim()
+						cat !== this.category.category_name.toLowerCase().trim()
 				);
 			}
 
@@ -145,16 +146,11 @@ export default {
 				if (!this.isEdit) {
 					const result = await this.createCategory(payload);
 					if (result.success) {
-						this.successMessage = "Category created successfully!";
-
-						toastService.success(this.successMessage);
-
 						this.$router.replace("/admin/application/categories");
 					} else {
 						this.generalError =
 							result.error ||
 							"Failed to create solution category";
-						toastService.error("Failed To create  Category");
 					}
 				} else {
 					const result = await this.updateCategory({
@@ -163,13 +159,10 @@ export default {
 					});
 
 					if (result.success) {
-						toastService.success("Category Updated Successfully");
-
 						this.$router.replace("/admin/application/categories");
 					} else {
 						this.generalError =
 							result.error || "Failed to Update category";
-						toastService.error("Failed To Update  Category");
 					}
 				}
 
@@ -189,10 +182,12 @@ export default {
 		await this.fetchSolCategory();
 
 		if (this.isEdit) {
-			console.log("selected ", this.selected);
-			this.form.category_name = this.selected.category_name;
-			this.form.display_order = this.selected.display_order;
-			this.form.solution_category_id = this.selected.sol_category_id;
+			this.category = this.filteredCategory.find(
+				(category) => category.uuid === this.$route.params.uuid
+			);
+			this.form.category_name = this.category.category_name;
+			this.form.display_order = this.category.display_order;
+			this.form.solution_category_id = this.category.sol_category_id;
 		}
 		console.log("This Form", this.form);
 	},
@@ -220,9 +215,6 @@ export default {
 			return Array.from(uniqueCategories).map((c) =>
 				(c.category_name || "").trim().toLowerCase()
 			);
-		},
-		selected() {
-			return this.$store.getters.getSelected;
 		},
 	},
 };

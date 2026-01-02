@@ -44,8 +44,8 @@
 			</div>
 			<div class="position-relative mb-3">
 				<searchable-dropdown
-					label="Data Model "
-					placeholder="Data Model"
+					label="Data Model"
+					placeholder="Data Model..."
 					v-model="this.form.data_model_id"
 					:options="dataModels"
 					:readonly="true"
@@ -59,13 +59,15 @@
 				/>
 			</div>
 
-			<div class="d-flex">
-				<button class="btn btn-primary">Update Widget</button>
+			<div class="d-flex gap-2">
 				<button
-					type="button"
-					class="btn btn-outline-secondary"
-					@click="$emit('cancel')"
+					type="submit"
+					class="btn btn-primary"
+					:disabled="submitting"
 				>
+					Update Widget
+				</button>
+				<button type="button" class="btn btn-secondary" @click="cancel">
 					Cancel
 				</button>
 			</div>
@@ -79,7 +81,6 @@
 <script>
 import { mapActions, mapGetters } from "vuex";
 import SearchableDropdown from "../Layout/searchableDropdown.vue";
-import toastService from "../../service/toastService";
 
 export default {
 	components: { SearchableDropdown },
@@ -98,11 +99,14 @@ export default {
 			},
 			model_uuid: null,
 			rule_uuid: null,
+			widget: {},
 		};
 	},
 
 	computed: {
 		...mapGetters("BusinessRule", ["filteredRules"]),
+		...mapGetters("DataModel", ["filteredModel"]),
+		...mapGetters("Widget", ["getAllWidgets"]),
 
 		rules() {
 			return (this.filteredRules || []).map((rule) => ({
@@ -110,30 +114,34 @@ export default {
 				label: rule.name,
 			}));
 		},
-
-		selectedWidget() {
-			return this.$store.getters.getSelected;
-		},
 	},
 
 	methods: {
 		...mapActions("BusinessRule", ["fetchRules"]),
-		...mapActions("Widget", ["model", "updateWidget"]),
+		...mapActions("Widget", [
+			"modelByRule",
+			"updateWidget",
+			"fetchWidgets",
+		]),
+		...mapActions("DataModel", ["fetchModels"]),
 
+		cancel() {
+			this.$router.replace(
+				`/admin/dashboard/design/
+				${this.$route.params.uuid}`
+			);
+		},
 		async updateModel(newVal) {
 			if (!newVal) {
 				return;
 			}
 			const payload = { business_rule_id: newVal };
-			const data = await this.model(payload);
-
+			const data = await this.modelByRule(payload);
 			this.dataModels.push({
 				label: data.data.name,
 				value: data.data.data_model_id,
 			});
 			this.form.data_model_id = data.data.data_model_id;
-
-			console.log("DATA", data);
 
 			this.model_uuid = data.data.model_uuid;
 			this.rule_uuid = data.data.rule_uuid;
@@ -141,22 +149,23 @@ export default {
 
 		confirmReturn() {
 			if (!confirm("Are You sure you want to go back?")) return;
-			this.$router.back();
+			this.$router.replace(
+				`/admin/dashboard/design/
+				${this.$route.params.uuid}`
+			);
 		},
 		goToRule() {
 			const route = this.$router.resolve({
 				path: `/admin/business-rules/${this.rule_uuid}/overview`,
 			});
-			window.open(route.href, "_blank");
 
-			console.log("Route", route);
+			window.open(route.href, "_blank");
 		},
 
 		goToModel() {
-			const route = this.$router.resolve({
-				path: `/admin/data-model/${this.model_uuid}`,
-			});
-			window.open(route.href, "_blank");
+			const route = `/admin/data-model/${this.model_uuid}`;
+
+			window.open(route, "_blank");
 		},
 
 		validate() {
@@ -169,8 +178,6 @@ export default {
 			if (this.form.business_rule_id && !this.form.data_model_id) {
 				this.errors.data_model_id =
 					"Unable to fetch data model for this rule";
-				toastService.error("Unable to fetch data model for this rule");
-				toastService.error("Please select a different rule");
 			}
 			return Object.keys(this.errors).length === 0;
 		},
@@ -201,12 +208,12 @@ export default {
 				if (result.success) {
 					this.successMessage = "Widget Updated successfully!";
 
-					toastService.success(this.successMessage);
-
-					this.$router.back();
+					this.$router.replace(
+						`/admin/dashboard/design/
+				${this.$route.params.uuid}`
+					);
 				} else {
 					this.formError = result.error || "Failed Update Widget";
-					toastService.error("Failed Update Widget");
 				}
 			} catch (error) {
 				this.formError = "Something went wrong " || error.message;
@@ -216,16 +223,25 @@ export default {
 		},
 	},
 
-	mounted() {
-		this.fetchRules();
-		this.form.name = this.selectedWidget.name;
-		this.form.business_rule_id = this.selectedWidget.rule_id;
+	async mounted() {
+		await this.fetchRules();
+		await this.fetchModels();
 
-		if (this.selectedWidget.rule_id) {
-			this.updateModel(this.selectedWidget.rule_id);
+		await this.fetchWidgets({
+			id: this.$route.params.uuid,
+			variable: "uuid",
+		});
+
+		this.widget = this.getAllWidgets.find(
+			(wid) => wid.uuid === this.$route.params.uuid2
+		);
+		this.form.name = this.widget.name;
+		this.form.business_rule_id = this.widget.rule_id;
+
+		if (this.widget.rule_id) {
+			this.updateModel(this.widget.rule_id);
 		}
-		this.form.dashboard_id = this.selectedWidget.dash_id;
-		console.log();
+		this.form.dashboard_id = this.widget.dash_id;
 	},
 };
 </script>

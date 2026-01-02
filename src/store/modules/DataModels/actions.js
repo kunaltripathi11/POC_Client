@@ -26,11 +26,6 @@ export default {
 		}
 	},
 
-	async editModel({ dispatch }, model) {
-		dispatch("SET_SELECTED", model, { root: true });
-		router.push(`/admin/data-model/${model.uuid}`);
-	},
-
 	async updateModel(_, { uuid, payload }) {
 		try {
 			const result = await fetch(`${API_URL}admin/data-model/${uuid}`, {

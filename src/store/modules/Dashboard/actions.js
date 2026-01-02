@@ -1,5 +1,6 @@
 import { API_URL } from "../../../config";
 import router from "../../../Route";
+import toastService from "../../../service/toastService";
 
 export default {
 	async fetchDashboards({ commit }) {
@@ -7,19 +8,21 @@ export default {
 			commit("TableLoader/START_TABLE_LOADING", "dashboardTable", {
 				root: true,
 			});
+
 			const response = await fetch(`${API_URL}admin/dashboard`, {
 				credentials: "include",
 			});
 			const json = await response.json();
+
 			if (!response.ok) {
-				const errMessage = json.message;
-				throw new Error(errMessage);
+				throw new Error(json.message || "Failed to load dashboards");
 			}
 
 			commit("setDashboards", json.data);
 			commit("setError", null);
 		} catch (err) {
 			commit("setError", err);
+			toastService.error(err.message || "Error loading dashboards");
 			console.error("Error loading Dashboard", err);
 		} finally {
 			setTimeout(() => {
@@ -29,6 +32,7 @@ export default {
 			}, 2000);
 		}
 	},
+
 	async fetchDashboardById({ commit }, uuid) {
 		try {
 			commit("TableLoader/START_TABLE_LOADING", "dashboardTable", {
@@ -53,26 +57,27 @@ export default {
 		}
 	},
 
-	async editDashboard({ dispatch }, dash) {
-		console.log("HELLO");
-		dispatch("SET_SELECTED", dash, { root: true });
-		router.push(`/admin/dashboard/${dash.uuid}`);
-	},
-
-	async updateDashboard({ state }, { uuid, payload }) {
+	async updateDashboard({}, { uuid, payload }) {
 		try {
 			const result = await fetch(`${API_URL}admin/dashboard/${uuid}`, {
 				method: "PUT",
-				headers: {
-					"Content-Type": "application/json",
-				},
+				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(payload),
 				credentials: "include",
 			});
+
 			const json = await result.json();
+
+			if (!result.ok) {
+				throw new Error(json.message || "Update failed");
+			}
+
+			toastService.success("Dashboard updated successfully");
 			return { success: true, data: json.data };
 		} catch (error) {
+			toastService.error(error.message || "Error updating dashboard");
 			console.log("ERROR IN UPDATING", error);
+			return { success: false };
 		}
 	},
 
@@ -80,13 +85,19 @@ export default {
 		if (!confirm("Sure? This will Delete the Dashboard.")) return;
 
 		try {
-			await fetch(`${API_URL}admin/dashboard/${uuid}`, {
+			const response = await fetch(`${API_URL}admin/dashboard/${uuid}`, {
 				method: "DELETE",
 				credentials: "include",
 			});
 
+			if (!response.ok) {
+				throw new Error("Delete failed");
+			}
+
+			toastService.success("Dashboard deleted successfully");
 			await dispatch("fetchDashboards");
 		} catch (error) {
+			toastService.error("Error deleting dashboard");
 			console.error("Error in Deleting", error);
 		}
 	},
@@ -94,18 +105,27 @@ export default {
 	async createDashboard({ commit, dispatch }, payload) {
 		try {
 			commit("setError", null);
+
 			const response = await fetch(`${API_URL}admin/dashboard/add`, {
 				method: "POST",
 				headers: { "content-type": "application/json" },
 				body: JSON.stringify(payload),
 				credentials: "include",
 			});
-			const json = response.json();
+
+			const json = await response.json();
+
+			if (!response.ok) {
+				throw new Error(json.message || "Create failed");
+			}
+
+			toastService.success("Dashboard created successfully");
 			dispatch("fetchDashboards");
+
 			return { success: true, data: json.data };
 		} catch (error) {
-			console.log("Error creating Application", error);
-			commit("setError", error.message || "Failed to create Application");
+			toastService.error(error.message || "Failed to create dashboard");
+			commit("setError", error.message);
 			return { success: false, error: error.message };
 		}
 	},

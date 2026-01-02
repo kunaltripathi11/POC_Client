@@ -193,7 +193,7 @@ const router = createRouter({
 
 		{
 			path: "/login",
-			component: () => import("./components/Pages/LoginPage.vue"),
+			component: () => import("./components/Auth/LoginPage.vue"),
 			meta: { title: "Login" },
 		},
 		{
@@ -204,12 +204,12 @@ const router = createRouter({
 		},
 		{
 			path: "/forgot_password",
-			component: () => import("./components/Pages/ForgotPassword.vue"),
+			component: () => import("./components/Auth/ForgotPassword.vue"),
 			meta: { title: "Forgot Password" },
 		},
 		{
 			path: "/reset_password",
-			component: () => import("./components/Pages/ResetPassword.vue"),
+			component: () => import("./components/Auth/ResetPassword.vue"),
 			meta: { title: "Reset Password" },
 		},
 
@@ -243,11 +243,15 @@ router.beforeEach(async (to, from, next) => {
 	}
 
 	if (to.meta.requiresAppValidation) {
-		if (!store.getters["Application/categorizedApplications"]) {
+		const hasApps =
+			store.getters["Application/allApplications"]?.length > 0;
+
+		if (!hasApps) {
 			await store.dispatch("Application/fetchApplications");
 		}
 
 		const validUrls = store.getters["Application/validUrls"];
+
 		if (!validUrls.has(`/${to.params.url}`)) {
 			return next({ name: "NotFound" });
 		}

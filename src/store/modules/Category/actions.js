@@ -1,5 +1,6 @@
 import { API_URL } from "../../../config";
 import router from "../../../Route";
+import toastService from "../../../service/toastService";
 
 export default {
 	async fetchCategory({ commit }) {
@@ -7,14 +8,20 @@ export default {
 			commit("TableLoader/START_TABLE_LOADING", "categoryTable", {
 				root: true,
 			});
+
 			const response = await fetch(
 				`${API_URL}admin/application/categories`,
 				{ credentials: "include" }
 			);
 			const json = await response.json();
 
+			if (!response.ok) {
+				throw new Error(json.message || "Failed to load categories");
+			}
+
 			commit("setCategories", json.data);
 		} catch (err) {
+			toastService.error(err.message || "Error loading categories");
 			console.error("Error loading Category", err);
 		} finally {
 			setTimeout(() => {
@@ -25,13 +32,7 @@ export default {
 		}
 	},
 
-	editCategory({ dispatch }, cat) {
-		console.log(cat);
-		dispatch("SET_SELECTED", cat, { root: true });
-		router.push(`/admin/application/categories/${cat.uuid}`);
-	},
-
-	async updateCategory({ state }, { uuid, payload }) {
+	async updateCategory(_, { uuid, payload }) {
 		try {
 			const result = await fetch(
 				`${API_URL}admin/application/categories/${uuid}`,
@@ -45,9 +46,16 @@ export default {
 				}
 			);
 			const json = await result.json();
+			if (!result.ok) {
+				throw new Error(json.message || "Update failed");
+			}
+
+			toastService.success("Category updated successfully");
 			return { success: true, data: json.data };
 		} catch (error) {
+			toastService.error(error.message || "Error updating category");
 			console.log("ERROR IN UPDATING", error);
+			return { success: false };
 		}
 	},
 
@@ -62,24 +70,43 @@ export default {
 					credentials: "include",
 				}
 			);
+			const json = await response.json();
 
 			if (!response.ok) {
-				throw new Error("Error Inserting Data");
+				throw new Error(json.message || "Error inserting category");
 			}
+
+			toastService.success("Category created successfully");
 			dispatch("fetchCategory");
-			return { success: true, data: response.data };
+
+			return { success: true, data: json.data };
 		} catch (err) {
-			console.error("Error loading Category", err);
+			toastService.error(err.message || "Failed to create category");
+			console.error("Error creating Category", err);
 			return { success: false, error: err.message };
 		}
 	},
 
 	async deleteCategory({ dispatch }, uuid) {
 		if (!confirm("Sure? This will Delete the Category.")) return;
-		await fetch(`${API_URL}admin/application/categories/${uuid}`, {
-			method: "DELETE",
-			credentials: "include",
-		});
-		await dispatch("fetchCategory");
+		try {
+			const response = await fetch(
+				`${API_URL}admin/application/categories/${uuid}`,
+				{
+					method: "DELETE",
+					credentials: "include",
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error("Delete failed");
+			}
+
+			toastService.success("Category deleted successfully");
+			await dispatch("fetchCategory");
+		} catch (error) {
+			toastService.error("Error deleting category");
+			console.error("Error deleting Category", error);
+		}
 	},
 };

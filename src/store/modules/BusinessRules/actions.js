@@ -90,15 +90,6 @@ export default {
 		}
 	},
 
-	async editRule({ dispatch }, rule) {
-		try {
-			dispatch("SET_SELECTED", rule, { root: true });
-			router.push(`/admin/business-rules/${rule.uuid}/edit`);
-		} catch (err) {
-			toastService.error("Unable to open rule for editing");
-		}
-	},
-
 	async updateRule({ dispatch }, { uuid, payload }) {
 		try {
 			const result = await fetch(
@@ -153,6 +144,7 @@ export default {
 
 	async createBusinessRule({ commit }, payload) {
 		try {
+			console.log("PAY", payload);
 			const response = await fetch(
 				`${API_URL}admin/business-rules/add-business-rules`,
 				{
@@ -168,12 +160,14 @@ export default {
 			if (!response.ok) {
 				throw new Error(result.message || "Failed to create rule");
 			}
+			toastService.success("Business Rule created successfully");
 
 			commit("SET_ERROR", null);
 
 			return { success: true, data: result.data };
 		} catch (error) {
 			commit("SET_ERROR", error.message);
+			toastService.error("Failed to update Business Rule");
 			throw error;
 		}
 	},

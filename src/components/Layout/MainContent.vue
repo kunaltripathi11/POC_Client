@@ -31,11 +31,6 @@ export default {
 	--sidebar-width: var(--sidebar-collapsed);
 }
 
-.sidebar {
-	width: var(--sidebar-width);
-	transition: width 0.3s ease;
-}
-
 @media (max-width: 1000px) {
 	.app-layout {
 		padding-left: 4rem;

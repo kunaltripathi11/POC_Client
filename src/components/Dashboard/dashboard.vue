@@ -17,7 +17,7 @@
 			</div>
 
 			<div class="table-wrapper">
-				<table class="table table-hover align-middle shadow-sm">
+				<table class="table table-hover align-middle">
 					<thead class="table-primary sticky-header">
 						<tr>
 							<th>Id</th>
@@ -42,8 +42,18 @@
 								</span>
 							</th>
 							<th @click="sortBy('updated_at')" class="sortable">
-								Updated At
+								Last Updated
 								<span v-if="sortKey === 'updated_at'">
+									{{ sortOrder === "asc" ? "▲" : "▼" }}
+								</span>
+							</th>
+
+							<th
+								@click="sortBy('updated_by_name')"
+								class="sortable"
+							>
+								Last Updated By
+								<span v-if="sortKey === 'updated_by_name'">
 									{{ sortOrder === "asc" ? "▲" : "▼" }}
 								</span>
 							</th>
@@ -57,7 +67,7 @@
 							v-if="isTableLoading"
 							v-for="n in getPerPage"
 							:key="'skeleton-' + n"
-							:columns="6"
+							:columns="7"
 						/>
 						<tr
 							v-else
@@ -76,11 +86,16 @@
 							<td>{{ dash.application }}</td>
 							<td>{{ dash.url }}</td>
 							<td>{{ formatDate(dash.updated_at) }}</td>
+							<td>{{ dash.updated_by_name?.toUpperCase() }}</td>
 
 							<td class="text-center">
 								<base-action
 									@delete="deleteDashboard(dash.uuid)"
-									@edit="editDashboard(dash)"
+									@edit="
+										this.$router.push(
+											`/admin/dashboard/${dash.uuid}`
+										)
+									"
 								/>
 							</td>
 						</tr>
@@ -174,14 +189,18 @@ export default {
 		await this.fetchDashboards();
 	},
 	methods: {
-		...mapActions("Dashboard", [
-			"fetchDashboards",
-			"deleteDashboard",
-			"editDashboard",
-		]),
+		...mapActions("Dashboard", ["fetchDashboards", "deleteDashboard"]),
 
 		formatDate(date) {
-			return new Date(date).toUTCString().slice(5, -4);
+			return new Date(date).toLocaleString("en-GB", {
+				day: "2-digit",
+				month: "short",
+				year: "numeric",
+				hour: "2-digit",
+				minute: "2-digit",
+				second: "2-digit",
+				hour12: false,
+			});
 		},
 	},
 };
@@ -196,10 +215,10 @@ export default {
 	overflow: hidden;
 }
 .table-wrapper {
-	border-radius: 10px;
+	margin-top: 0.1rem;
 	overflow: hidden;
-	max-height: calc(100vh - 16rem);
-
+	max-height: calc(100vh - 15rem);
+	overflow-x: auto;
 	overflow-y: auto;
 	border: 1px solid #e5e7eb;
 	border-radius: 10px;
@@ -210,6 +229,10 @@ thead th {
 	top: 0;
 	z-index: 5;
 	background-color: #9cc7f5;
+}
+td,
+th {
+	white-space: nowrap;
 }
 .sortable {
 	cursor: pointer;

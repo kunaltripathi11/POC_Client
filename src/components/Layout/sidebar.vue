@@ -15,7 +15,14 @@
 					</li>
 				</div>
 			</router-link>
-			<router-link to="/admin/dashboard">
+
+			<div class="sidebar-items" v-if="this.$route.params.url">
+				<li>
+					<span class="nav-text">&nbsp; {{ dashname }}</span>
+				</li>
+			</div>
+
+			<router-link to="/admin/dashboard" v-if="!this.$route.params.url">
 				<div
 					class="sidebar-items"
 					:class="{
@@ -33,9 +40,9 @@
 					</li>
 				</div>
 			</router-link>
-			<router-link to="/admin/application">
+			<router-link to="/admin/application" v-if="!this.$route.params.url">
 				<div
-					class="sidebar-items"
+					class="sidebar-items dash"
 					:class="{
 						active: activeItem === 'app',
 					}"
@@ -51,7 +58,11 @@
 					</li>
 				</div>
 			</router-link>
-			<div class="analytics" @click="toggleAnalytics">
+			<div
+				class="analytics"
+				@click="toggleAnalytics"
+				v-if="!this.$route.params.url"
+			>
 				<div
 					class="sidebar-items"
 					:class="{
@@ -70,7 +81,7 @@
 			</div>
 			<transition name="fade">
 				<ul v-if="isAnalytics">
-					<router-link to="/admin/business-rules">
+					<router-link to="/admin/business-rules" v-if="!isCollapse">
 						<div
 							class="submenu"
 							:class="{
@@ -89,7 +100,7 @@
 							</li>
 						</div>
 					</router-link>
-					<router-link to="/admin/data-model">
+					<router-link to="/admin/data-model" v-if="!isCollapse">
 						<div
 							class="submenu"
 							:class="{ active: activeChild === 'data_models' }"
@@ -111,6 +122,7 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
 export default {
 	data() {
 		return {
@@ -119,17 +131,21 @@ export default {
 			activeChild: null,
 		};
 	},
-	mounted() {
+	async mounted() {
 		this.checkActive(this.$route);
-
 		this.handleResize();
 		window.addEventListener("resize", this.handleResize);
+
+		if (this.$route.params.url) {
+			await this.fetchDashboards();
+		}
 	},
 	beforeUnmount() {
 		window.removeEventListener("resize", this.handleResize);
 	},
 
 	methods: {
+		...mapActions("Dashboard", ["fetchDashboards"]),
 		handleResize() {
 			const shouldCollapse = window.innerWidth < 1000;
 			if (this.isCollapse !== shouldCollapse) {
@@ -143,31 +159,44 @@ export default {
 			this.activeChild = val;
 		},
 		toggleAnalytics() {
-			this.$router.replace("/admin/business-rules");
-			this.activeItem = "analytics";
-			this.isAnalytics = true;
+			this.isAnalytics = !this.isAnalytics;
+			this.activeItem = this.isAnalytics ? "analytics" : "";
+			if (this.isAnalytics && this.isCollapse) {
+				this.$store.dispatch("Sidebar/setCollapsed", false);
+				this.setActiveChild("");
+			}
 		},
 		checkActive(route) {
 			if (route.path.includes("/application")) {
 				this.setActiveItem("app");
 				this.setActiveChild("");
-				this.isAnalytics = false;
 			} else if (route.path.includes("/dashboard")) {
 				this.setActiveItem("dashboard");
 				this.setActiveChild("");
 				this.isAnalytics = false;
 			} else if (route.path.includes("/data-model")) {
+				this.isAnalytics = true;
 				this.setActiveItem("analytics");
 				this.setActiveChild("data_models");
 			} else if (route.path.includes("/business-rules")) {
+				this.isAnalytics = true;
 				this.setActiveItem("analytics");
 				this.setActiveChild("business_rules");
 			}
 		},
 	},
 	computed: {
+		...mapGetters("Dashboard", ["filteredDashboards"]),
 		isCollapse() {
 			return this.$store.getters["Sidebar/isCollapsed"];
+		},
+		dashname() {
+			if (!this.$route.params.url) return null;
+
+			const dashboard = this.filteredDashboards?.find(
+				(dash) => dash.url === "/" + this.$route.params.url
+			);
+			return dashboard?.name;
 		},
 	},
 	watch: {
@@ -189,17 +218,15 @@ export default {
 	height: calc(100vh - 3rem);
 	width: 13rem;
 	background: #f5f8f8;
-	/* padding: 1.5rem 0.5rem; */
 	overflow-y: auto;
 	z-index: 999;
 	box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 	transition: width 0.3s ease;
+	white-space: nowrap;
 }
 .sidebar-items {
 	padding: 1rem;
 	margin: 0;
-
-	/* border-radius: 0.5rem; */
 }
 .sidebar-items:hover {
 	background: rgba(0, 0, 0, 0.1);

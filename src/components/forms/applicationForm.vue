@@ -194,6 +194,7 @@ export default {
 			currentIconIndex: 0,
 			allMaterialIcons: [],
 			loadingIcons: false,
+			app: {},
 		};
 	},
 	async mounted() {
@@ -202,13 +203,17 @@ export default {
 		await this.fetchMaterialIcons();
 
 		if (this.isEdit) {
-			this.form.title = this.selectedApp.title;
-			this.form.category_id = this.selectedApp.category_id;
-			this.form.display_order = this.selectedApp.display_order;
-			this.form.app_package = this.selectedApp.app_package;
-			this.form.icon = this.selectedApp.icon;
-			this.form.active = this.selectedApp.active;
-			this.form.hide_app = this.selectedApp.hide_app;
+			this.app = this.allApplications.find(
+				(app) => app.uuid === this.$route.params.uuid
+			);
+
+			this.form.title = this.app.title;
+			this.form.category_id = this.app.category_id;
+			this.form.display_order = this.app.display_order;
+			this.form.app_package = this.app.app_package;
+			this.form.icon = this.app.icon;
+			this.form.active = this.app.active;
+			this.form.hide_app = this.app.hide_app;
 		}
 	},
 	computed: {
@@ -219,16 +224,12 @@ export default {
 			const list = Array.isArray(this.allApplications)
 				? this.allApplications
 				: [];
-			console.log(list);
 
 			const uniqueApps = new Set(list);
 
 			return Array.from(uniqueApps).map((c) =>
 				(c.title || "").trim().toLowerCase()
 			);
-		},
-		selectedApp() {
-			return this.$store.getters.getSelected;
 		},
 
 		categoryOptions() {
@@ -318,13 +319,10 @@ export default {
 		async checkUniqueName() {
 			const title = (this.form.title || "").trim().toLowerCase();
 			let nameSet = this.applicationNameSet;
-			console.log("NAMESET ", nameSet);
 			if (!title) return;
 			if (this.isEdit) {
-				console.log("title", title);
-
 				nameSet = nameSet.filter(
-					(app) => app !== this.selectedApp.title.toLowerCase().trim()
+					(app) => app !== this.app.title.toLowerCase().trim()
 				);
 			}
 
@@ -338,7 +336,10 @@ export default {
 		async onSubmit() {
 			try {
 				this.formError = "";
-				if (!this.validate()) return;
+				if (!this.validate()) {
+					toastService.warning("Enter the correct data");
+					return;
+				}
 
 				await this.checkUniqueName();
 				if (this.errors.title) return;
@@ -360,31 +361,19 @@ export default {
 						payload: payload,
 					});
 					if (result.success) {
-						this.successMessage =
-							"Application updated successfully!";
-
-						toastService.success(this.successMessage);
-
 						this.$router.replace("/admin/application/apps");
 					} else {
 						this.generalError =
 							result.error || "Failed to update Application";
-						toastService.error("Failed To update Application");
 					}
 				} else {
 					const result = await this.createApplications(payload);
 
 					if (result.success) {
-						this.successMessage =
-							"Application created successfully!";
-
-						toastService.success(this.successMessage);
-
 						this.$router.replace("/admin/application/apps");
 					} else {
 						this.generalError =
 							result.error || "Failed to create Application";
-						toastService.error("Failed To create Application");
 					}
 				}
 

@@ -137,7 +137,6 @@ export default {
 
 		goToApp(app) {
 			this.$router.push(app.url);
-			console.log("APPP", app);
 			this.$store.commit("SET_DASH_UUID", app.dashboard_uuid);
 		},
 	},

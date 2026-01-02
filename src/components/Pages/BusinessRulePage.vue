@@ -13,11 +13,11 @@
 				</div>
 			</div>
 
-			<div class="header-bottom">
+			<div class="header-bottom sticky-tabs">
 				<div class="bottom-headings">
 					<ul class="list-unstyled d-flex flex-direction-row">
 						<router-link
-							:to="`/admin/business-rules/${this.$route.params.uuid}/overview`"
+							:to="`/admin/business-rules/${$route.params.uuid}/overview`"
 							class="text-decoration-none"
 						>
 							<li :class="{ active: isSelected === 'overview' }">
@@ -26,8 +26,7 @@
 						</router-link>
 
 						<router-link
-							@click="editRule(getRuleToEdit)"
-							:to="`/admin/business-rules/${this.$route.params.uuid}/edit`"
+							:to="`/admin/business-rules/${$route.params.uuid}/edit`"
 							class="text-decoration-none"
 						>
 							<li :class="{ active: isSelected === 'edit' }">
@@ -39,6 +38,7 @@
 				<h4>{{ ruleName }}</h4>
 			</div>
 		</div>
+
 		<div class="content-wrapper">
 			<div v-if="isLoading" class="content-loader">
 				<BaseSpinner />
@@ -130,10 +130,19 @@ h2 {
 	padding: 13rem;
 }
 
-.main {
-	width: calc(100vw-15rem);
-	margin-top: 1rem;
-	margin-left: 1rem;
+.sticky-tabs {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	background: #fff;
+	border-bottom: 1px solid #ddd;
+}
+
+.page {
+	display: flex;
+	flex-direction: column;
+	height: calc(100vh - var(--header-height) - 0.5rem);
+	margin: 0.5rem 1rem 0 1rem;
 }
 .table {
 	border-radius: 10px;
@@ -145,12 +154,9 @@ th {
 }
 
 .header {
-	width: calc(100vw-15rem);
-	height: 9rem;
-	margin-left: 1rem;
-	margin-top: 1rem;
-	margin-right: 1rem;
+	flex-shrink: 0;
 	border: 0.7px solid rgb(154, 151, 151);
+	margin-bottom: 0.2rem;
 }
 
 .header-top {
@@ -189,7 +195,10 @@ h4,
 }
 
 .content-wrapper {
+	flex: 1;
 	position: relative;
+	overflow-y: auto;
+	background: #f8fcff;
 }
 
 .content-loader {
@@ -197,7 +206,6 @@ h4,
 	inset: 0;
 	background: rgba(255, 255, 255, 0.6);
 	z-index: 5;
-
 	display: flex;
 	align-items: center;
 	justify-content: center;

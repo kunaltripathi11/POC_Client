@@ -49,7 +49,11 @@
 						<td class="text-center">
 							<base-action
 								@delete="deleteSolCategory(cat.uuid)"
-								@edit="editSolCategory(cat)"
+								@edit="
+									this.$router.push(
+										`/admin/application/solution-categories/${cat.uuid}`
+									)
+								"
 							/>
 						</td>
 					</tr>
@@ -130,11 +134,7 @@ export default {
 		await this.fetchSolCategory();
 	},
 	methods: {
-		...mapActions("SolCategory", [
-			"fetchSolCategory",
-			"deleteSolCategory",
-			"editSolCategory",
-		]),
+		...mapActions("SolCategory", ["fetchSolCategory", "deleteSolCategory"]),
 	},
 	watch: {
 		$route(to) {
@@ -160,7 +160,7 @@ export default {
 	overflow: hidden;
 	border: 1px solid #e5e7eb;
 	max-height: calc(100vh - 16rem);
-
+	overflow-x: auto;
 	overflow-y: auto;
 	border: 1px solid #e5e7eb;
 	border-radius: 10px;
@@ -171,6 +171,10 @@ thead th {
 	top: 0;
 	z-index: 5;
 	background-color: #9cc7f5;
+}
+td,
+th {
+	white-space: nowrap;
 }
 .sortable {
 	cursor: pointer;

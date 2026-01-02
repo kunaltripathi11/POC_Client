@@ -81,7 +81,11 @@
 						<td class="text-center">
 							<base-action
 								@delete="deleteApplication(app.uuid)"
-								@edit="editApplication(app)"
+								@edit="
+									this.$router.push(
+										`/admin/application/apps/edit/${app.uuid}`
+									)
+								"
 							/>
 						</td>
 					</tr>
@@ -130,7 +134,6 @@ export default {
 	mixins: [sortMixin],
 	async mounted() {
 		await this.fetchApplications();
-		console.log("isTableLoading", this.isTableLoading);
 	},
 
 	computed: {
@@ -179,7 +182,6 @@ export default {
 		...mapActions("Application", [
 			"fetchApplications",
 			"deleteApplication",
-			"editApplication",
 		]),
 	},
 };
@@ -198,11 +200,9 @@ export default {
 
 .table-wrapper {
 	border-radius: 10px;
-	overflow: hidden;
-	border: 1px solid #e5e7eb;
 	max-height: calc(100vh - 16rem);
-
 	overflow-y: auto;
+	overflow-x: auto;
 	border: 1px solid #e5e7eb;
 	border-radius: 10px;
 }
@@ -212,6 +212,10 @@ thead th {
 	top: 0;
 	z-index: 5;
 	background-color: #9cc7f5;
+}
+td,
+th {
+	white-space: nowrap;
 }
 .sortable {
 	cursor: pointer;

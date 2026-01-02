@@ -7,7 +7,6 @@ export default {
 	state() {
 		return {
 			rules: [],
-			error: null,
 			ruleById: [],
 			columns: null,
 			archivedRules: [],

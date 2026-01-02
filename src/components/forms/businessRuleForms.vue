@@ -1,5 +1,5 @@
 <template>
-	<div class="main">
+	<div :class="isEdit ? 'edit' : 'main'">
 		<div class="header" v-if="!isEdit">
 			<div class="back">
 				<router-link to="/admin/business-rules">
@@ -9,7 +9,7 @@
 			</div>
 			<div class="heading">
 				<h2 class="fw-semibold">
-					{{ isEdit ? "Add Business Rule" : "Update Business Rule" }}
+					{{ isEdit ? "Update Business Rule" : "Add Business Rule" }}
 				</h2>
 			</div>
 		</div>
@@ -94,17 +94,20 @@
 			</div>
 
 			<div class="mb-3">
-				<label class="form-label">Link To</label>
-				<select
-					class="form-select"
-					v-model="form.link_to"
-					@change="handleLinkToChange"
-				>
-					<option :value="null">None</option>
-					<option value="dashboard">Dashboard</option>
-					<option value="application">Application</option>
-					<option value="report">Report</option>
-				</select>
+				<label class="form-label link-label"> Link To </label>
+
+				<div class="select-wrapper">
+					<select
+						class="form-select link-select"
+						v-model="form.link_to"
+						@change="handleLinkToChange"
+					>
+						<option :value="null">None</option>
+						<option value="dashboard">Dashboard</option>
+						<option value="application">Application</option>
+						<option value="object">Objects</option>
+					</select>
+				</div>
 			</div>
 
 			<searchable-dropdown
@@ -184,7 +187,7 @@
 						class="spinner-border spinner-border-sm me-2"
 					></span>
 					{{
-						isEdit ? "Create Business Rule" : "Update Business Rule"
+						isEdit ? "Update Business Rule" : "Create Business Rule"
 					}}
 				</button>
 				<button
@@ -240,21 +243,25 @@ export default {
 		await this.fetchDashboards();
 
 		if (this.isEdit) {
-			this.form.name = this.selectedRule.name;
-			this.form.description = this.selectedRule.description;
-			this.form.reserved_rules = this.selectedRule.reserved_rules;
-			this.form.data_model_id = this.selectedRule.data_model_id;
-			this.form.app_package = this.selectedRule.app_package;
-			this.form.workflow = this.selectedRule.workflow;
+			this.rule = this.filteredRules.find(
+				(rule) => rule.uuid === this.$route.params.uuid
+			);
 
-			this.form.user_specific_field_id =
-				this.selectedRule.user_specific_field_id;
+			this.form.name = this.rule.name;
+			this.form.description = this.rule.description;
+			this.form.reserved_rules = this.rule.reserved_rules;
+			this.form.data_model_id = this.rule.data_model_id;
+			this.form.app_package = this.rule.app_package;
+			this.form.workflow = this.rule.workflow;
+
+			this.form.user_specific_field_id = this.rule.user_specific_field_id;
 
 			this.form.multiple_user_specific_field_id =
-				this.selectedRule.multiple_user_specific_field_id;
-			this.form.link_to = this.selectedRule.link_to;
-			this.form.destination_id = this.selectedRule.destination_id;
-			for (let tag of this.selectedRule.tags.split(",")) {
+				this.rule.multiple_user_specific_field_id;
+			this.form.link_to = this.rule.link_to;
+			this.form.destination_id = this.rule.destination_id;
+			console.log("rule", this.rule);
+			for (let tag of this.rule.tags.split(",")) {
 				this.selectedTags.push(tag.trim());
 			}
 		}
@@ -274,8 +281,7 @@ export default {
 
 			if (this.isEdit) {
 				nameSet = nameSet.filter(
-					(name) =>
-						name !== this.selectedRule.name.toLowerCase().trim()
+					(name) => name !== this.rule.name.toLowerCase().trim()
 				);
 			}
 			return nameSet;
@@ -300,10 +306,6 @@ export default {
 		},
 		isEdit() {
 			return !!this.$route.params.uuid;
-		},
-
-		selectedRule() {
-			return this.$store.getters.getSelected;
 		},
 	},
 	methods: {
@@ -425,11 +427,6 @@ export default {
 				if (!this.isEdit) {
 					result = await this.createBusinessRule(payload);
 					if (result.success) {
-						this.successMessage =
-							"Business Rule created successfully!";
-
-						toastService.success(this.successMessage);
-
 						this.$router.replace("/admin/business-rules");
 					} else {
 						this.formError =
@@ -442,11 +439,6 @@ export default {
 						uuid: this.$route.params.uuid,
 					});
 					if (result.success) {
-						this.successMessage =
-							"Business Rule Updated successfully!";
-
-						toastService.success(this.successMessage);
-
 						this.$router.replace("/admin/business-rules");
 					} else {
 						this.formError =
@@ -495,15 +487,17 @@ a {
 }
 
 .main {
-	padding: 1rem 2rem 0 2rem;
+	padding: 1rem 2rem 2rem;
 	width: 100%;
-	height: calc(100vh - var(--header-height));
 	background: #f8fcff;
 	border: 1px solid #e5e7eb;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-	overflow-y: auto;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
-
+.edit {
+	width: 100%;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+	background-color: white;
+}
 .header {
 	border: 1px solid gray;
 }
@@ -520,6 +514,11 @@ a {
 
 form {
 	padding: 1.5rem;
+	max-width: 48vw;
+}
+
+.edit form {
+	padding: 1rem;
 	max-width: 48vw;
 }
 
@@ -657,5 +656,22 @@ input:checked + .slider:before {
 
 textarea.form-control {
 	resize: vertical;
+}
+
+.link-label {
+	font-weight: 500;
+	color: #374151;
+	margin-bottom: 0.35rem;
+	display: inline-block;
+}
+
+.link-select {
+	border-radius: 2px;
+	padding: 0.55rem 2.5rem 0.55rem 0.75rem;
+	border: 1px solid #cbd5e1;
+	font-size: 14px;
+	background-color: #ffffff;
+	transition: all 0.2s ease;
+	cursor: pointer;
 }
 </style>

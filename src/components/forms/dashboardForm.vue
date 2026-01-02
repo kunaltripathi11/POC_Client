@@ -199,6 +199,7 @@
 					</div>
 				</div>
 			</div>
+
 			<div class="mb-3 d-flex align-items-center justify-content-between">
 				<label class="form-label mb-0"
 					>Remove filter After Leaving</label
@@ -218,7 +219,7 @@
 				</button>
 				<button
 					type="button"
-					class="btn btn-outline-secondary"
+					class="btn btn-secondary"
 					@click="handleCancel"
 				>
 					Cancel
@@ -263,6 +264,7 @@ export default {
 			currentIconIndex: 0,
 			allMaterialIcons: [],
 			loadingIcons: false,
+			dash: {},
 		};
 	},
 	async mounted() {
@@ -270,12 +272,15 @@ export default {
 		await this.fetchApps();
 
 		if (this.isEdit) {
-			this.form.name = this.selectedDashboard.name;
-			this.form.title = this.selectedDashboard.title;
-			this.form.url = this.selectedDashboard.url;
-			this.form.app_id = this.selectedDashboard.app_id;
-			this.form.remove_filter = this.selectedDashboard.remove_filter;
-			this.form.app_package = this.selectedDashboard.app_package;
+			this.dash = this.filteredDashboards.find(
+				(dash) => dash.uuid === this.$route.params.uuid
+			);
+			this.form.name = this.dash.name;
+			this.form.title = this.dash.title;
+			this.form.url = this.dash.url;
+			this.form.app_id = this.dash.app_id;
+			this.form.remove_filter = this.dash.remove_filter;
+			this.form.app_package = this.dash.app_package;
 		}
 	},
 	methods: {
@@ -332,9 +337,7 @@ export default {
 				this.errors.url = "Dashboard url is required";
 			} else if (!this.form.url.startsWith("/")) {
 				this.errors.url = "Dashboard url is should start with /";
-			}
-			// console.log("length", this.form.url.length);
-			else if (this.form.url.length < 2) {
+			} else if (this.form.url.length < 2) {
 				this.errors.url =
 					"Dashboard url is should be atleast of 2 characters";
 			}
@@ -382,28 +385,18 @@ export default {
 						uuid: this.$route.params.uuid,
 					});
 					if (result.success) {
-						this.successMessage = "Dashboard updated successfully!";
-
-						toastService.success(this.successMessage);
-
 						this.$router.replace("/admin/dashboard");
 					} else {
 						this.generalError =
 							result.error || "Failed to update Dashboard";
-						toastService.error("Failed To update Dashboard");
 					}
 				} else {
 					const result = await this.createDashboard(payload);
 					if (result.success) {
-						this.successMessage = "Dashboard created successfully!";
-
-						toastService.success(this.successMessage);
-
 						this.$router.replace("/admin/dashboard");
 					} else {
 						this.generalError =
 							result.error || "Failed to create Dashboard";
-						toastService.error("Failed To create Dashboard");
 					}
 				}
 
@@ -462,10 +455,6 @@ export default {
 			return !!this.$route.params.uuid;
 		},
 
-		selectedDashboard() {
-			return this.$store.getters.getSelected;
-		},
-
 		dashboardNameSet() {
 			const list = Array.isArray(this.filteredDashboards)
 				? this.filteredDashboards
@@ -485,18 +474,13 @@ export default {
 
 			if (this.isEdit) {
 				nameSet = nameSet.filter(
-					(name) =>
-						name !==
-						this.selectedDashboard.name.toLowerCase().trim()
+					(name) => name !== this.dash.name.toLowerCase().trim()
 				);
 				titleSet = titleSet.filter(
-					(title) =>
-						title !==
-						this.selectedDashboard.title.toLowerCase().trim()
+					(title) => title !== this.dash.title.toLowerCase().trim()
 				);
 				urlSet = urlSet.filter(
-					(url) =>
-						url !== this.selectedDashboard.url.toLowerCase().trim()
+					(url) => url !== this.dash.url.toLowerCase().trim()
 				);
 			}
 
@@ -511,23 +495,19 @@ export default {
 
 		applicationOptions() {
 			const apps = [...this.filteredApplication];
-
 			if (this.isEdit && this.form.app_id) {
-				const exists = apps.some(
-					(a) => a.id === this.selectedDashboard.app_id
-				);
-
+				const exists = apps.some((a) => a.id === this.dash.app_id);
 				if (!exists) {
-					const label = this.selectedDashboard.application;
-					const value = this.selectedDashboard.app_id;
+					const label = this.dash.application;
+					const value = this.dash.app_id;
 
-					apps.push(this.selectedDashboard);
+					apps.push(this.dash);
 				}
 			}
 
 			return apps.map((app) => ({
 				value: app.id,
-				label: app.title,
+				label: app.application,
 			}));
 		},
 

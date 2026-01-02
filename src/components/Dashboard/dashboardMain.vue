@@ -7,21 +7,24 @@
 			@dragleave="handleDragLeave"
 			:class="{ 'drag-over': isDragOver }"
 		>
-			<div v-if="widgets.length === 0" class="empty-state">
+			<div v-if="visibleWidget.length === 0" class="empty-state">
 				<font-awesome-icon icon="fa-solid fa-cube" class="empty-icon" />
 				<h5>No Widgets Yet</h5>
-				<p>Drag and drop widgets from the panel</p>
+				<p v-if="!this.$route.params.url">
+					Drag and drop widgets from the panel
+				</p>
 			</div>
 
 			<div v-else class="widgets-grid">
 				<div
-					v-for="widget in widgets"
+					v-for="widget in visibleWidget"
 					:key="widget.id"
 					class="widget-box"
 				>
 					<widgetsDesign
 						:widget="widget"
 						@delete-widget="deleteWidget"
+						v-if="widget.query != null || !this.$route.params.url"
 					/>
 				</div>
 			</div>
@@ -46,9 +49,6 @@ export default {
 		};
 	},
 	async mounted() {
-		let id;
-		let variable;
-
 		if (this.$route.params.uuid) {
 			this.id = this.$route.params.uuid;
 			this.variable = "uuid";
@@ -56,15 +56,22 @@ export default {
 			this.id = "/" + this.$route.params.url;
 			this.variable = "url";
 		}
-		id = this.id;
-		variable = this.variable;
 
-		await this.fetchWidgets({ id, variable });
+		await this.fetchWidgets({
+			id: this.id,
+			variable: this.variable,
+		});
 	},
 	computed: {
 		...mapGetters("Widget", ["getAllWidgets", "getDashboardId"]),
 		widgets() {
 			return this.getAllWidgets;
+		},
+		visibleWidget() {
+			if (this.$route.params.url) {
+				return this.widgets.filter((widget) => widget.query !== null);
+			}
+			return this.widgets;
 		},
 		dashboardId() {
 			return this.getDashboardId;
@@ -74,15 +81,13 @@ export default {
 		...mapActions("Widget", ["fetchWidgets", "removeWidget"]),
 
 		async deleteWidget(uuid) {
-			const id = this.id;
-			const variable = this.variable;
-			await this.removeWidget({ uuid, id, variable });
+			await this.removeWidget({
+				uuid: uuid,
+				id: this.id.trim(),
+				variable: this.variable,
+			});
 		},
 
-		handleWidgetDragStart(widget) {
-			console.log("handleWidgetDragStart");
-			this.draggedWidget = widget;
-		},
 		handleDragOver() {
 			this.isDragOver = true;
 		},

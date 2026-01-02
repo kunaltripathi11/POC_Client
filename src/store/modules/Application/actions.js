@@ -1,8 +1,9 @@
 import { API_URL } from "../../../config";
 import router from "../../../Route";
+import toastService from "../../../service/toastService";
 
 export default {
-	async fetchApplications({ commit, dispatch }) {
+	async fetchApplications({ commit }) {
 		commit("TableLoader/START_TABLE_LOADING", "applicationTable", {
 			root: true,
 		});
@@ -13,7 +14,13 @@ export default {
 			});
 
 			const json = await response.json();
+			if (!response.ok) {
+				throw new Error(json.message || "Failed to load applications");
+			}
 			commit("setApplication", json.data);
+		} catch (error) {
+			toastService.error(error.message || "Error loading applications");
+			console.error("Error loading Application", error);
 		} finally {
 			setTimeout(() => {
 				commit("TableLoader/STOP_TABLE_LOADING", "applicationTable", {
@@ -24,75 +31,80 @@ export default {
 	},
 
 	async createApplications({ commit, dispatch }, payload) {
-		commit("setError", null);
-		console.log(payload);
 		try {
 			const response = await fetch(
 				`${API_URL}admin/application/apps/add-app`,
 				{
 					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
+					headers: { "Content-Type": "application/json" },
 					credentials: "include",
 					body: JSON.stringify(payload),
 				}
 			);
-			if (!response.ok) {
-				const errorData = await response.json();
-				throw new Error(
-					errorData.message || "Failed to create Application"
-				);
-			}
+
 			const json = await response.json();
+
+			if (!response.ok) {
+				throw new Error(json.message || "Failed to create application");
+			}
+
+			toastService.success("Application created successfully");
 			await dispatch("fetchApplications");
-			return {
-				success: true,
-				data: json.data,
-			};
+
+			return { success: true, data: json.data };
 		} catch (error) {
-			console.log("Error creating Application", error);
-			commit("setError", error.message || "Failed to create Application");
+			toastService.error(error.message || "Error creating application");
+			console.error("Error creating Application", error);
 			return { success: false, error: error.message };
 		}
 	},
 
-	clearError({ commit }) {
-		commit("setError", null);
-	},
-
-	async editApplication({ dispatch }, app) {
-		console.log("router", router);
-		dispatch("SET_SELECTED", app, { root: true });
-		router.push(`/admin/application/apps/edit/${app.uuid}`);
-	},
-
-	async updateApplication({ state }, { uuid, payload }) {
+	async updateApplication(_, { uuid, payload }) {
 		try {
 			const result = await fetch(
 				`${API_URL}admin/application/apps/edit/${uuid}`,
 				{
 					method: "PUT",
-					headers: {
-						"Content-Type": "application/json",
-					},
+					headers: { "Content-Type": "application/json" },
 					credentials: "include",
 					body: JSON.stringify(payload),
 				}
 			);
-			const json = result.json();
+
+			const json = await result.json();
+			if (!result.ok) {
+				throw new Error(json.message || "Update failed");
+			}
+			toastService.success("Application updated successfully");
 			return { success: true, data: json.data };
 		} catch (error) {
+			toastService.error(error.message || "Error updating application");
 			console.log("ERROR IN UPDATING", error);
+			return { success: false };
 		}
 	},
 
 	async deleteApplication({ dispatch }, uuid) {
 		if (!confirm("Sure? This will delete the Application.")) return;
-		await fetch(`${API_URL}admin/application/apps/edit/${uuid}`, {
-			method: "DELETE",
-			credentials: "include",
-		});
-		await dispatch("fetchApplications");
+
+		try {
+			const response = await fetch(
+				`${API_URL}admin/application/apps/edit/${uuid}`,
+				{
+					method: "DELETE",
+					credentials: "include",
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error("Delete failed");
+			}
+
+			toastService.success("Application deleted successfully");
+			await dispatch("fetchApplications");
+		} catch (error) {
+			toastService.error("Error deleting application");
+			console.error("Error deleting Application", error);
+		}
 	},
 };

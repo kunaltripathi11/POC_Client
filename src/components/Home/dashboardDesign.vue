@@ -5,7 +5,6 @@
 			@close="closeDrawer"
 			@widget-drag-start="handleWidgetDragStart"
 		/>
-
 		<div
 			class="drawer-toggle"
 			:class="{ 'drawer-open': drawerVisible }"
@@ -133,6 +132,9 @@ export default {
 .dashboard-container {
 	transition: padding-left 0.3s ease;
 }
+.dashboard-container {
+	--drawer-width: clamp(260px, 20vw, 380px);
+}
 
 .header-section {
 	position: fixed;
@@ -227,6 +229,10 @@ export default {
 	transform: translateY(-1px);
 }
 
+.dashboard-container {
+	--drawer-width: clamp(260px, 20vw, 380px);
+}
+
 .drawer-toggle {
 	position: fixed;
 	top: 50%;
@@ -243,15 +249,15 @@ export default {
 	cursor: pointer;
 	box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
 	transition: all 0.3s ease;
-	z-index: 999;
+	z-index: 1100;
+}
+
+.drawer-toggle.drawer-open {
+	right: var(--drawer-width);
 }
 
 .drawer-toggle:hover {
 	width: 2.5rem;
-}
-
-.drawer-toggle.drawer-open {
-	right: 21vw;
 }
 
 .toggle-icon {

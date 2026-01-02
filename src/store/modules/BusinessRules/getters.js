@@ -4,8 +4,6 @@ export default {
 		return filtered;
 	},
 
-	getError: (state) => state.error,
-
 	getRuleById(state) {
 		return state.ruleById;
 	},

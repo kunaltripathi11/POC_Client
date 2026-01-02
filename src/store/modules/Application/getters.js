@@ -21,10 +21,6 @@ export default {
 		return groupedApps;
 	},
 
-	error(state) {
-		return state.error;
-	},
-
 	validUrls(state, getters) {
 		const set = new Set();
 		Object.values(getters.categorizedApplications || {}).forEach((apps) => {

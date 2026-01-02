@@ -25,7 +25,7 @@
 						v-if="isTableLoading"
 						v-for="n in 10"
 						:key="'skeleton-' + n"
-						:columns="columns.length"
+						:columns="columns?.length"
 					/>
 					<tr v-for="(rule, index) in paginatedRules" :key="index">
 						<td v-for="(column, index1) in columns" :key="index1">
@@ -110,11 +110,10 @@ export default {
 
 	max-width: calc(100vw - 2rem);
 	overflow: hidden;
-	margin-bottom: 2rem;
 }
 
 .table-wrapper {
-	max-height: 60vh;
+	max-height: 53vh;
 	overflow-x: auto;
 	overflow-y: auto;
 	background: white;
